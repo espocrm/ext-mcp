@@ -1,9 +1,9 @@
 {
-    "module": "{@name}",
-    "name": "{@nameLabel}",
-    "description": "{@description}",
-    "author": "{@author}",
-    "bundled": {@bundled},
+    "module": "Mcp",
+    "name": "Mcp",
+    "description": "MCP server for EspoCRM.",
+    "author": "EspoCRM",
+    "bundled": true,
     "acceptableVersions": [
         ">=9.3.0"
     ],

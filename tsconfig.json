@@ -3,7 +3,7 @@
         "paths": {
             "*": ["./site/client/src/*"],
             "modules/crm/*": ["./site/client/modules/crm/src/*"],
-            "modules/{@nameHyphen}/*": ["./src/files/client/custom/modules/{@nameHyphen}/src/*"]
+            "modules/mcp/*": ["./src/files/client/custom/modules/mcp/src/*"]
         },
         "module": "ES6",
         "target": "ES2018",
@@ -21,7 +21,7 @@
         "strictPropertyInitialization": false
     },
     "include": [
-        "src/files/client/custom/modules/{@nameHyphen}/src",
+        "src/files/client/custom/modules/mcp/src",
         "site/client/src/global.d.ts"
     ]
 }

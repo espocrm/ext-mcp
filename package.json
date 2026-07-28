@@ -1,11 +1,11 @@
 {
-  "name": "espocrm-ext-{@nameHyphen}",
+  "name": "espocrm-ext-mcp",
   "version": "0.0.1",
   "description": "",
   "scripts": {
     "sa": "vendor/bin/phpstan",
     "unit-tests": "vendor/bin/phpunit",
-    "integration-tests": "node build --copy && node build --composer-install && cd site && php vendor/bin/phpunit tests/integration/Espo/Modules/{@name}",
+    "integration-tests": "node build --copy && node build --composer-install && cd site && php vendor/bin/phpunit tests/integration/Espo/Modules/Mcp",
     "copy": "node build --copy",
     "composer-install": "node build --composer-install",
     "sync": "node build --copy && node build --composer-install",
@@ -16,7 +16,7 @@
     "prepare-test": "node build --prepare-test"
   },
   "type": "module",
-  "author": "{@author}",
+  "author": "EspoCRM",
   "dependencies": {
     "espo-extension-tools": "github:espocrm/extension-tools#0.4.5",
     "fs-extra": "^9.0.0"

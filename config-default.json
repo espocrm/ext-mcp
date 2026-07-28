@@ -7,7 +7,7 @@
         "host": "localhost",
         "port": null,
         "charset": "utf8mb4",
-        "dbname": "ext-{@nameHyphen}",
+        "dbname": "ext-mcp",
         "user": "root",
         "password": "",
         "platform": "Mysql"
@@ -16,7 +16,7 @@
         "language": "en_US",
         "defaultOwner": "www-data",
         "defaultGroup": "www-data",
-        "siteUrl": "http://localhost/ext-{@nameHyphen}/site",
+        "siteUrl": "http://localhost/ext-mcp/site",
         "adminUsername": "admin",
         "adminPassword": "1"
     }
