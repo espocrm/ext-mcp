@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PhpEntryPointsManager">
+    <pattern value="\Espo\Controllers\*" member="*Action*" />
+    <pattern value="\Espo\Modules\*\Controllers\*" member="*Action*" />
+    <suppressed_annotations>@implements</suppressed_annotations>
+  </component>
+</project>

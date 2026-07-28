@@ -1,0 +1,14 @@
+{
+    "module": "{@name}",
+    "name": "{@nameLabel}",
+    "description": "{@description}",
+    "author": "{@author}",
+    "bundled": {@bundled},
+    "acceptableVersions": [
+        ">=9.3.0"
+    ],
+    "php": [
+        ">=8.3"
+    ],
+    "scripts": []
+}
