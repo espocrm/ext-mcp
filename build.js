@@ -1,6 +1,8 @@
 import {buildGeneral} from 'espo-extension-tools';
 import cp from 'child_process';
 
+const cwd = process.cwd();
+
 buildGeneral({
     postComposerInstallHook: (options) => composerHook(options),
 });
@@ -11,9 +13,11 @@ buildGeneral({
 function composerHook(options) {
     const vendorDir = options.dir + '/vendor';
 
+    const configFile = cwd + '/scoper.inc.php';
+
     const addPrefixCommand =
         `vendor/bin/php-scoper add-prefix --prefix="Espo\\Modules\\Mcp\\Vendor" ` +
-        `--working-dir="${vendorDir}" --output-dir="../vendor-build" --force`;
+        `--working-dir="${vendorDir}" --config="${configFile}" --output-dir="../vendor-build" --force`;
 
     cp.execSync(addPrefixCommand, {
         stdio: ['ignore', 'ignore', 'pipe'],
