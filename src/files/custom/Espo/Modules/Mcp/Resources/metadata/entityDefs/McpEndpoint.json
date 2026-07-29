@@ -25,10 +25,10 @@
                 "Inactive": "info"
             }
         },
-        "tools": {
+        "actions": {
             "type": "array",
             "validatorClassNameList": [
-                "Espo\\Modules\\Mcp\\Classes\\FieldValidators\\McpEndpoint\\Tools\\Valid"
+                "Espo\\Modules\\Mcp\\Classes\\FieldValidators\\McpEndpoint\\Actions\\Valid"
             ]
         },
         "description": {

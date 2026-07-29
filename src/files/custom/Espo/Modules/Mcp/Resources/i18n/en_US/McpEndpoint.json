@@ -5,7 +5,7 @@
     "fields": {
         "status": "Status",
         "slug": "Slug",
-        "tools": "Tools",
+        "actions": "Actions",
         "url": "Endpoint URL"
     },
     "links": {
@@ -18,7 +18,7 @@
         }
     },
     "tooltips": {
-        "tools": "Tools available for this endpoint.",
+        "actions": "Actions available for this endpoint.",
         "slug": "Defines the endpoint URL path. Should start with a lower case latter and contain only letters and digits. Examples: `sales`, `support`."
     }
 }

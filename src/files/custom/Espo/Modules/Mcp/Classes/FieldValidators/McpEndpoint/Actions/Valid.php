@@ -1,7 +1,7 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Classes\FieldValidators\McpEndpoint\Tools;
+namespace Espo\Modules\Mcp\Classes\FieldValidators\McpEndpoint\Actions;
 
 use Espo\Core\FieldValidation\Validator;
 use Espo\Core\FieldValidation\Validator\Data;
