@@ -5,6 +5,8 @@ parameters:
     paths:
         - src/files/custom
     reportUnmatchedIgnoredErrors: false
+    excludePaths:
+        - src/files/custom/Espo/Modules/*/vendor
     scanDirectories:
         - site/application
         - site/vendor

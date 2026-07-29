@@ -1,0 +1,79 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "maxLength": 100,
+            "required": true
+        },
+        "slug": {
+            "type": "varchar",
+            "maxLength": 32,
+            "required": true,
+            "pattern": "[A-Z]{1}[A-Za-z0-9]+",
+            "index": true
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "Active",
+                "Inactive"
+            ],
+            "default": "Active",
+            "maxLength": 8,
+            "style": {
+                "Inactive": "info"
+            }
+        },
+        "tools": {
+            "type": "array",
+            "validatorClassNameList": [
+                "Espo\\Modules\\Mcp\\Classes\\FieldValidators\\McpEndpoint\\Tools\\Valid"
+            ]
+        },
+        "description": {
+            "type": "text"
+        },
+        "url": {
+            "type": "url",
+            "notStorable": true,
+            "readOnly": true,
+            "loaderClassName": "Espo\\Modules\\Mcp\\Classes\\FieldLoaders\\McpEndpoint\\Url"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true,
+            "fieldManagerParamList": []
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true,
+            "fieldManagerParamList": []
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user",
+            "fieldManagerParamList": []
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user",
+            "fieldManagerParamList": []
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "collection": {
+        "orderBy": "slug",
+        "order": "asc"
+    }
+}
