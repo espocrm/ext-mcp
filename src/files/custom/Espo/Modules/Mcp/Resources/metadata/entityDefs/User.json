@@ -1,0 +1,11 @@
+{
+    "links": {
+        "mcpEndpoints": {
+            "type": "hasMany",
+            "entity": "McpEndpoint",
+            "foreign": "users",
+            "readOnly": true,
+            "customizationDisabled": true
+        }
+    }
+}

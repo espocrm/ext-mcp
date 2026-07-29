@@ -64,6 +64,11 @@
         }
     },
     "links": {
+        "users": {
+            "type": "hasMany",
+            "entity": "User",
+            "foreign": "mcpEndpoints"
+        },
         "createdBy": {
             "type": "belongsTo",
             "entity": "User"
@@ -74,6 +79,10 @@
         }
     },
     "collection": {
+        "textFilterFields": [
+            "name",
+            "slug"
+        ],
         "orderBy": "slug",
         "order": "asc"
     }

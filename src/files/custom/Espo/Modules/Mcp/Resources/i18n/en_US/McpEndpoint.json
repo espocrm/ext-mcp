@@ -8,6 +8,9 @@
         "tools": "Tools",
         "url": "Endpoint URL"
     },
+    "links": {
+        "users": "Users"
+    },
     "options": {
         "status": {
             "Active": "Active",

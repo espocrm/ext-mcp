@@ -1,0 +1,5 @@
+{
+    "linkCheckerClassNameMap": {
+        "users": "Espo\\Modules\\Mcp\\Classes\\Acl\\McpEndpoint\\LinkCheckers\\Users"
+    }
+}

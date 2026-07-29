@@ -3,5 +3,13 @@
     "mergeDisabled": true,
     "filterList": [
         "active"
-    ]
+    ],
+    "relationshipPanels": {
+        "users": {
+            "primaryFilter": "activeApi",
+            "createDisabled": true,
+            "removeDisabled": true,
+            "editDisabled": true
+        }
+    }
 }
