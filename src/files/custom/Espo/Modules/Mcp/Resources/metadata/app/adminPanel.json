@@ -4,7 +4,8 @@
         "itemList": [
             {
                 "labelTranslation": "Global.scopeNamesPlural.McpEndpoint",
-                "url": "#McpEndpoint"
+                "url": "#McpEndpoint",
+                "iconClass": "fas fa-hexagon-nodes"
             }
         ]
     }
