@@ -9,8 +9,9 @@
             "type": "varchar",
             "maxLength": 32,
             "required": true,
-            "pattern": "[A-Z]{1}[A-Za-z0-9]+",
-            "index": true
+            "pattern": "[a-z]{1}[A-Za-z0-9]+",
+            "index": true,
+            "tooltip": true
         },
         "status": {
             "type": "enum",

@@ -1,0 +1,10 @@
+{
+    "scopeNames": {
+        "McpEndpoint": "MCP Endpoint",
+        "Mcp": "MCP"
+    },
+    "scopeNamesPlural": {
+        "McpEndpoint": "MCP Endpoints",
+        "Mcp": "MCP"
+    }
+}

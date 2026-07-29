@@ -1,0 +1,21 @@
+{
+    "labels": {
+        "Create McpEndpoint": "Create MCP Endpoint"
+    },
+    "fields": {
+        "status": "Status",
+        "slug": "Slug",
+        "tools": "Tools",
+        "url": "Endpoint URL"
+    },
+    "options": {
+        "status": {
+            "Active": "Active",
+            "Inactive": "Inactive"
+        }
+    },
+    "tooltips": {
+        "tools": "Tools available for this endpoint.",
+        "slug": "Defines the endpoint URL path. Should start with a lower case latter and contain only letters and digits. Examples: `sales`, `support`."
+    }
+}
