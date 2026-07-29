@@ -1,0 +1,11 @@
+{
+    "mcp": {
+        "labelTranslation": "Mcp.labels.MCP",
+        "itemList": [
+            {
+                "labelTranslation": "Global.scopeNamesPlural.McpEndpoint",
+                "url": "#McpEndpoint"
+            }
+        ]
+    }
+}
