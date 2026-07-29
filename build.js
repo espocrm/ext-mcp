@@ -13,7 +13,7 @@ function composerHook(options) {
 
     const addPrefixCommand =
         `vendor/bin/php-scoper add-prefix --prefix="Espo\\Modules\\Mcp\\Vendor" ` +
-        `--working-dir="${vendorDir}" --no-config --output-dir="../vendor-build" --force`;
+        `--working-dir="${vendorDir}" --output-dir="../vendor-build" --force`;
 
     cp.execSync(addPrefixCommand, {
         stdio: ['ignore', 'ignore', 'pipe'],

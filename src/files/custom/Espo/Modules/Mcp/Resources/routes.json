@@ -1,1 +1,7 @@
-[]
+[
+    {
+        "method": "post",
+        "route": "Mcp/:slug",
+        "actionClassName": "Espo\\Modules\\Mcp\\Tools\\Mcp\\Api\\PostEntry"
+    }
+]

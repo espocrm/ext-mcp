@@ -10,6 +10,9 @@ class McpEndpoint extends Entity
     public const string ENTITY_TYPE = 'McpEndpoint';
 
     public const string FIELD_STATUS = 'status';
+    public const string FIELD_SLUG = 'slug';
+
+    public const string LINK_USERS = 'users';
 
     public const string STATUS_ACTIVE = 'Active';
 
