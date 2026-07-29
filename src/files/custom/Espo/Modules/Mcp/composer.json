@@ -1,0 +1,12 @@
+{
+
+    "require": {
+        "mcp/sdk": "^0.7.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    }
+}
+
