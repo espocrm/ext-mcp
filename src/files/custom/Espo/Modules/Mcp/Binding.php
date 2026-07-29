@@ -3,6 +3,7 @@
 
 namespace Espo\Modules\Mcp;
 
+/** @noinspection PhpIncludeInspection */
 require_once __DIR__ . "/vendor/autoload.php";
 
 use Espo\Core\Binding\Binder;
