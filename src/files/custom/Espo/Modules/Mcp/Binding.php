@@ -12,7 +12,5 @@ use Espo\Core\Binding\BindingProcessor;
 class Binding implements BindingProcessor
 {
     public function process(Binder $binder): void
-    {
-        $a = new Vendor\Mcp\Schema\Prompt('test');
-    }
+    {}
 }

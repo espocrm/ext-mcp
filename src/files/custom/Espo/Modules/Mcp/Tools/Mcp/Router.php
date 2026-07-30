@@ -5,10 +5,12 @@ namespace Espo\Modules\Mcp\Tools\Mcp;
 
 use Espo\Core\Api\Request;
 use Espo\Core\Api\Response;
+use Espo\Core\Binding\BindingContainer;
 use Espo\Core\Binding\BindingContainerBuilder;
-use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\InjectableFactory;
 use Espo\Modules\Mcp\Entities\McpEndpoint;
+use Espo\Modules\Mcp\Tools\Mcp\Exceptions\Error;
+use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidRequestError;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\MethodNotFoundError;
 
 class Router
@@ -18,27 +20,51 @@ class Router
      */
     private array $handlers = [];
 
+    /**
+     * @var class-string<Hook>[]
+     */
+    private array $beforeHooks = [];
+
     public function __construct(
         private InjectableFactory $injectableFactory,
         private McpEndpoint $endpoint,
     ) {}
 
-    public function register(string $method, string $handlerClassName): void
+    /**
+     * @param array<string, class-string<Handler>> $map
+     */
+    public function registerMultiple(array $map): void
+    {
+        foreach ($map as $method => $className) {
+            $this->register($method, $className);
+        }
+    }
+
+    /**
+     * @param class-string<Hook>[] $hooks
+     */
+    public function registerBeforeHooks(array $hooks): void
+    {
+        $this->beforeHooks = [$this->beforeHooks, ...$hooks];
+    }
+
+    private function register(string $method, string $handlerClassName): void
     {
         $this->handlers[$method] = $handlerClassName;
     }
 
     /**
-     * @throws BadRequest
-     * @throws MethodNotFoundError
+     * @throws Error
      */
     public function dispatch(Request $request): Response
     {
         if ($request->getMethod() !== 'POST') {
-            throw new BadRequest();
+            throw new InvalidRequestError("Non-POST request.");
         }
 
-        $method = $request->getParsedBody()->method ?? throw new BadRequest("No method.");
+        $this->processBeforeHooks($request);
+
+        $method = $request->getParsedBody()->method ?? throw new InvalidRequestError("No method.");
 
         $handler = $this->prepareHandler($method);
 
@@ -48,14 +74,30 @@ class Router
     /**
      * @throws MethodNotFoundError
      */
-    private function prepareHandler($method): Handler
+    private function prepareHandler(string $method): Handler
     {
         $handlerClass = $this->handlers[$method] ?? throw new MethodNotFoundError();
 
-        $binding = BindingContainerBuilder::create()
-            ->bindInstance(McpEndpoint::class, $this->endpoint)
-            ->build();
+        $binding = $this->prepareBinding();
 
         return $this->injectableFactory->createWithBinding($handlerClass, $binding);
+    }
+
+    private function processBeforeHooks(Request $request): void
+    {
+        $binding = $this->prepareBinding());
+
+        foreach ($this->beforeHooks as $hookClassName) {
+            $hook = $this->injectableFactory->createWithBinding($hookClassName, $binding);
+
+            $hook->process($request);
+        }
+    }
+
+    private function prepareBinding(): BindingContainer
+    {
+        return BindingContainerBuilder::create()
+            ->bindInstance(McpEndpoint::class, $this->endpoint)
+            ->build();
     }
 }

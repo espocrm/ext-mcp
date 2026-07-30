@@ -7,6 +7,7 @@ use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\InjectableFactory;
 use Espo\Modules\Mcp\Entities\McpEndpoint;
 use Espo\Modules\Mcp\Tools\Mcp\Handlers\ServerDiscoverHandler;
+use Espo\Modules\Mcp\Tools\Mcp\Hooks\ProtocolVersionCheckHook;
 
 class RouterProvider
 {
@@ -22,6 +23,19 @@ class RouterProvider
 
         $router = $this->injectableFactory->createWithBinding(Router::class, $binding);
 
-        $router->register(Method::SERVER_DISCOVER, ServerDiscoverHandler::class);
+        $this->register($router);
+
+        return $router;
+    }
+
+    private function register(Router $router): void
+    {
+        $router->registerBeforeHooks([
+            ProtocolVersionCheckHook::class,
+        ]);
+
+        $router->registerMultiple([
+            Method::SERVER_DISCOVER => ServerDiscoverHandler::class,
+        ]);
     }
 }
