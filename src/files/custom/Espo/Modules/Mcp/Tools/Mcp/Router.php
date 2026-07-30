@@ -58,10 +58,6 @@ class Router
      */
     public function dispatch(Request $request): Response
     {
-        if ($request->getMethod() !== 'POST') {
-            throw new InvalidRequestError("Non-POST request.");
-        }
-
         $this->processBeforeHooks($request);
 
         $method = $request->getParsedBody()->method ?? throw new InvalidRequestError("No method.");
@@ -85,7 +81,7 @@ class Router
 
     private function processBeforeHooks(Request $request): void
     {
-        $binding = $this->prepareBinding());
+        $binding = $this->prepareBinding();
 
         foreach ($this->beforeHooks as $hookClassName) {
             $hook = $this->injectableFactory->createWithBinding($hookClassName, $binding);

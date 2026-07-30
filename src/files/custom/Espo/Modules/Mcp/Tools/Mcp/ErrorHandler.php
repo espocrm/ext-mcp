@@ -28,7 +28,7 @@ class ErrorHandler
         }
 
         $response = ResponseComposer::json([
-            'jsonrpc' => '2.0',
+            'jsonrpc' => JsonRpc::VERSION_2_0,
             'id' => $request->getParsedBody()->id ?? null,
             'error' => $error,
         ]);

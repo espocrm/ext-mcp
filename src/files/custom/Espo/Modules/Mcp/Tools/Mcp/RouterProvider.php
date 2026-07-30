@@ -7,7 +7,8 @@ use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\InjectableFactory;
 use Espo\Modules\Mcp\Entities\McpEndpoint;
 use Espo\Modules\Mcp\Tools\Mcp\Handlers\ServerDiscoverHandler;
-use Espo\Modules\Mcp\Tools\Mcp\Hooks\ProtocolVersionCheckHook;
+use Espo\Modules\Mcp\Tools\Mcp\Hooks\ProtocolVersionCheck;
+use Espo\Modules\Mcp\Tools\Mcp\Hooks\RequestValidityCheck;
 
 class RouterProvider
 {
@@ -31,7 +32,8 @@ class RouterProvider
     private function register(Router $router): void
     {
         $router->registerBeforeHooks([
-            ProtocolVersionCheckHook::class,
+            RequestValidityCheck::class,
+            ProtocolVersionCheck::class,
         ]);
 
         $router->registerMultiple([

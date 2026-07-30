@@ -7,13 +7,13 @@ use Espo\Core\Api\Request;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\UnsupportedProtocolVersionError;
 use Espo\Modules\Mcp\Tools\Mcp\Hook;
 
-class ProtocolVersionCheckHook implements Hook
+class ProtocolVersionCheck implements Hook
 {
     /**
      * @var string[]
      */
     private array $supportedVersions = [
-        '2026-07-28'
+        '2026-07-28',
     ];
 
     public function process(Request $request): void
