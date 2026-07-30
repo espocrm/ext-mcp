@@ -10,6 +10,7 @@ use Espo\Entities\Team;
 use Espo\Entities\User;
 use Espo\Modules\Crm\Entities\Account;
 use Espo\Modules\Crm\Entities\Lead;
+use Espo\Modules\Crm\Entities\Opportunity;
 use Espo\Modules\Mcp\Entities\McpEndpoint;
 use Espo\Modules\Mcp\Tools\Mcp\Api\PostEntry;
 use Espo\Modules\Mcp\Tools\Mcp\RecordItemAction;
@@ -40,6 +41,9 @@ class EndpointTest extends BaseTestCase
                 Lead::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_TEAM,
                 ],
+                Opportunity::ENTITY_TYPE => [
+                    Table::ACTION_READ => Table::LEVEL_NO,
+                ],
             ],
         ]);
 
@@ -49,6 +53,7 @@ class EndpointTest extends BaseTestCase
             ->setActions([
                 Account::ENTITY_TYPE . '.' . RecordItemAction::LIST,
                 Lead::ENTITY_TYPE . '.' . RecordItemAction::LIST,
+                Opportunity::ENTITY_TYPE . '.' . RecordItemAction::LIST,
             ]);
         $em->saveEntity($endpoint);
 
@@ -66,7 +71,5 @@ class EndpointTest extends BaseTestCase
         $this->authenticate(method: ApiKey::NAME, request: $request);
 
         $apiAction = $this->getInjectableFactory()->create(PostEntry::class);
-
-        
     }
 }
