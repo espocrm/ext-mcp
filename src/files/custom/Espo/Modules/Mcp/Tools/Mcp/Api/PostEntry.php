@@ -6,7 +6,6 @@ namespace Espo\Modules\Mcp\Tools\Mcp\Api;
 use Espo\Core\Api\Action;
 use Espo\Core\Api\Request;
 use Espo\Core\Api\Response;
-use Espo\Core\Api\ResponseWrapper;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Entities\User;

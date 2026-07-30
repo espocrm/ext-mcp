@@ -3,6 +3,7 @@
 
 namespace Espo\Modules\Mcp\Entities;
 
+use Espo\Core\Name\Field;
 use Espo\Core\ORM\Entity;
 use UnexpectedValueException;
 
@@ -36,5 +37,23 @@ class McpEndpoint extends Entity
     public function getSlug(): string
     {
         return $this->get(self::FIELD_SLUG) ?? throw new UnexpectedValueException("No slug.");
+    }
+
+    /**
+     * @param string[] $actions
+     */
+    public function setActions(array $actions): self
+    {
+        return $this->set(self::FIELD_ACTIONS, $actions);
+    }
+
+    public function setSlug(string $slug): self
+    {
+        return $this->set(self::FIELD_SLUG, $slug);
+    }
+
+    public function setName(string $name): self
+    {
+        return $this->set(Field::NAME, $name);
     }
 }
