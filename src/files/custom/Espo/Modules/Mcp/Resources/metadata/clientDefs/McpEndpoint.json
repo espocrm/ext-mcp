@@ -6,7 +6,7 @@
     ],
     "relationshipPanels": {
         "users": {
-            "primaryFilter": "activeApi",
+            "selectPrimaryFilterName": "activeApi",
             "createDisabled": true,
             "removeDisabled": true,
             "editDisabled": true

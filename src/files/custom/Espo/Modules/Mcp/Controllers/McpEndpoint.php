@@ -3,10 +3,10 @@
 
 namespace Espo\Modules\Mcp\Controllers;
 
-use Espo\Core\Controllers\RecordBase;
+use Espo\Core\Controllers\Record;
 
 /**
  * @noinspection PhpUnused
  */
-class McpEndpoint extends RecordBase
+class McpEndpoint extends Record
 {}

@@ -31,7 +31,8 @@
                 "Espo\\Modules\\Mcp\\Classes\\FieldValidators\\McpEndpoint\\Actions\\Valid"
             ],
             "view": "modules/mcp/views/endpoint/fields/actions",
-            "allowCustomOptions": false
+            "allowCustomOptions": false,
+            "displayAsList": true
         },
         "description": {
             "type": "text"
@@ -40,6 +41,7 @@
             "type": "url",
             "notStorable": true,
             "readOnly": true,
+            "copyToClipboard": true,
             "loaderClassName": "Espo\\Modules\\Mcp\\Classes\\FieldLoaders\\McpEndpoint\\Url"
         },
         "createdAt": {
