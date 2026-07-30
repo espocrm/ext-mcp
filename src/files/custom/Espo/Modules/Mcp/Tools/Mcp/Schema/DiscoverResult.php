@@ -19,7 +19,7 @@ readonly class DiscoverResult implements JsonSerializable
         public ResultType $resultType = ResultType::Complete,
         public ?string $instructions = null,
         public int $ttlMs = 0,
-        public CacheScope $cacheScope = CacheScope::Public,
+        public CacheScope $cacheScope = CacheScope::Private,
     ) {}
 
     public function jsonSerialize(): stdClass
