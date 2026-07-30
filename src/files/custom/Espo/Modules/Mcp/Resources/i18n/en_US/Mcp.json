@@ -1,5 +1,8 @@
 {
     "labels": {
         "MCP": "MCP"
+    },
+    "itemActions": {
+        "list": "List"
     }
 }

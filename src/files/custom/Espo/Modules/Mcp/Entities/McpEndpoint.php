@@ -4,6 +4,7 @@
 namespace Espo\Modules\Mcp\Entities;
 
 use Espo\Core\ORM\Entity;
+use UnexpectedValueException;
 
 class McpEndpoint extends Entity
 {
@@ -11,13 +12,29 @@ class McpEndpoint extends Entity
 
     public const string FIELD_STATUS = 'status';
     public const string FIELD_SLUG = 'slug';
+    public const string FIELD_ACTIONS = 'actions';
+    public const string FIELD_URL = 'url';
 
     public const string LINK_USERS = 'users';
 
     public const string STATUS_ACTIVE = 'Active';
 
+
     public function isActive(): bool
     {
         return $this->get(self::FIELD_STATUS) === self::STATUS_ACTIVE;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getActions(): array
+    {
+        return $this->get(self::FIELD_ACTIONS) ?? [];
+    }
+
+    public function getSlug(): string
+    {
+        return $this->get(self::FIELD_SLUG) ?? throw new UnexpectedValueException("No slug.");
     }
 }

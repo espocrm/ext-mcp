@@ -29,7 +29,9 @@
             "type": "array",
             "validatorClassNameList": [
                 "Espo\\Modules\\Mcp\\Classes\\FieldValidators\\McpEndpoint\\Actions\\Valid"
-            ]
+            ],
+            "view": "modules/mcp/views/endpoint/fields/actions",
+            "allowCustomOptions": false
         },
         "description": {
             "type": "text"

@@ -30,8 +30,6 @@ class PostEntry implements Action
 
         $slug = $request->getRouteParam('slug') ?? throw new BadRequest();
 
-        $response = $this->service->process($slug, $request);
-
-        return new ResponseWrapper($response);
+        return $this->service->process($slug, $request);
     }
 }

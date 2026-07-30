@@ -4,9 +4,10 @@
 namespace Espo\Modules\Mcp\Tools\Mcp;
 
 use Espo\Core\Api\Request;
+use Espo\Core\Api\Response;
+use Espo\Core\Api\ResponseComposer;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
-use Psr\Http\Message\ResponseInterface;
 
 class EntryService
 {
@@ -18,8 +19,10 @@ class EntryService
      * @throws Forbidden
      * @throws NotFound
      */
-    public function process(string $slug, Request $request): ResponseInterface
+    public function process(string $slug, Request $request): Response
     {
         $endpoint = $this->endpointProvider->get($slug);
+
+        return ResponseComposer::json([]);
     }
 }
