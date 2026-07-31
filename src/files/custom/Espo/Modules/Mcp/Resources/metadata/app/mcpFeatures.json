@@ -1,6 +1,8 @@
 {
     "Find": {
         "record": {
+            "dataObjectClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\Data",
+            "validatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\DataValidator",
             "fields": {
                 "entityType": {
                     "type": "enum",
@@ -36,30 +38,36 @@
                     "rows": [
                         [
                             {
-                                "name": "entityType"
+                                "name": "entityType",
+                                "labelTranslation": "McpFeature.dataFields.entityType"
                             },
                             false
                         ],
                         [
                             {
-                                "name": "selectFields"
+                                "name": "selectFields",
+                                "labelTranslation": "McpFeature.dataFields.selectFields"
                             },
                             false
                         ],
                         [
                             {
-                                "name": "primaryFilters"
+                                "name": "primaryFilters",
+                                "labelTranslation": "McpFeature.dataFields.primaryFilters"
                             },
                             {
-                                "name": "boolFilters"
+                                "name": "boolFilters",
+                                "labelTranslation": "McpFeature.dataFields.boolFilters"
                             }
                         ],
                         [
                             {
-                                "name": "filterFields"
+                                "name": "filterFields",
+                                "labelTranslation": "McpFeature.dataFields.filterFields"
                             },
                             {
-                                "name": "textFilter"
+                                "name": "textFilter",
+                                "labelTranslation": "McpFeature.dataFields.textFilter"
                             }
                         ]
                     ]

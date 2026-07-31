@@ -71,13 +71,22 @@ export default class FeatureDataFieldView extends BaseFieldView {
         const params = this.getMetadata().get(`${this.metadataPath}.${type}.record`, {}) as {
             fields?: Record<string, any>,
             layout?: PanelDefs[],
+            defaults?: Record<string, any>,
         };
 
-        this.subModel = new Model({}, params.fields ?? {});
+        let initialValues = {};
 
-        const data = Espo.Utils.cloneDeep(this.model.attributes.data || {});
+        if (this.model.isNew()) {
+            initialValues = Utils.cloneDeep(params.defaults ?? {});
+        }
 
-        this.subModel.setMultiple(data);
+        this.subModel = new Model(initialValues, {
+            defs: {fields: params.fields ?? {}},
+        });
+
+        const values = Espo.Utils.cloneDeep(this.model.attributes.data || {});
+
+        this.subModel.setMultiple(values);
 
         this.subView = new FeatureRecordView({
             mode: this.mode === 'edit' ? 'edit' : 'detail',

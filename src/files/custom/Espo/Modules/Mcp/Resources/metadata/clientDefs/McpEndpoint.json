@@ -7,6 +7,7 @@
     "relationshipPanels": {
         "features": {
             "filterList": [
+                "all",
                 "active"
             ],
             "layout": "listForEndpoint"
