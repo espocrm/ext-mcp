@@ -11,7 +11,8 @@
             "required": true,
             "pattern": "[a-z]{1}[A-Za-z0-9]+",
             "index": true,
-            "tooltip": true
+            "tooltip": true,
+            "audited": true
         },
         "status": {
             "type": "enum",
@@ -23,7 +24,8 @@
             "maxLength": 8,
             "style": {
                 "Inactive": "info"
-            }
+            },
+            "audited": true
         },
         "actions": {
             "type": "array",
@@ -68,6 +70,12 @@
         }
     },
     "links": {
+        "features": {
+            "type": "hasMany",
+            "entity": "McpFeature",
+            "foreign": "endpoint",
+            "readOnly": true
+        },
         "users": {
             "type": "hasMany",
             "entity": "User",

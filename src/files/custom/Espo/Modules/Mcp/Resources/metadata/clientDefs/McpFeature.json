@@ -1,0 +1,7 @@
+{
+    "controller": "controllers/record",
+    "mergeDisabled": true,
+    "filterList": [
+        "active"
+    ]
+}

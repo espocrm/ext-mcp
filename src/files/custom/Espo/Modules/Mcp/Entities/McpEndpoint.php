@@ -20,7 +20,6 @@ class McpEndpoint extends Entity
 
     public const string STATUS_ACTIVE = 'Active';
 
-
     public function isActive(): bool
     {
         return $this->get(self::FIELD_STATUS) === self::STATUS_ACTIVE;

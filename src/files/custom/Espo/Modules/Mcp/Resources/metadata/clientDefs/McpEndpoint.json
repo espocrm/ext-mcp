@@ -5,6 +5,11 @@
         "active"
     ],
     "relationshipPanels": {
+        "features": {
+            "filterList": [
+                "active"
+            ]
+        },
         "users": {
             "selectPrimaryFilterName": "activeApi",
             "createDisabled": true,

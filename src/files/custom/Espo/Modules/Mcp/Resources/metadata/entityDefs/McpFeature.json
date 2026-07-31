@@ -1,0 +1,74 @@
+{
+    "fields": {
+        "name": {
+            "maxLength": 128,
+            "readOnly": true
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "Active",
+                "Inactive"
+            ],
+            "default": "Active",
+            "maxLength": 8,
+            "style": {
+                "Inactive": "info"
+            },
+            "audited": true
+        },
+        "type": {
+            "type": "enum",
+            "options": [
+                "Find"
+            ],
+            "default": "Find",
+            "maxLength": 64,
+            "readOnlyAfterCreate": true
+        },
+        "endpoint": {
+            "type": "link",
+            "readOnlyAfterCreate": true
+        },
+        "data": {
+            "type": "jsonObject",
+            "validatorClassNameList": [
+                "Espo\\Modules\\Mcp\\Classes\\FieldValidators\\Feature\\Data\\Valid"
+            ]
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true,
+            "fieldManagerParamList": []
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true,
+            "fieldManagerParamList": []
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user",
+            "fieldManagerParamList": []
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user",
+            "fieldManagerParamList": []
+        }
+    },
+    "links": {
+        "endpoint": {
+            "type": "belongsTo,",
+            "entity": "McpEndpoint",
+            "foreign": "features"
+        }
+    },
+    "collection": {
+        "orderBy": "name",
+        "order": "asc"
+    },
+    "entityClassName": "Espo\\Modules\\Mcp\\Entities\\Feature"
+}
