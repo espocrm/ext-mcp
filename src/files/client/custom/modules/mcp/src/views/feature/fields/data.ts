@@ -4,6 +4,7 @@ import BaseFieldView, {BaseOptions, BaseParams} from 'views/fields/base';
 import Model from 'model';
 import Utils from 'utils';
 import FeatureRecordView from 'modules/mcp/views/feature/record/record';
+import {PanelDefs} from 'views/record/detail';
 
 export default class FeatureDataFieldView extends BaseFieldView {
 
@@ -67,11 +68,12 @@ export default class FeatureDataFieldView extends BaseFieldView {
             return;
         }
 
-        const entityType = this.getMetadata().get(`${this.metadataPath}.${type}.entityType`);
+        const params = this.getMetadata().get(`${this.metadataPath}.${type}.record`, {}) as {
+            fields?: Record<string, any>,
+            layout?: PanelDefs[],
+        };
 
-        const params = this.getMetadata().get(`${this.metadataPath}.${type}.record`, {}) as Record<string, any>;
-
-        this.subModel = await this.getModelFactory().create(entityType);
+        this.subModel = new Model({}, params.fields ?? {});
 
         const data = Espo.Utils.cloneDeep(this.model.attributes.data || {});
 
@@ -80,7 +82,7 @@ export default class FeatureDataFieldView extends BaseFieldView {
         this.subView = new FeatureRecordView({
             mode: this.mode === 'edit' ? 'edit' : 'detail',
             model: this.subModel,
-            detailLayout: Utils.cloneDeep(params.layout),
+            detailLayout: Utils.cloneDeep(params.layout ?? []),
         });
 
         await this.assignView('sub', this.subView, `[data-name="sub"]`);
