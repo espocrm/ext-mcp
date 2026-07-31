@@ -1,0 +1,70 @@
+{
+    "Find": {
+        "record": {
+            "fields": {
+                "entityType": {
+                    "type": "enum",
+                    "required": true,
+                    "view": "modules/views/feature-record/fields/entity-type"
+                },
+                "textFilter": {
+                    "type": "boolean"
+                },
+                "primaryFilters": {
+                    "type": "checklist",
+                    "view": "modules/views/feature-record/fields/primary-filters"
+                },
+                "boolFilters": {
+                    "type": "checklist",
+                    "view": "modules/views/feature-record/fields/bool-filters"
+                },
+                "selectFields": {
+                    "type": "multiEnum",
+                    "required": true,
+                    "view": "modules/views/feature-record/fields/select-fields"
+                },
+                "filterFields": {
+                    "type": "multiEnum",
+                    "view": "modules/views/feature-record/fields/filter-fields"
+                }
+            },
+            "defaults": {
+                "textFilter": true
+            },
+            "layout": [
+                {
+                    "rows": [
+                        [
+                            {
+                                "name": "entityType"
+                            },
+                            false
+                        ],
+                        [
+                            {
+                                "name": "selectFields"
+                            },
+                            false
+                        ],
+                        [
+                            {
+                                "name": "primaryFilters"
+                            },
+                            {
+                                "name": "boolFilters"
+                            }
+                        ],
+                        [
+                            {
+                                "name": "filterFields"
+                            },
+                            {
+                                "name": "textFilter"
+                            }
+                        ]
+                    ]
+                }
+            ]
+        }
+    }
+}

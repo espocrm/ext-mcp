@@ -9,6 +9,7 @@
         "url": "Endpoint URL"
     },
     "links": {
+        "features": "Features",
         "users": "Users"
     },
     "options": {

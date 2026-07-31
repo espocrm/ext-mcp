@@ -1,10 +1,12 @@
 {
     "scopeNames": {
         "McpEndpoint": "MCP Endpoint",
+        "McpFeature": "MCP Feature",
         "Mcp": "MCP"
     },
     "scopeNamesPlural": {
         "McpEndpoint": "MCP Endpoints",
+        "McpFeature": "MCP Features",
         "Mcp": "MCP"
     }
 }

@@ -1,0 +1,23 @@
+{
+    "labels": {
+        "Create McpFeature": "Create Feature"
+    },
+    "fields": {
+        "status": "Status",
+        "endpoint": "Endpoint",
+        "type": "Type",
+        "data": "Data"
+    },
+    "links": {
+        "endpoint": "Endpoint"
+    },
+    "options": {
+        "status": {
+            "Active": "Active",
+            "Inactive": "Inactive"
+        },
+        "type": {
+            "Find": "Find"
+        }
+    }
+}
