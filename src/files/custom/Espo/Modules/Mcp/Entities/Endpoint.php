@@ -7,7 +7,7 @@ use Espo\Core\Name\Field;
 use Espo\Core\ORM\Entity;
 use UnexpectedValueException;
 
-class McpEndpoint extends Entity
+class Endpoint extends Entity
 {
     public const string ENTITY_TYPE = 'McpEndpoint';
 

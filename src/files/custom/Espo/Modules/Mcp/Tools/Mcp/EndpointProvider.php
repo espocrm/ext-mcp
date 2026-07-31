@@ -7,7 +7,7 @@ use Espo\Core\Acl;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Entities\User;
-use Espo\Modules\Mcp\Entities\McpEndpoint;
+use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\ORM\EntityManager;
 
 class EndpointProvider
@@ -24,16 +24,16 @@ class EndpointProvider
      * @throws NotFound
      * @throws Forbidden
      */
-    public function get(string $slug): McpEndpoint
+    public function get(string $slug): Endpoint
     {
         if (!$this->acl->checkScope(self::SCOPE)) {
             throw new Forbidden("No access to 'Mcp' scope.");
         }
 
         $endpoint = $this->entityManager
-            ->getRDBRepositoryByClass(McpEndpoint::class)
+            ->getRDBRepositoryByClass(Endpoint::class)
             ->where([
-                McpEndpoint::FIELD_SLUG => $slug,
+                Endpoint::FIELD_SLUG => $slug,
             ])
             ->findOne();
 
@@ -46,7 +46,7 @@ class EndpointProvider
         }
 
         $related = $this->entityManager
-            ->getRelation($endpoint, McpEndpoint::LINK_USERS)
+            ->getRelation($endpoint, Endpoint::LINK_USERS)
             ->isRelated($this->user);
 
         if (!$related) {

@@ -1,15 +1,15 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Classes\Acl\McpEndpoint\LinkCheckers;
+namespace Espo\Modules\Mcp\Classes\Acl\Endpoint\LinkCheckers;
 
 use Espo\Core\Acl\LinkChecker;
 use Espo\Entities\User;
-use Espo\Modules\Mcp\Entities\McpEndpoint;
+use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\ORM\Entity;
 
 /**
- * @implements LinkChecker<McpEndpoint, User>
+ * @implements LinkChecker<Endpoint, User>
  */
 class Users implements LinkChecker
 {

@@ -5,7 +5,7 @@ namespace Espo\Modules\Mcp\Tools\Mcp;
 
 use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\InjectableFactory;
-use Espo\Modules\Mcp\Entities\McpEndpoint;
+use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Tools\Mcp\Handlers\ServerDiscoverHandler;
 use Espo\Modules\Mcp\Tools\Mcp\Hooks\ProtocolVersionCheck;
 use Espo\Modules\Mcp\Tools\Mcp\Hooks\RequestValidityCheck;
@@ -16,10 +16,10 @@ class RouterProvider
         private InjectableFactory $injectableFactory,
     ) {}
 
-    public function get(McpEndpoint $endpoint): Router
+    public function get(Endpoint $endpoint): Router
     {
         $binding = BindingContainerBuilder::create()
-            ->bindInstance(McpEndpoint::class, $endpoint)
+            ->bindInstance(Endpoint::class, $endpoint)
             ->build();
 
         $router = $this->injectableFactory->createWithBinding(Router::class, $binding);

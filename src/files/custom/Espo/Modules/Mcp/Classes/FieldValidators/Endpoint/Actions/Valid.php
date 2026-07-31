@@ -1,18 +1,18 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Classes\FieldValidators\McpEndpoint\Actions;
+namespace Espo\Modules\Mcp\Classes\FieldValidators\Endpoint\Actions;
 
 use Espo\Core\FieldValidation\Validator;
 use Espo\Core\FieldValidation\Validator\Data;
 use Espo\Core\FieldValidation\Validator\Failure;
 use Espo\Core\Utils\Metadata;
-use Espo\Modules\Mcp\Entities\McpEndpoint;
+use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Tools\Mcp\RecordItemAction;
 use Espo\ORM\Entity;
 
 /**
- * @implements Validator<McpEndpoint>
+ * @implements Validator<Endpoint>
  */
 class Valid implements Validator
 {

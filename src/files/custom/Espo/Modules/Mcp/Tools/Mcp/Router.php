@@ -8,7 +8,7 @@ use Espo\Core\Api\Response;
 use Espo\Core\Binding\BindingContainer;
 use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\InjectableFactory;
-use Espo\Modules\Mcp\Entities\McpEndpoint;
+use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\Error;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidRequestError;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\MethodNotFoundError;
@@ -27,7 +27,7 @@ class Router
 
     public function __construct(
         private InjectableFactory $injectableFactory,
-        private McpEndpoint $endpoint,
+        private Endpoint $endpoint,
     ) {}
 
     /**
@@ -93,7 +93,7 @@ class Router
     private function prepareBinding(): BindingContainer
     {
         return BindingContainerBuilder::create()
-            ->bindInstance(McpEndpoint::class, $this->endpoint)
+            ->bindInstance(Endpoint::class, $this->endpoint)
             ->build();
     }
 }

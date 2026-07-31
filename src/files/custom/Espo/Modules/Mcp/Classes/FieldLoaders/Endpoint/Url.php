@@ -1,17 +1,17 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Classes\FieldLoaders\McpEndpoint;
+namespace Espo\Modules\Mcp\Classes\FieldLoaders\Endpoint;
 
 use Espo\Core\FieldProcessing\Loader;
 use Espo\Core\FieldProcessing\Loader\Params;
 use Espo\Core\Utils\Config\ApplicationConfig;
-use Espo\Modules\Mcp\Entities\McpEndpoint;
+use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\ORM\Entity;
 use UnexpectedValueException;
 
 /**
- * @implements Loader<McpEndpoint>
+ * @implements Loader<Endpoint>
  */
 class Url implements Loader
 {
@@ -31,6 +31,6 @@ class Url implements Loader
 
         $url = "$siteUrl/api/v1/mcp/$slug";
 
-        $entity->set(McpEndpoint::FIELD_URL, $url);
+        $entity->set(Endpoint::FIELD_URL, $url);
     }
 }

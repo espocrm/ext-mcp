@@ -11,7 +11,7 @@ use Espo\Entities\User;
 use Espo\Modules\Crm\Entities\Account;
 use Espo\Modules\Crm\Entities\Lead;
 use Espo\Modules\Crm\Entities\Opportunity;
-use Espo\Modules\Mcp\Entities\McpEndpoint;
+use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Tools\Mcp\Api\PostEntry;
 use Espo\Modules\Mcp\Tools\Mcp\RecordItemAction;
 use tests\integration\Core\BaseTestCase;
@@ -47,7 +47,7 @@ class EndpointTest extends BaseTestCase
             ],
         ]);
 
-        $endpoint = $em->getRDBRepositoryByClass(McpEndpoint::class)->getNew()
+        $endpoint = $em->getRDBRepositoryByClass(Endpoint::class)->getNew()
             ->setName('Test')
             ->setSlug('test')
             ->setActions([
@@ -57,7 +57,7 @@ class EndpointTest extends BaseTestCase
             ]);
         $em->saveEntity($endpoint);
 
-        $em->getRelation($endpoint, McpEndpoint::LINK_USERS)->relate($apiUser);
+        $em->getRelation($endpoint, Endpoint::LINK_USERS)->relate($apiUser);
 
         $request = $this->createRequest(
             method: 'POST',

@@ -1,5 +1,5 @@
 {
     "primaryFilterClassNameMap": {
-        "active": "Espo\\Modules\\Mcp\\Select\\McpEndpoint\\PrimaryFilters\\Active"
+        "active": "Espo\\Modules\\Mcp\\Select\\Endpoint\\PrimaryFilters\\Active"
     }
 }
