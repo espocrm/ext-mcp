@@ -40,7 +40,9 @@
             "type": "jsonObject",
             "validatorClassNameList": [
                 "Espo\\Modules\\Mcp\\Classes\\FieldValidators\\Feature\\Data\\Valid"
-            ]
+            ],
+            "inlineEditDisabled": true,
+            "view": "modules/mcp/views/feature/fields/data"
         },
         "createdAt": {
             "type": "datetime",
