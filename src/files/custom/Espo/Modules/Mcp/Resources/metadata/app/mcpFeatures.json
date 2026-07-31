@@ -50,8 +50,7 @@
                             {
                                 "name": "selectFields",
                                 "labelTranslation": "McpFeature.dataFields.selectFields"
-                            },
-                            false
+                            }
                         ],
                         [
                             {
@@ -67,7 +66,9 @@
                             {
                                 "name": "filterFields",
                                 "labelTranslation": "McpFeature.dataFields.filterFields"
-                            },
+                            }
+                        ],
+                        [
                             {
                                 "name": "textFilter",
                                 "labelTranslation": "McpFeature.dataFields.textFilter"

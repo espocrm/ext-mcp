@@ -21,6 +21,19 @@ export default class FeatureRecordView extends View<{
             [data-role="sub-record"] {
                 .panel {
                     box-shadow: none;
+                    border: 0;
+
+                    > .panel-body {
+                        > .row {
+                            margin-left: var(--grid-gutter-width-half) !important;
+                            margin-right: var(--grid-gutter-width-half) !important;
+
+                            > div {
+                                padding-left: var(--grid-gutter-width-half) !important;
+                                padding-right: var(--grid-gutter-width-half) !important;
+                            }
+                        }
+                    }
                 }
             }
         </style>
@@ -49,7 +62,6 @@ export default class FeatureRecordView extends View<{
         }
 
         this.assignView('record', this.recordView, '[data-role="sub-record"]');
-
 
         let handler: {process: () => {}} | null = null;
 

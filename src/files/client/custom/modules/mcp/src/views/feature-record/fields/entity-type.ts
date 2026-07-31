@@ -16,7 +16,5 @@ export default class FeatureRecordEntityTypeFieldView extends EntityTypeFieldVie
 
             return !!defs.object;
         });
-
-
     }
 }
