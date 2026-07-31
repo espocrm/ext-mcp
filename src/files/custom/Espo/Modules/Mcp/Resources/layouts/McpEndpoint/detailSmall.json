@@ -19,12 +19,6 @@
             ],
             [
                 {
-                    "name": "actions"
-                },
-                false
-            ],
-            [
-                {
                     "name": "description"
                 }
             ]

@@ -50,11 +50,11 @@ class EndpointTest extends BaseTestCase
         $endpoint = $em->getRDBRepositoryByClass(Endpoint::class)->getNew()
             ->setName('Test')
             ->setSlug('test')
-            ->setActions([
+            /*->setActions([
                 Account::ENTITY_TYPE . '.' . RecordItemAction::LIST,
                 Lead::ENTITY_TYPE . '.' . RecordItemAction::LIST,
                 Opportunity::ENTITY_TYPE . '.' . RecordItemAction::LIST,
-            ]);
+            ])*/;
         $em->saveEntity($endpoint);
 
         $em->getRelation($endpoint, Endpoint::LINK_USERS)->relate($apiUser);

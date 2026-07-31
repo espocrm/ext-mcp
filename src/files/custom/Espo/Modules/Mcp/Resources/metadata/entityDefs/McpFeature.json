@@ -4,6 +4,12 @@
             "maxLength": 128,
             "readOnly": true
         },
+        "text": {
+            "type": "varchar",
+            "notStorable": true,
+            "readOnly": true,
+            "loaderClassName": "Espo\\Modules\\Mcp\\Classes\\FieldLoaders\\Feature\\Text"
+        },
         "status": {
             "type": "enum",
             "options": [

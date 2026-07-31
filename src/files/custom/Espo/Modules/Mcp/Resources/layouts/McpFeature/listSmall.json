@@ -1,0 +1,14 @@
+[
+    {
+        "name": "type",
+        "link": true
+    },
+    {
+        "name": "endpoint",
+        "width": 25
+    },
+    {
+        "name": "text",
+        "width": 50
+    }
+]

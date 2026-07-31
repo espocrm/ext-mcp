@@ -5,7 +5,6 @@
     "fields": {
         "status": "Status",
         "slug": "Slug",
-        "actions": "Actions",
         "url": "Endpoint URL"
     },
     "links": {

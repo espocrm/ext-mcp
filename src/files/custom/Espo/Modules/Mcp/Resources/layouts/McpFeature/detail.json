@@ -3,7 +3,7 @@
         "rows": [
             [
                 {
-                    "name": "name"
+                    "name": "endpoint"
                 },
                 {
                     "name": "status"
@@ -11,15 +11,13 @@
             ],
             [
                 {
-                    "name": "slug"
+                    "name": "type"
                 },
-                {
-                    "name": "url"
-                }
+                false
             ],
             [
                 {
-                    "name": "description"
+                    "name": "data"
                 }
             ]
         ]
