@@ -1,33 +1,36 @@
 {
     "Find": {
         "record": {
+            "client": {
+                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-find"
+            },
             "dataObjectClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\Data",
             "validatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\DataValidator",
             "fields": {
                 "entityType": {
                     "type": "enum",
                     "required": true,
-                    "view": "modules/views/feature-record/fields/entity-type"
+                    "view": "modules/mcp/views/feature-record/fields/entity-type"
                 },
                 "textFilter": {
-                    "type": "boolean"
+                    "type": "bool"
                 },
                 "primaryFilters": {
                     "type": "checklist",
-                    "view": "modules/views/feature-record/fields/primary-filters"
+                    "view": "modules/mcp/views/feature-record/fields/primary-filters"
                 },
                 "boolFilters": {
                     "type": "checklist",
-                    "view": "modules/views/feature-record/fields/bool-filters"
+                    "view": "modules/mcp/views/feature-record/fields/bool-filters"
                 },
                 "selectFields": {
                     "type": "multiEnum",
                     "required": true,
-                    "view": "modules/views/feature-record/fields/select-fields"
+                    "view": "modules/mcp/views/feature-record/fields/select-fields"
                 },
                 "filterFields": {
                     "type": "multiEnum",
-                    "view": "modules/views/feature-record/fields/filter-fields"
+                    "view": "modules/mcp/views/feature-record/fields/filter-fields"
                 }
             },
             "defaults": {

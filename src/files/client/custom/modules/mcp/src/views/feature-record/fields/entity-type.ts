@@ -8,9 +8,15 @@ export default class FeatureRecordEntityTypeFieldView extends EntityTypeFieldVie
         super.setupOptions();
 
         this.params.options = (this.params.options ?? []).filter(scope => {
+            if (scope === '') {
+                return true;
+            }
+
             const defs = this.getMetadata().get(`scopes.${scope}`, {}) as Record<string, any>;
 
             return !!defs.object;
         });
+
+
     }
 }

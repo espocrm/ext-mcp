@@ -10,6 +10,7 @@ export default class FeatureRecordView extends View<{
         mode: 'detail' | 'edit',
         model: Model,
         detailLayout: PanelDefs[],
+        viewSetupHandler: string | null,
     }
 }> {
 
@@ -48,6 +49,23 @@ export default class FeatureRecordView extends View<{
         }
 
         this.assignView('record', this.recordView, '[data-role="sub-record"]');
+
+
+        let handler: {process: () => {}} | null = null;
+
+        if (this.options.viewSetupHandler) {
+            this.wait(
+                (async () => {
+                    const Handler = await Espo.loader.requirePromise(this.options.viewSetupHandler!) as any;
+
+                    handler = new Handler(this.recordView);
+                })()
+            )
+        }
+
+        this.whenReady().then(() => {
+            handler?.process();
+        });
     }
 
     validate(): boolean {

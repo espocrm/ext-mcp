@@ -72,6 +72,7 @@ export default class FeatureDataFieldView extends BaseFieldView {
             fields?: Record<string, any>,
             layout?: PanelDefs[],
             defaults?: Record<string, any>,
+            client?: {viewSetupHandler?: string},
         };
 
         let initialValues = {};
@@ -92,6 +93,7 @@ export default class FeatureDataFieldView extends BaseFieldView {
             mode: this.mode === 'edit' ? 'edit' : 'detail',
             model: this.subModel,
             detailLayout: Utils.cloneDeep(params.layout ?? []),
+            viewSetupHandler: params.client?.viewSetupHandler ?? null,
         });
 
         await this.assignView('sub', this.subView, `[data-name="sub"]`);
