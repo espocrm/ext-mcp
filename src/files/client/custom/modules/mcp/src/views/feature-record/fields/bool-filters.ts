@@ -6,7 +6,5 @@ export default class FeatureRecordBoolFiltersFieldView extends ChecklistFieldVie
 
     protected setupOptions() {
         super.setupOptions();
-
-        // @todo
     }
 }

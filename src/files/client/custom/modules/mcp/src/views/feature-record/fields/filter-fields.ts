@@ -6,7 +6,5 @@ export default class FeatureRecordFilterFieldsFieldView extends MultiEnumFieldVi
 
     protected setupOptions() {
         super.setupOptions();
-
-        // @todo
     }
 }

@@ -6,7 +6,5 @@ export default class FeatureRecordPrimaryFiltersFieldView extends ChecklistField
 
     protected setupOptions() {
         super.setupOptions();
-
-        // @todo
     }
 }
