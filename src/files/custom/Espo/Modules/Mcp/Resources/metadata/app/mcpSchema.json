@@ -1,0 +1,104 @@
+{
+    "fieldTypes": {
+        "varchar": {
+            "select": true,
+            "filter": true
+        },
+        "number": {
+            "select": true,
+            "filter": true
+        },
+        "url": {
+            "select": true,
+            "filter": true
+        },
+        "enum": {
+            "select": true,
+            "filter": true
+        },
+        "array": {
+            "select": true,
+            "filter": true
+        },
+        "multiEnum": {
+            "select": true,
+            "filter": true
+        },
+        "checklist": {
+            "select": true,
+            "filter": true
+        },
+        "urlMultiple": {
+            "select": true,
+            "filter": true
+        },
+        "email": {
+            "select": true,
+            "filter": true
+        },
+        "float": {
+            "select": true,
+            "filter": true
+        },
+        "int": {
+            "select": true,
+            "filter": true
+        },
+        "currency": {
+            "select": true,
+            "filter": true
+        },
+        "decimal": {
+            "select": true,
+            "filter": true
+        },
+        "personName": {
+            "select": true,
+            "filter": true
+        },
+        "autoincrement": {
+            "select": true,
+            "filter": true
+        },
+        "link": {
+            "select": true,
+            "filter": true
+        },
+        "linkOne": {
+            "select": true,
+            "filter": true
+        },
+        "linkMultiple": {
+            "select": true,
+            "filter": true
+        },
+        "linkParent": {
+            "select": true,
+            "filter": true
+        },
+        "text": {
+            "select": true,
+            "filter": true
+        },
+        "wysiwyg": {
+            "select": true,
+            "filter": true
+        },
+        "date": {
+            "select": true,
+            "filter": true
+        },
+        "datetime": {
+            "select": true,
+            "filter": true
+        },
+        "datetimeOptional": {
+            "select": true,
+            "filter": true
+        },
+        "bool": {
+            "select": true,
+            "filter": true
+        }
+    }
+}

@@ -31,6 +31,7 @@ export default class SetupFindHandler {
         // @todo Entity type readonly if any field is added.
 
         this.controlSelectFields();
+        this.controlFilterFields();
 
         this.model.onChange({
             attributes: ['entityType'],
@@ -43,24 +44,39 @@ export default class SetupFindHandler {
                 await this.view.whenReady();
 
                 this.controlSelectFields();
+                this.controlFilterFields();
             },
         });
     }
 
     private controlSelectFields() {
+        this.controlFields('select', 'selectFields');
+    }
+
+    private controlFilterFields() {
+        this.controlFields('filter', 'filterFields');
+    }
+
+    private controlFields(type: 'filter' | 'select', field: string) {
         let fields: string[] = [];
 
         const entityType = this.model.attributes.entityType ?? null;
 
         if (entityType) {
+            const fieldTypes = this.metadata.get(`app.mcpSchema.fieldTypes`, {}) as
+                Record<string, {filter?: boolean, select?: boolean}>;
+
+            const types = Object.keys(fieldTypes).filter(it => fieldTypes[it][type]);
+
             fields = this.fieldManager.getEntityTypeFieldList(entityType, {
                 onlyAvailable: true,
+                typeList: types,
             });
         }
 
-        this.view.setFieldOptionList('selectFields', fields);
+        this.view.setFieldOptionList(field, fields);
 
-        const fieldView = this.view.getFieldView('selectFields');
+        const fieldView = this.view.getFieldView(field);
 
         if (!(fieldView instanceof ArrayFieldView)) {
             return;
