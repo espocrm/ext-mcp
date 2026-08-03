@@ -32,6 +32,8 @@ export default class SetupFindHandler {
 
         this.controlSelectFields();
         this.controlFilterFields();
+        this.controlPrimaryFilters();
+        this.controlBoolFilters();
 
         this.model.onChange({
             attributes: ['entityType'],
@@ -45,8 +47,87 @@ export default class SetupFindHandler {
 
                 this.controlSelectFields();
                 this.controlFilterFields();
+                this.controlPrimaryFilters();
+                this.controlBoolFilters();
             },
         });
+    }
+
+    private controlPrimaryFilters() {
+        let filters: string[] = [];
+
+        const entityType = this.model.attributes.entityType ?? null;
+
+        if (entityType) {
+            const allFilters = this.metadata.get(`clientDefs.${entityType}.filterList`, []) as
+                ({name: string, aux?: boolean} | string)[];
+
+            filters = allFilters.map(it => {
+                if (typeof it === 'string') {
+                    return it;
+                }
+
+                return it.name;
+            });
+
+            if (this.metadata.get(`scopes.${entityType}.stars`)) {
+                filters.push('starred')
+            }
+        }
+
+        this.view.setFieldOptionList('primaryFilters', filters);
+
+        const fieldView = this.view.getFieldView('primaryFilters');
+
+        if (!(fieldView instanceof ArrayFieldView)) {
+            return;
+        }
+
+        const translations: Record<string, string> = {};
+
+        filters.forEach(it => {
+            translations[it] = this.language.translate(it, 'presetFilters', entityType);
+        });
+
+        fieldView.setTranslatedOptions(translations);
+        fieldView.reRender();
+    }
+
+
+    private controlBoolFilters() {
+        let filters: string[] = [];
+
+        const entityType = this.model.attributes.entityType ?? null;
+
+        if (entityType) {
+            const allFilters = this.metadata.get(`clientDefs.${entityType}.boolFilterList`, []) as
+                ({name: string, aux?: boolean} | string)[];
+
+            filters = allFilters.map(it => {
+                if (typeof it === 'string') {
+                    return it;
+                }
+
+                return it.name;
+            });
+        }
+
+        this.view.setFieldOptionList('boolFilters', filters);
+
+        const fieldView = this.view.getFieldView('boolFilters');
+
+        if (!(fieldView instanceof ArrayFieldView)) {
+            return;
+        }
+
+        const translations: Record<string, string> = {};
+
+        filters.forEach(it => {
+            translations[it] = this.language.translate(it, 'boolFilters', entityType);
+        });
+
+        fieldView.setTranslatedOptions(translations);
+        fieldView.reRender();
     }
 
     private controlSelectFields() {
@@ -85,7 +166,6 @@ export default class SetupFindHandler {
         const translations = this.getFieldTranslations(entityType, fields);
 
         fieldView.setTranslatedOptions(translations);
-
         fieldView.reRender();
     }
 
