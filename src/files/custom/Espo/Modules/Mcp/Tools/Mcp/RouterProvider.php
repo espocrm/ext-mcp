@@ -7,6 +7,7 @@ use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\InjectableFactory;
 use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Tools\Mcp\Handlers\ServerDiscoverHandler;
+use Espo\Modules\Mcp\Tools\Mcp\Handlers\ToolsListHandler;
 use Espo\Modules\Mcp\Tools\Mcp\Hooks\ProtocolVersionCheck;
 use Espo\Modules\Mcp\Tools\Mcp\Hooks\RequestValidityCheck;
 
@@ -38,6 +39,7 @@ class RouterProvider
 
         $router->registerMultiple([
             Method::SERVER_DISCOVER => ServerDiscoverHandler::class,
+            Method::TOOLS_LIST => ToolsListHandler::class,
         ]);
     }
 }
