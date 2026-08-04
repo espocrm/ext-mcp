@@ -1,5 +1,9 @@
 {
     "Find": {
+        "tool": {
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolSchemaProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolProcessorClassName"
+        },
         "record": {
             "client": {
                 "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-find"

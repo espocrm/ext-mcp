@@ -4,6 +4,7 @@
 namespace Espo\Modules\Mcp\Tools\Mcp\Tool;
 
 use Espo\Modules\Mcp\Tools\Mcp\CachePropertyProvider;
+use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\ListToolsResult;
 
 class ListToolsResultProvider
@@ -13,6 +14,9 @@ class ListToolsResultProvider
         private ToolsProvider $toolsProvider,
     ) {}
 
+    /**
+     * @throws InternalError
+     */
     public function get(): ListToolsResult
     {
         return new ListToolsResult(

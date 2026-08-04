@@ -6,12 +6,14 @@ namespace Espo\Modules\Mcp\Tools\Feature;
 use Espo\Core\InjectableFactory;
 use Espo\Core\Utils\Metadata;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;
+use Espo\Modules\Mcp\Tools\Mcp\BindingProvider;
 
 class TextComposerFactory
 {
     public function __construct(
         private Metadata $metadata,
         private InjectableFactory $injectableFactory,
+        private BindingProvider $bindingProvider,
     ) {}
 
     /**
@@ -27,6 +29,6 @@ class TextComposerFactory
             throw new UnsupportedType("Unsupported type '$type'.");
         }
 
-        return $this->injectableFactory->create($className);
+        return $this->injectableFactory->createWithBinding($className, $this->bindingProvider->get());
     }
 }
