@@ -6,7 +6,8 @@
         "status": "Status",
         "endpoint": "Endpoint",
         "type": "Type",
-        "data": "Data"
+        "data": "Data",
+        "text": "Action"
     },
     "links": {
         "endpoint": "Endpoint"

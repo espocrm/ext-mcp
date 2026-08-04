@@ -30,7 +30,11 @@ class TextLoader implements Loader
             return;
         }
 
-        $textComposer = $this->textComposerFactory->create($entity->getType());
+        try {
+            $textComposer = $this->textComposerFactory->create($entity->getType());
+        } catch (UnsupportedType) {
+            return;
+        }
 
         $text = $textComposer->compose($data);
 

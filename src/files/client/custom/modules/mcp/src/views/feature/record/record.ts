@@ -9,6 +9,7 @@ export default class FeatureRecordView extends View<{
     options: {
         mode: 'detail' | 'edit',
         model: Model,
+        parentModel: Model,
         detailLayout: PanelDefs[],
         viewSetupHandler: string | null,
     }
@@ -70,7 +71,10 @@ export default class FeatureRecordView extends View<{
                 (async () => {
                     const Handler = await Espo.loader.requirePromise(this.options.viewSetupHandler!) as any;
 
-                    handler = new Handler(this.recordView);
+                    handler = new Handler({
+                        view: this.recordView,
+                        parentModel: this.options.parentModel,
+                    });
                 })()
             )
         }

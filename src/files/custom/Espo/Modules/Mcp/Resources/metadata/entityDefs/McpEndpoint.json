@@ -74,7 +74,8 @@
             "type": "hasMany",
             "entity": "McpFeature",
             "foreign": "endpoint",
-            "readOnly": true
+            "readOnly": true,
+            "cascadeRemoval": true
         },
         "users": {
             "type": "hasMany",

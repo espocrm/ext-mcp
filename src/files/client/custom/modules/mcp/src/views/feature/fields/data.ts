@@ -92,6 +92,7 @@ export default class FeatureDataFieldView extends BaseFieldView {
         this.subView = new FeatureRecordView({
             mode: this.mode === 'edit' ? 'edit' : 'detail',
             model: this.subModel,
+            parentModel: this.model,
             detailLayout: Utils.cloneDeep(params.layout ?? []),
             viewSetupHandler: params.client?.viewSetupHandler ?? null,
         });

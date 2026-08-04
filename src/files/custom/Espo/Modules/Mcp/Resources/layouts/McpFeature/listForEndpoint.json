@@ -1,10 +1,11 @@
 [
     {
-        "name": "type",
+        "name": "text",
+        "width": 50,
         "link": true
     },
     {
-        "name": "text",
+        "name": "status",
         "width": 50
     }
 ]

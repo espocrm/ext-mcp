@@ -1,14 +1,15 @@
 /**LICENSE**/
 
-import type DetailRecordView from 'views/record/detail';
 import Metadata from 'metadata';
 import {inject} from 'di';
-import Model from 'model';
 import FieldManager from 'field-manager';
 import ArrayFieldView from 'views/fields/array';
 import Language from 'language';
+import SetupHandler from 'modules/mcp/handlers/feature-record/setup';
 
-export default class SetupFindHandler {
+export default class SetupFindHandler extends SetupHandler<{
+    entityType: string | null,
+}> {
 
     @inject(Metadata)
     private metadata: Metadata
@@ -19,16 +20,10 @@ export default class SetupFindHandler {
     @inject(Language)
     private language: Language
 
-    private model: Model<{
-        entityType: string | null,
-    }>
-
-    constructor(private view: DetailRecordView) {
-        this.model = this.view.model!;
-    }
-
     process() {
-        // @todo Entity type readonly if any field is added.
+        if (!this.parentModel.isNew()) {
+            this.view.setFieldReadOnly('entityType', true);
+        }
 
         this.controlSelectFields();
         this.controlFilterFields();

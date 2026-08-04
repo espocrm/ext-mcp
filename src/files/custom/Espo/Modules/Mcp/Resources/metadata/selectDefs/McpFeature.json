@@ -1,5 +1,11 @@
 {
     "primaryFilterClassNameMap": {
         "active": "Espo\\Modules\\Mcp\\Select\\Feature\\PrimaryFilters\\Active"
+    },
+    "selectAttributesDependencyMap": {
+        "text": [
+            "type",
+            "data"
+        ]
     }
 }
