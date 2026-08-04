@@ -17,6 +17,8 @@ class Feature extends Entity
     public const string FIELD_DATA = 'data';
     public const string FIELD_TEXT = 'text';
 
+    public const string LINK_ENDPOINT = 'endpoint';
+
     public const string STATUS_ACTIVE = 'Active';
 
     public function isActive(): bool
@@ -42,5 +44,16 @@ class Feature extends Entity
     public function setName(?string $name): self
     {
         return $this->set(Field::NAME, $name);
+    }
+
+    public function getEndpoint(): Endpoint
+    {
+        $endpoint = $this->relations->getOne(self::LINK_ENDPOINT);
+
+        if (!$endpoint instanceof Endpoint) {
+            throw new UnexpectedValueException("No endpoint.");
+        }
+
+        return $endpoint;
     }
 }

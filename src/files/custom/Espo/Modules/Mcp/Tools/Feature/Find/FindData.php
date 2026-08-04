@@ -28,6 +28,11 @@ readonly class FindData implements Data
 
     public function composeName(): string
     {
+        return $this->getKey();
+    }
+
+    public function getKey(): string
+    {
         return $this->entityType . '.' . self::TYPE;
     }
 

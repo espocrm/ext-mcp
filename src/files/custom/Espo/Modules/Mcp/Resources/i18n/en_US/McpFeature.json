@@ -28,5 +28,8 @@
         "boolFilters": "Bool Filters",
         "filterFields": "Filter Fields",
         "textFilter": "Text Filter"
+    },
+    "messages": {
+        "featureAlreadyExists": "The same feature already exists in the endpoint."
     }
 }
