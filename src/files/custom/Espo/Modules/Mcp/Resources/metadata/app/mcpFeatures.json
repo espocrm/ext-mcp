@@ -1,7 +1,7 @@
 {
     "Find": {
         "tool": {
-            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolSchemaProvider",
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolDefinitionProvider",
             "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolProcessorClassName"
         },
         "record": {

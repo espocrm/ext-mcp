@@ -8,7 +8,7 @@ use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\DataFactory;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\BadFeatureData;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;
-use Espo\Modules\Mcp\Tools\Feature\ToolSchemaProviderFactory;
+use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProviderFactory;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 
@@ -17,10 +17,12 @@ class ToolsProvider
     public function __construct(
         private Endpoint $endpoint,
         private DataFactory $dataFactory,
-        private ToolSchemaProviderFactory $toolSchemaProviderFactory,
+        private ToolDefinitionProviderFactory $toolSchemaProviderFactory,
     ) {}
 
     /**
+     * @todo Cache.
+     *
      * @return Tool[]
      * @throws InternalError
      */
@@ -52,13 +54,6 @@ class ToolsProvider
             throw new InternalError("Could not create tool schema provider.", previous: $e);
         }
 
-        $inputSchema = $provider->getInput($data);
-        $outputSchema = $provider->getOutput($data);
-
-        return new Tool(
-
-            inputSchema: $inputSchema,
-            outputSchema: $outputSchema,
-        );
+        return $provider->get($data);
     }
 }

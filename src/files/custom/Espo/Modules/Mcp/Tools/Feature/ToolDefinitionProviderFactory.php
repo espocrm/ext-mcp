@@ -8,7 +8,7 @@ use Espo\Core\Utils\Metadata;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;
 use Espo\Modules\Mcp\Tools\Mcp\BindingProvider;
 
-class ToolSchemaProviderFactory
+class ToolDefinitionProviderFactory
 {
     public function __construct(
         private Metadata $metadata,
@@ -17,13 +17,13 @@ class ToolSchemaProviderFactory
     ) {}
 
     /**
-     * @return ToolSchemaProvider<Data>
+     * @return ToolDefinitionProvider<Data>
      * @throws UnsupportedType
      */
-    public function create(string $type): ToolSchemaProvider
+    public function create(string $type): ToolDefinitionProvider
     {
-        /** @var ?class-string<ToolSchemaProvider<Data>> $className */
-        $className = $this->metadata->get("app.mcpFeatures.$type.tool.schemaProviderClassName");
+        /** @var ?class-string<ToolDefinitionProvider<Data>> $className */
+        $className = $this->metadata->get("app.mcpFeatures.$type.tool.definitionProviderClassName");
 
         if (!$className) {
             throw new UnsupportedType("Unsupported type '$type'.");
