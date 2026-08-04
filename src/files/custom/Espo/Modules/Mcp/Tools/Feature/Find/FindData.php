@@ -9,6 +9,8 @@ use stdClass;
 
 readonly class FindData implements Data
 {
+    public const string TYPE = 'Find';
+
     /**
      * @param string[] $selectFields
      * @param string[] $primaryFilters
@@ -26,7 +28,7 @@ readonly class FindData implements Data
 
     public function composeName(): string
     {
-        return $this->entityType . '.Find';
+        return $this->entityType . '.' . self::TYPE;
     }
 
     /**

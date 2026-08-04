@@ -5,6 +5,7 @@
                 "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-find"
             },
             "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindTextComposer",
             "validatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindDataValidator",
             "fields": {
                 "entityType": {

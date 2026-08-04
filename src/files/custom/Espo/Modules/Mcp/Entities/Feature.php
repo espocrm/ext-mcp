@@ -3,6 +3,7 @@
 
 namespace Espo\Modules\Mcp\Entities;
 
+use Espo\Core\Name\Field;
 use Espo\Core\ORM\Entity;
 use stdClass;
 use UnexpectedValueException;
@@ -14,6 +15,7 @@ class Feature extends Entity
     public const string FIELD_STATUS = 'status';
     public const string FIELD_TYPE = 'type';
     public const string FIELD_DATA = 'data';
+    public const string FIELD_TEXT = 'text';
 
     public const string STATUS_ACTIVE = 'Active';
 
@@ -35,5 +37,10 @@ class Feature extends Entity
     public function getRawData(): stdClass
     {
         return $this->get(self::FIELD_DATA) ?? throw new UnexpectedValueException("No data.");
+    }
+
+    public function setName(?string $name): self
+    {
+        return $this->set(Field::NAME, $name);
     }
 }

@@ -9,7 +9,7 @@
             "type": "varchar",
             "notStorable": true,
             "readOnly": true,
-            "loaderClassName": "Espo\\Modules\\Mcp\\Classes\\FieldLoaders\\Feature\\Text"
+            "loaderClassName": "Espo\\Modules\\Mcp\\Classes\\FieldLoaders\\Feature\\TextLoader"
         },
         "status": {
             "type": "enum",
