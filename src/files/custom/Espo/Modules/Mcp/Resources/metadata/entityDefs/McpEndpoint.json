@@ -99,5 +99,14 @@
         "orderBy": "slug",
         "order": "asc"
     },
+    "indexes": {
+        "slugStatus": {
+            "unique": true,
+            "columns": [
+                "slug",
+                "status"
+            ]
+        }
+    },
     "entityClassName": "Espo\\Modules\\Mcp\\Entities\\Endpoint"
 }

@@ -75,6 +75,14 @@
             "type": "belongsTo",
             "entity": "McpEndpoint",
             "foreign": "features"
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
         }
     },
     "collection": {

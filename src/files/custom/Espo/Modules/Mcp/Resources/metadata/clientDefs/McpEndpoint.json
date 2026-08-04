@@ -1,6 +1,7 @@
 {
     "controller": "controllers/record",
     "mergeDisabled": true,
+    "duplicateDisabled": true,
     "filterList": [
         "active"
     ],
