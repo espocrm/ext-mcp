@@ -5,10 +5,7 @@ namespace Espo\Modules\Mcp\Tools\Mcp;
 
 use Espo\Core\Api\Request;
 use Espo\Core\Api\Response;
-use Espo\Core\Binding\BindingContainer;
-use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\InjectableFactory;
-use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\Error;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidRequestError;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\MethodNotFoundError;
@@ -27,7 +24,7 @@ class Router
 
     public function __construct(
         private InjectableFactory $injectableFactory,
-        private Endpoint $endpoint,
+        private BindingProvider $bindingProvider,
     ) {}
 
     /**
@@ -77,26 +74,19 @@ class Router
     {
         $handlerClass = $this->handlers[$method] ?? throw new MethodNotFoundError();
 
-        $binding = $this->prepareBinding();
+        $binding = $this->bindingProvider->get();
 
         return $this->injectableFactory->createWithBinding($handlerClass, $binding);
     }
 
     private function processBeforeHooks(Request $request): void
     {
-        $binding = $this->prepareBinding();
+        $binding = $this->bindingProvider->get();
 
         foreach ($this->beforeHooks as $hookClassName) {
             $hook = $this->injectableFactory->createWithBinding($hookClassName, $binding);
 
             $hook->process($request);
         }
-    }
-
-    private function prepareBinding(): BindingContainer
-    {
-        return BindingContainerBuilder::create()
-            ->bindInstance(Endpoint::class, $this->endpoint)
-            ->build();
     }
 }

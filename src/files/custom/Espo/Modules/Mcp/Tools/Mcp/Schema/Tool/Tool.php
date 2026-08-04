@@ -27,7 +27,7 @@ readonly class Tool implements JsonSerializable
         ];
 
         if ($this->outputSchema) {
-            $object['outputSchema'] = $this->outputSchema->jsonSerialize();
+            $object->outputSchema = $this->outputSchema->jsonSerialize();
         }
 
         if ($this->title !== null) {

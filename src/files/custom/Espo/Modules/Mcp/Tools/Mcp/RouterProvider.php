@@ -3,7 +3,6 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp;
 
-use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\InjectableFactory;
 use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Tools\Mcp\Handlers\ServerDiscoverHandler;
@@ -15,13 +14,12 @@ class RouterProvider
 {
     public function __construct(
         private InjectableFactory $injectableFactory,
+        private BindingPreparator $bindingPreparator,
     ) {}
 
     public function get(Endpoint $endpoint): Router
     {
-        $binding = BindingContainerBuilder::create()
-            ->bindInstance(Endpoint::class, $endpoint)
-            ->build();
+        $binding = $this->bindingPreparator->prepare($endpoint);
 
         $router = $this->injectableFactory->createWithBinding(Router::class, $binding);
 
