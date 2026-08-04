@@ -28,7 +28,7 @@ class Feature extends Entity
 
     public function setType(string $type): self
     {
-        return $this->set(self::FIELD_TYPE, $this);
+        return $this->set(self::FIELD_TYPE, $type);
     }
 
     public function getType(): string
