@@ -1,7 +1,7 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\Mcp\Schema;
+namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Discovery;
 
 use JsonSerializable;
 use stdClass;

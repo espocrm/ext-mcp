@@ -5,6 +5,7 @@ namespace Espo\Modules\Mcp\Entities;
 
 use Espo\Core\Name\Field;
 use Espo\Core\ORM\Entity;
+use Espo\ORM\EntityCollection;
 use UnexpectedValueException;
 
 class Endpoint extends Entity
@@ -16,6 +17,7 @@ class Endpoint extends Entity
     public const string FIELD_URL = 'url';
 
     public const string LINK_USERS = 'users';
+    private const string LINK_FEATURES = 'features';
 
     public const string STATUS_ACTIVE = 'Active';
 
@@ -37,5 +39,14 @@ class Endpoint extends Entity
     public function setName(string $name): self
     {
         return $this->set(Field::NAME, $name);
+    }
+
+    /**
+     * @return EntityCollection<Feature>
+     */
+    public function getFeatures(): EntityCollection
+    {
+        /** @var EntityCollection<Feature> */
+        return $this->relations->getMany(self::LINK_FEATURES);
     }
 }

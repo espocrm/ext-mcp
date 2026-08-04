@@ -3,17 +3,17 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp\Discovery;
 
-use Espo\Modules\Mcp\Tools\Mcp\Schema\DiscoverResult;
-use Espo\Modules\Mcp\Tools\Mcp\Schema\ServerCapabilities;
-use Espo\Modules\Mcp\Tools\Mcp\Schema\ToolsCapability;
+use Espo\Modules\Mcp\Tools\Mcp\CachePropertyProvider;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Discovery\DiscoverResult;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Discovery\ServerCapabilities;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Discovery\ToolsCapability;
 use Espo\Modules\Mcp\Tools\Mcp\SupportedVersionsProvider;
 
 class DiscoverResultProvider
 {
-    private const int TTL_MS = 60 * 60 * 1000;
-
     public function __construct(
         private SupportedVersionsProvider $supportedVersionsProvider,
+        private CachePropertyProvider $cachePropertyProvider,
     ) {}
 
     public function get(): DiscoverResult
@@ -25,7 +25,7 @@ class DiscoverResultProvider
         return new DiscoverResult(
             supportedVersions: $this->supportedVersionsProvider->get(),
             capabilities: $capabilities,
-            ttlMs: self::TTL_MS,
+            ttlMs: $this->cachePropertyProvider->getGeneralTtlMs(),
         );
     }
 }
