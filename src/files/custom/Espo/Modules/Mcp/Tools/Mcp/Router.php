@@ -45,9 +45,12 @@ class Router
      */
     public function registerBeforeHooks(array $hooks): void
     {
-        $this->beforeHooks = [$this->beforeHooks, ...$hooks];
+        $this->beforeHooks = [...$this->beforeHooks, ...$hooks];
     }
 
+    /**
+     * @param class-string<Handler> $handlerClassName
+     */
     private function register(string $method, string $handlerClassName): void
     {
         $this->handlers[$method] = $handlerClassName;

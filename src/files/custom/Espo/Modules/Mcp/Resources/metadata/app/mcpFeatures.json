@@ -4,8 +4,8 @@
             "client": {
                 "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-find"
             },
-            "dataObjectClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\Data",
-            "validatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\DataValidator",
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindData",
+            "validatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindDataValidator",
             "fields": {
                 "entityType": {
                     "type": "enum",
