@@ -11,32 +11,9 @@ class IntegerType extends Schema
     public function __construct(
         private ?int $min = null,
         private ?int $max = null,
+        private ?string $title = null,
         private ?string $description = null,
     ) {}
-
-    public function withMin(?int $min): self
-    {
-        $object = clone $this;
-        $object->min = $min;
-
-        return $object;
-    }
-
-    public function withMax(?int $max): self
-    {
-        $object = clone $this;
-        $object->max = $max;
-
-        return $object;
-    }
-
-    public function withDescription(?string $description): self
-    {
-        $object = clone $this;
-        $object->description = $description;
-
-        return $object;
-    }
 
     public function jsonSerialize(): stdClass
     {
@@ -50,6 +27,10 @@ class IntegerType extends Schema
 
         if ($this->max !== null) {
             $object->max = $this->max;
+        }
+
+        if ($this->title !== null) {
+            $object->title = $this->title;
         }
 
         if ($this->description !== null) {

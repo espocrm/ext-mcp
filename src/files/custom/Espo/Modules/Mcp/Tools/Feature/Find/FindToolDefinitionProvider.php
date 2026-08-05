@@ -12,6 +12,7 @@ use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
@@ -21,7 +22,6 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 use Espo\ORM\Defs;
-use stdClass;
 
 /**
  * @implements ToolDefinitionProvider<FindData>
@@ -51,6 +51,8 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
     private const string ORDER_BY_DESCRIPTION = 'Field to sort by.';
 
+    private const string WHERE_DESCRIPTION = 'Advanced filters. Logical AND is applied for multiple filters.';
+
     /**
      * @var array<string, string>
      */
@@ -76,75 +78,131 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         return new Tool(
             name: 'Find.' . $data->entityType,
             inputSchema: new ObjectSchema($this->prepareInputSchema($data)),
-            description: strtr(self::DESCRIPTION, [
-                'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
-            ]),
+            description: $this->getDescription($data),
         );
-    }
-
-    private function getBoolFilterListSchema(FindData $data): stdClass
-    {
-        return (object) [
-            'type' => 'array',
-            'description' => self::BOOL_FILTER_LIST_DESCRIPTION,
-            'items' => (object) [
-                'anyOf' => array_map(function (string $filter) use ($data) {
-                    $item = (object) [
-                        'title' =>
-                            $this->defaultLanguage->translateLabel($filter, 'boolFilters', $data->entityType),
-                        'const' => $filter,
-                    ];
-
-                    $description = $this->boolFilterDescriptions[$filter] ?? null;
-
-                    if ($description !== null) {
-                        $item->descripion = $description;
-                    }
-
-                    return $item;
-                }, $data->boolFilters),
-            ],
-        ];
-    }
-
-    private function getPrimaryFilterSchema(FindData $data): stdClass
-    {
-        return (object) [
-            'description' => self::PRIMARY_FILTER_DESCRIPTION,
-            'anyOf' => array_map(function (string $filter) use ($data) {
-                return (object) [
-                    'title' => $this->defaultLanguage->translateLabel($filter, 'presetFilters', $data->entityType),
-                    'const' => $filter,
-                ];
-            }, $data->primaryFilters),
-        ];
     }
 
     /**
      * @throws UnsupportedFeatureValue
      */
-    private function getWhereSchema(FindData $data): stdClass
+    private function prepareInputSchema(FindData $data): ObjectType
     {
-        $items = [];
+        $inputSchemaProperties = [
+            'maxSize' => new IntegerType(
+                min: 1,
+                max: self::MAX_SIZE_LIMIT,
+                description: self::MAX_SIZE_DESCRIPTION,
+            ),
+            'offset' => new IntegerType(
+                min: 0,
+                description: self::OFFSET_DESCRIPTION,
+            ),
+            'select' => $this->getSelectSchema($data),
+            'order' => new GroupSchema(
+                keyword: GroupKeyword::anyOff,
+                schemas:[
+                    new ConstSchema(
+                        value: 'asc',
+                        description: 'Ascending order.',
+                    ),
+                    new ConstSchema(
+                        value: 'desc',
+                        description: 'Descending order.',
+                    ),
+                ],
+                description: self::ORDER_DESCRIPTION,
+            ),
+            'orderBy' => $this->getOrderBySchema($data),
+        ];
+
+        if ($data->textFilter) {
+            $inputSchemaProperties['textFilter'] = new StringType(
+                description: self::TEXT_FILTER_DESCRIPTION,
+            );
+        }
+
+        if ($data->boolFilters) {
+            $inputSchemaProperties['boolFilterList'] = $this->getBoolFilterListSchema($data);
+        }
+
+        if ($data->primaryFilters) {
+            $inputSchemaProperties['primaryFilter'] = $this->getPrimaryFilterSchema($data);
+        }
+
+        if ($data->filterFields) {
+            $inputSchemaProperties['where'] = $this->getWhereSchema($data);
+        }
+
+        return new ObjectType(
+            properties: $inputSchemaProperties,
+            additionalProperties: false,
+        );
+    }
+
+    private function getBoolFilterListSchema(FindData $data): Schema
+    {
+        return new ArrayType(
+            items: GroupSchema::createAnyOf(
+                schemas: array_map(function (string $filter) use ($data) {
+                    return new ConstSchema(
+                        value: $filter,
+                        title: $this->defaultLanguage->translateLabel($filter, 'boolFilters', $data->entityType),
+                        description: $this->boolFilterDescriptions[$filter] ?? null,
+                    );
+                }, $data->boolFilters)
+            ),
+            description: self::BOOL_FILTER_LIST_DESCRIPTION,
+        );
+    }
+
+    private function getPrimaryFilterSchema(FindData $data): Schema
+    {
+        return new GroupSchema(
+            keyword: GroupKeyword::anyOff,
+            schemas: array_map(function (string $filter) use ($data) {
+                return new ConstSchema(
+                    value: $filter,
+                    title: $this->defaultLanguage->translateLabel($filter, 'presetFilters', $data->entityType),
+                );
+            }, $data->primaryFilters),
+            description: self::PRIMARY_FILTER_DESCRIPTION,
+        );
+    }
+
+    /**
+     * @throws UnsupportedFeatureValue
+     */
+    private function getWhereSchema(FindData $data): Schema
+    {
+        $schemas = [];
 
         foreach ($data->filterFields as $field) {
             $provider = $this->fieldFilterSchemaProviderFactory->create($data->entityType, $field);
 
-            $fieldSchema =
+            $schemas = [...$schemas, $provider->get($data->entityType, $field)];
         }
+
+        return new ArrayType(
+            items: new GroupSchema(
+                keyword: GroupKeyword::anyOff,
+                schemas: $schemas,
+            ),
+            description: self::WHERE_DESCRIPTION,
+        );
     }
 
-    private function getOrderBySchema(FindData $data): stdClass
+    private function getOrderBySchema(FindData $data): Schema
     {
-        return (object) [
-            'description' => self::ORDER_BY_DESCRIPTION,
-            'anyOf' => array_map(function (string $field) use ($data) {
-                return (object) [
-                    'const' => $field,
-                    'title' => $this->defaultLanguage->translateLabel($field, 'fields', $data->entityType),
-                ];
+        return new GroupSchema(
+            keyword: GroupKeyword::anyOff,
+            schemas: array_map(function (string $field) use ($data) {
+                return new ConstSchema(
+                    value: $field,
+                    title: $this->defaultLanguage->translateLabel($field, 'fields', $data->entityType),
+                );
             }, $this->getOrderByFields($data)),
-        ];
+            description: self::ORDER_BY_DESCRIPTION,
+        );
     }
 
     /**
@@ -207,60 +265,10 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         return array_values($fields);
     }
 
-    /**
-     * @throws UnsupportedFeatureValue
-     */
-    private function prepareInputSchema(FindData $data): ObjectType
+    private function getDescription(FindData $data): string
     {
-        $inputSchemaProperties = [
-            'maxSize' => new IntegerType(
-                min: 1,
-                max: self::MAX_SIZE_LIMIT,
-                description: self::MAX_SIZE_DESCRIPTION,
-            ),
-            'offset' => new IntegerType(
-                min: 0,
-                description: self::OFFSET_DESCRIPTION,
-            ),
-            'select' => $this->getSelectSchema($data),
-            'order' => (object) [
-                'anyOf' => [
-                    (object) [
-                        'const' => 'asc',
-                        'description' => 'Ascending order.',
-                    ],
-                    (object) [
-                        'const' => 'desc',
-                        'description' => 'Descending order.',
-                    ],
-                ],
-                'description' => self::ORDER_DESCRIPTION,
-            ],
-            'orderBy' => $this->getOrderBySchema($data),
-        ];
-
-        if ($data->textFilter) {
-            $inputSchemaProperties['textFilter'] = new StringType(
-                description: self::TEXT_FILTER_DESCRIPTION,
-            );
-        }
-
-        if ($data->boolFilters) {
-            $inputSchemaProperties->boolFilterList = $this->getBoolFilterListSchema($data);
-        }
-
-        if ($data->primaryFilters) {
-            $inputSchemaProperties->primaryFilter = $this->getPrimaryFilterSchema($data);
-        }
-
-        if ($data->filterFields) {
-            $inputSchemaProperties->where = $this->getWhereSchema($data);
-        }
-
-        return (object) [
-            'type' => 'object',
-            'properties' => $inputSchemaProperties,
-            'additionalProperties' => false,
-        ];
+        return strtr(self::DESCRIPTION, [
+            'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
+        ]);
     }
 }

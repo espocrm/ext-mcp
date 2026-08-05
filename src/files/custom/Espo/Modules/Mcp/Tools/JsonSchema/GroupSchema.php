@@ -13,6 +13,7 @@ class GroupSchema extends Schema
     public function __construct(
         private GroupKeyword $keyword,
         private array $schemas,
+        private ?string $description = null,
     ) {}
 
     public static function createAnyOf(array $schemas): self
@@ -25,8 +26,14 @@ class GroupSchema extends Schema
 
     public function jsonSerialize(): stdClass
     {
-        return (object) [
+        $object = (object) [
             $this->keyword->value => array_map(fn ($item) => $item->jsonSerialize(), $this->schemas),
         ];
+
+        if ($this->description !== null) {
+            $object->description = $this->description;
+        }
+
+        return $object;
     }
 }

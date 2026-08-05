@@ -16,35 +16,9 @@ class ObjectType extends Schema
         private array $properties = [],
         private array $required = [],
         private ?bool $additionalProperties = null,
+        private ?string $title = null,
         private ?string $description = null,
     ) {}
-
-    public function withAdditionalProperties(?bool $additionalProperties): self
-    {
-        $object = clone $this;
-        $object->additionalProperties = $additionalProperties;
-
-        return $object;
-    }
-
-    /**
-     * @param string[] $required
-     */
-    public function withRequired(array $required): self
-    {
-        $object = clone $this;
-        $object->required = $required;
-
-        return $object;
-    }
-
-    public function withDescription(?string $description): self
-    {
-        $object = clone $this;
-        $object->description = $description;
-
-        return $object;
-    }
 
     public function jsonSerialize(): stdClass
     {
@@ -60,6 +34,10 @@ class ObjectType extends Schema
 
         if ($this->additionalProperties !== null) {
             $object->additionalProperties = $this->additionalProperties;
+        }
+
+        if ($this->title !== null) {
+            $object->title = $this->title;
         }
 
         if ($this->description !== null) {

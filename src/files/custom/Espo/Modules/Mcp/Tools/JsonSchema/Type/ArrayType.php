@@ -13,6 +13,7 @@ class ArrayType extends Schema
         private ?int $minItems = null,
         private ?int $maxItems = null,
         private ?bool $uniqueItems = null,
+        private ?string $title = null,
         private ?string $description = null,
     ) {}
 
@@ -37,6 +38,10 @@ class ArrayType extends Schema
 
         if ($this->uniqueItems !== null) {
             $object->uniqueItems = $this->uniqueItems;
+        }
+
+        if ($this->title !== null) {
+            $object->title = $this->title;
         }
 
         if ($this->description !== null) {
