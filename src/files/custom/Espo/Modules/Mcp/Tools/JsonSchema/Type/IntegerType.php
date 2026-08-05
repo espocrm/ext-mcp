@@ -3,10 +3,10 @@
 
 namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 
-use Espo\Modules\Mcp\Tools\JsonSchema\Item;
+use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use stdClass;
 
-class IntegerType extends Item
+class IntegerType extends Schema
 {
     public function __construct(
         private ?int $min = null,
@@ -52,7 +52,7 @@ class IntegerType extends Item
             $object->max = $this->max;
         }
 
-        if ($this->description) {
+        if ($this->description !== null) {
             $object->description = $this->description;
         }
 

@@ -1,22 +1,30 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
+namespace Espo\Modules\Mcp\Tools\JsonSchema;
 
-use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use stdClass;
 
-class StringType extends Schema
+class ConstSchema extends Schema
 {
+    /**
+     * @param scalar $value
+     */
     public function __construct(
+        private mixed $value,
+        private ?string $title = null,
         private ?string $description = null,
     ) {}
 
     public function jsonSerialize(): stdClass
     {
         $object = (object) [
-            'type' => 'string',
+            'const' => $this->value,
         ];
+
+        if ($this->title !== null) {
+            $object->title = $this->title;
+        }
 
         if ($this->description !== null) {
             $object->description = $this->description;

@@ -11,6 +11,10 @@ use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
+use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
@@ -175,20 +179,19 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         });
     }
 
-    private function getSelectSchema(FindData $data): stdClass
+    private function getSelectSchema(FindData $data): ArrayType
     {
-        return (object) [
-            'type' => 'array',
-            'description' => self::SELECT_DESCRIPTION,
-            'items' => (object) [
-                'anyOf' => array_map(function (string $field) use ($data) {
-                    return (object) [
-                        'const' => $field,
-                        'title' => $this->defaultLanguage->translateLabel($field, 'fields', $data->entityType),
-                    ];
-                }, $this->filterFields($data->selectFields, $data->entityType)),
-            ],
-        ];
+        return new ArrayType(
+            items: GroupSchema::createAnyOf(
+                schemas: array_map(function (string $field) use ($data) {
+                    return new ConstSchema(
+                        value: $field,
+                        title: $this->defaultLanguage->translateLabel($field, 'fields', $data->entityType)
+                    );
+                }, $this->filterFields($data->selectFields, $data->entityType))
+            ),
+            description: self::SELECT_DESCRIPTION,
+        );
     }
 
     /**

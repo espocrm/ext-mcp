@@ -10,7 +10,7 @@ use stdClass;
 class ObjectSchema implements JsonSerializable
 {
     public function __construct(
-        public ObjectType $data,
+        public ObjectType $schema,
     ) {}
 
     public function jsonSerialize(): stdClass
@@ -18,7 +18,7 @@ class ObjectSchema implements JsonSerializable
         return (object) [
             'type' => 'object',
             '$schema' => ArbitrarySchema::SCHEMA,
-            ...get_object_vars($this->data),
+            ...get_object_vars($this->schema->jsonSerialize()),
         ];
     }
 }

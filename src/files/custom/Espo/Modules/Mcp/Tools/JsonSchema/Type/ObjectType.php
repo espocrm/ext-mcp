@@ -3,13 +3,13 @@
 
 namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 
-use Espo\Modules\Mcp\Tools\JsonSchema\Item;
+use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use stdClass;
 
-class ObjectType extends Item
+class ObjectType extends Schema
 {
     /**
-     * @param array<string, Item> $properties
+     * @param array<string, Schema> $properties
      * @param string[] $required,
      */
     public function __construct(
@@ -62,7 +62,7 @@ class ObjectType extends Item
             $object->additionalProperties = $this->additionalProperties;
         }
 
-        if ($this->description) {
+        if ($this->description !== null) {
             $object->description = $this->description;
         }
 

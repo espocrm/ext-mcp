@@ -5,5 +5,5 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema;
 
 use JsonSerializable;
 
-abstract class Item implements JsonSerializable
+abstract class Schema implements JsonSerializable
 {}
