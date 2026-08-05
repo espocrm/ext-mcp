@@ -6,7 +6,7 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 use Espo\Modules\Mcp\Tools\JsonSchema\Item;
 use stdClass;
 
-class ObjectItem extends Item
+class ObjectType extends Item
 {
     /**
      * @param array<string, Item> $properties

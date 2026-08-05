@@ -11,9 +11,9 @@ use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerItem;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectItem;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringItem;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 use Espo\ORM\Defs;
@@ -207,15 +207,15 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     /**
      * @throws UnsupportedFeatureValue
      */
-    private function prepareInputSchema(FindData $data): ObjectItem
+    private function prepareInputSchema(FindData $data): ObjectType
     {
         $inputSchemaProperties = [
-            'maxSize' => new IntegerItem(
+            'maxSize' => new IntegerType(
                 min: 1,
                 max: self::MAX_SIZE_LIMIT,
                 description: self::MAX_SIZE_DESCRIPTION,
             ),
-            'offset' => new IntegerItem(
+            'offset' => new IntegerType(
                 min: 0,
                 description: self::OFFSET_DESCRIPTION,
             ),
@@ -237,7 +237,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         ];
 
         if ($data->textFilter) {
-            $inputSchemaProperties['textFilter'] = new StringItem(
+            $inputSchemaProperties['textFilter'] = new StringType(
                 description: self::TEXT_FILTER_DESCRIPTION,
             );
         }

@@ -6,7 +6,7 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 use Espo\Modules\Mcp\Tools\JsonSchema\Item;
 use stdClass;
 
-class StringItem extends Item
+class StringType extends Item
 {
     public function __construct(
         private ?string $description = null,
