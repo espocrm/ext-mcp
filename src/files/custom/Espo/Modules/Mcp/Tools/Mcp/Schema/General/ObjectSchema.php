@@ -3,13 +3,14 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp\Schema\General;
 
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectItem;
 use JsonSerializable;
 use stdClass;
 
 class ObjectSchema implements JsonSerializable
 {
     public function __construct(
-        public stdClass $data,
+        public ObjectItem $data,
     ) {}
 
     public function jsonSerialize(): stdClass

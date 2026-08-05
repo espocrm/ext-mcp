@@ -3,9 +3,12 @@
 
 namespace Espo\Modules\Mcp\Schema\FieldFilter;
 
-use stdClass;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectItem;
 
 interface FieldFilterSchemaProvider
 {
-    public function get(string $entityType, string $field): stdClass;
+    /**
+     * @return ObjectItem[]
+     */
+    public function get(string $entityType, string $field): array;
 }

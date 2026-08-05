@@ -4,11 +4,14 @@
 namespace Espo\Modules\Mcp\Schema\FieldFilter\Types;
 
 use Espo\Modules\Mcp\Schema\FieldFilter\FieldFilterSchemaProvider;
-use stdClass;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectItem;
 
 class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
 {
-    public function get(string $entityType, string $field): stdClass
+    /**
+     * @return ObjectItem[]
+     */
+    public function get(string $entityType, string $field): array
     {
         // TODO: Implement get() method.
     }

@@ -11,6 +11,9 @@ use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerItem;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectItem;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringItem;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 use Espo\ORM\Defs;
@@ -66,61 +69,9 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
             throw new NoUserAccess("No access to '$data->entityType'.");
         }
 
-        $inputSchema = (object) [
-            'maxSize' => (object) [
-                'type' => 'integer',
-                'required' => false,
-                'min' => 1,
-                'max' => self::MAX_SIZE_LIMIT,
-                'description' => self::MAX_SIZE_DESCRIPTION,
-            ],
-            'offset' => (object) [
-                'type' => 'integer',
-                'required' => false,
-                'min' => 0,
-                'description' => self::OFFSET_DESCRIPTION,
-            ],
-            'select' => $this->getSelectSchema($data),
-            'order' => (object) [
-                'required' => false,
-                'anyOf' => [
-                    (object) [
-                        'const' => 'asc',
-                        'description' => 'Ascending order.',
-                    ],
-                    (object) [
-                        'const' => 'desc',
-                        'description' => 'Descending order.',
-                    ],
-                ],
-                'description' => self::ORDER_DESCRIPTION,
-            ],
-            'orderBy' => $this->getOrderBySchema($data),
-        ];
-
-        if ($data->textFilter) {
-            $inputSchema->textFilter = (object) [
-                'type' => 'string',
-                'required' => false,
-                'description' => self::TEXT_FILTER_DESCRIPTION,
-            ];
-        }
-
-        if ($data->boolFilters) {
-            $inputSchema->boolFilterList = $this->getBoolFilterListSchema($data);
-        }
-
-        if ($data->primaryFilters) {
-            $inputSchema->primaryFilter = $this->getPrimaryFilterSchema($data);
-        }
-
-        if ($data->filterFields) {
-            $inputSchema->where = $this->getWhereSchema($data);
-        }
-
         return new Tool(
             name: 'Find.' . $data->entityType,
-            inputSchema: new ObjectSchema($inputSchema),
+            inputSchema: new ObjectSchema($this->prepareInputSchema($data)),
             description: strtr(self::DESCRIPTION, [
                 'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
             ]),
@@ -131,7 +82,6 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     {
         return (object) [
             'type' => 'array',
-            'required' => false,
             'description' => self::BOOL_FILTER_LIST_DESCRIPTION,
             'items' => (object) [
                 'anyOf' => array_map(function (string $filter) use ($data) {
@@ -156,7 +106,6 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     private function getPrimaryFilterSchema(FindData $data): stdClass
     {
         return (object) [
-            'required' => false,
             'description' => self::PRIMARY_FILTER_DESCRIPTION,
             'anyOf' => array_map(function (string $filter) use ($data) {
                 return (object) [
@@ -176,14 +125,14 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
         foreach ($data->filterFields as $field) {
             $provider = $this->fieldFilterSchemaProviderFactory->create($data->entityType, $field);
-            //$fieldSchema =
+
+            $fieldSchema =
         }
     }
 
     private function getOrderBySchema(FindData $data): stdClass
     {
         return (object) [
-            'required' => false,
             'description' => self::ORDER_BY_DESCRIPTION,
             'anyOf' => array_map(function (string $field) use ($data) {
                 return (object) [
@@ -230,7 +179,6 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     {
         return (object) [
             'type' => 'array',
-            'required' => false,
             'description' => self::SELECT_DESCRIPTION,
             'items' => (object) [
                 'anyOf' => array_map(function (string $field) use ($data) {
@@ -254,5 +202,62 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         });
 
         return array_values($fields);
+    }
+
+    /**
+     * @throws UnsupportedFeatureValue
+     */
+    private function prepareInputSchema(FindData $data): ObjectItem
+    {
+        $inputSchemaProperties = [
+            'maxSize' => new IntegerItem(
+                min: 1,
+                max: self::MAX_SIZE_LIMIT,
+                description: self::MAX_SIZE_DESCRIPTION,
+            ),
+            'offset' => new IntegerItem(
+                min: 0,
+                description: self::OFFSET_DESCRIPTION,
+            ),
+            'select' => $this->getSelectSchema($data),
+            'order' => (object) [
+                'anyOf' => [
+                    (object) [
+                        'const' => 'asc',
+                        'description' => 'Ascending order.',
+                    ],
+                    (object) [
+                        'const' => 'desc',
+                        'description' => 'Descending order.',
+                    ],
+                ],
+                'description' => self::ORDER_DESCRIPTION,
+            ],
+            'orderBy' => $this->getOrderBySchema($data),
+        ];
+
+        if ($data->textFilter) {
+            $inputSchemaProperties['textFilter'] = new StringItem(
+                description: self::TEXT_FILTER_DESCRIPTION,
+            );
+        }
+
+        if ($data->boolFilters) {
+            $inputSchemaProperties->boolFilterList = $this->getBoolFilterListSchema($data);
+        }
+
+        if ($data->primaryFilters) {
+            $inputSchemaProperties->primaryFilter = $this->getPrimaryFilterSchema($data);
+        }
+
+        if ($data->filterFields) {
+            $inputSchemaProperties->where = $this->getWhereSchema($data);
+        }
+
+        return (object) [
+            'type' => 'object',
+            'properties' => $inputSchemaProperties,
+            'additionalProperties' => false,
+        ];
     }
 }
