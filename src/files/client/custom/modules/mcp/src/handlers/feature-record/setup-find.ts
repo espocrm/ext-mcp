@@ -130,6 +130,7 @@ export default class SetupFindHandler extends SetupHandler<{
     }
 
     private controlFilterFields() {
+        // @todo Support override in entityDefs, to be able to enable custom fields.
         this.controlFields('filter', 'filterFields');
     }
 

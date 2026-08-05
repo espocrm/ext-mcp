@@ -7,6 +7,8 @@ use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\DataFactory;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\BadFeatureData;
+use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
+use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProviderFactory;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
@@ -21,7 +23,7 @@ class ToolsProvider
     ) {}
 
     /**
-     * @todo Cache.
+     * @todo Cache. For user and endpoint.
      *
      * @return Tool[]
      * @throws InternalError
@@ -31,7 +33,13 @@ class ToolsProvider
         $tools = [];
 
         foreach ($this->endpoint->getFeatures() as $feature) {
-            $tools[] = $this->getOne($feature);
+            $tool = $this->getOne($feature);
+
+            if (!$tool) {
+                continue;
+            }
+
+            $tools[] = $tool;
         }
 
         return $tools;
@@ -40,7 +48,7 @@ class ToolsProvider
     /**
      * @throws InternalError
      */
-    private function getOne(Feature $feature): Tool
+    private function getOne(Feature $feature): ?Tool
     {
         try {
             $data = $this->dataFactory->createForFeature($feature);
@@ -54,6 +62,12 @@ class ToolsProvider
             throw new InternalError("Could not create tool schema provider.", previous: $e);
         }
 
-        return $provider->get($data);
+        try {
+            return $provider->get($data);
+        } catch (UnsupportedFeatureValue $e) {
+            throw new InternalError("Unsupported feature value.", previous: $e);
+        } catch (NoUserAccess) {
+            return null;
+        }
     }
 }
