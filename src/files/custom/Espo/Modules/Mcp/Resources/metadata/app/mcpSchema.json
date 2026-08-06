@@ -15,6 +15,26 @@
             "filter": true,
             "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
         },
+        "personName": {
+            "select": true,
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+        },
+        "text": {
+            "select": true,
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+        },
+        "wysiwyg": {
+            "select": true,
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+        },
+        "phone": {
+            "select": true,
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+        },
         "enum": {
             "select": true,
             "filter": true,
@@ -42,29 +62,55 @@
         },
         "email": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\EmailFilterSchemaProvider"
         },
         "float": {
             "select": true,
-            "filter": true
-        },
-        "int": {
-            "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericFilterSchemaProvider"
         },
         "currency": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericFilterSchemaProvider"
+        },
+        "currencyConverted": {
+            "select": true,
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericFilterSchemaProvider"
         },
         "decimal": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericFilterSchemaProvider"
         },
-        "personName": {
+        "int": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\IntFilterSchemaProvider"
         },
         "autoincrement": {
+            "select": true,
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\IntFilterSchemaProvider"
+        },
+        "bool": {
+            "select": true,
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\BoolFilterSchemaProvider"
+        },
+        "date": {
+            "select": true,
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\DateFilterSchemaProvider"
+        },
+        "datetime": {
+            "select": true,
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\DatetimeFilterSchemaProvider"
+        },
+        "datetimeOptional": {
             "select": true,
             "filter": true
         },
@@ -81,30 +127,6 @@
             "filter": true
         },
         "linkParent": {
-            "select": true,
-            "filter": true
-        },
-        "text": {
-            "select": true,
-            "filter": true
-        },
-        "wysiwyg": {
-            "select": true,
-            "filter": true
-        },
-        "date": {
-            "select": true,
-            "filter": true
-        },
-        "datetime": {
-            "select": true,
-            "filter": true
-        },
-        "datetimeOptional": {
-            "select": true,
-            "filter": true
-        },
-        "bool": {
             "select": true,
             "filter": true
         }

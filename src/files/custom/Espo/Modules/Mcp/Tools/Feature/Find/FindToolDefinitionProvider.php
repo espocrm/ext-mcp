@@ -116,9 +116,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         ];
 
         if ($data->textFilter) {
-            $inputSchemaProperties['textFilter'] = new StringType(
-                description: self::TEXT_FILTER_DESCRIPTION,
-            );
+            $inputSchemaProperties['textFilter'] = $this->getTextFilterSchema($data);
         }
 
         if ($data->boolFilters) {
@@ -270,5 +268,31 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         return strtr(self::DESCRIPTION, [
             'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
         ]);
+    }
+
+    private function getTextFilterSchema(FindData $data): StringType
+    {
+        /** @var ?string[] $fields */
+        $fields = $this->metadata->get("entityDefs.$data->entityType.collection.textFilterFields");
+
+        $fieldsPart = null;
+
+        if ($fields && is_array($fields)) {
+            $translatedFields = array_map(function (string $it) use ($data) {
+                return $this->defaultLanguage->translateLabel($it, 'fields', $data->entityType);
+            }, $fields);
+
+            $fieldsPart = 'Fields: ' . implode(',', $translatedFields);
+        }
+
+        $description = self::TEXT_FILTER_DESCRIPTION;
+
+        if ($fieldsPart) {
+            $description .= ' ' . $fieldsPart;
+        }
+
+        return new StringType(
+            description: $description,
+        );
     }
 }

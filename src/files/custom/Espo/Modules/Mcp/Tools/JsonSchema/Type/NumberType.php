@@ -6,21 +6,24 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use stdClass;
 
-class IntegerType implements Schema
+class NumberType implements Schema
 {
     public function __construct(
-        private ?int $min = null,
-        private ?int $exclusiveMinimum = null,
-        private ?int $max = null,
-        private ?int $exclusiveMaximum = null,
+        private int|float|null $min = null,
+        private int|float|null $exclusiveMinimum = null,
+        private int|float|null $max = null,
+        private int|float|null $exclusiveMaximum = null,
         private ?string $title = null,
         private ?string $description = null,
     ) {}
 
+    /**
+     * @inheritDoc
+     */
     public function jsonSerialize(): stdClass
     {
         $object = (object) [
-            'type' => 'integer',
+            'type' => 'number',
         ];
 
         if ($this->min !== null) {

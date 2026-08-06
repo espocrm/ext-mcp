@@ -1,0 +1,47 @@
+<?php
+/**LICENSE**/
+
+namespace Espo\Modules\Mcp\Schema\FieldFilter\Types;
+
+use Espo\Core\Select\Where\Item\Type;
+use Espo\Core\Utils\Language;
+use Espo\Modules\Mcp\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
+
+/**
+ * @noinspection PhpUnused
+ */
+class BoolFilterSchemaProvider implements FieldFilterSchemaProvider
+{
+    public function __construct(
+        private Language $defaultLanguage,
+    ) {}
+
+    public function get(string $entityType, string $field): array
+    {
+        $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
+
+        return [
+            new ObjectType(
+                properties: [
+                    'attribute' => new ConstSchema(value: $field),
+                    'type' => new GroupSchema(
+                        keyword: GroupKeyword::anyOff,
+                        schemas: [
+                            new ConstSchema(value: Type::IS_TRUE),
+                            new ConstSchema(value: Type::IS_FALSE),
+                        ],
+                    ),
+                ],
+                required: [
+                    'attribute',
+                    'type',
+                ],
+                description: "'$label' field filter checking for true or false.",
+            ),
+        ];
+    }
+}
