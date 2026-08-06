@@ -7,7 +7,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
 use stdClass;
 
-class StringType extends Schema
+class StringType implements Schema
 {
     public function __construct(
         private ?int $minLength = null,

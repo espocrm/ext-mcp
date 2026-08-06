@@ -6,7 +6,7 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use stdClass;
 
-class ArrayType extends Schema
+class ArrayType implements Schema
 {
     public function __construct(
         private Schema $items,

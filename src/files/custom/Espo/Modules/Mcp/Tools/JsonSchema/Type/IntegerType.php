@@ -6,7 +6,7 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use stdClass;
 
-class IntegerType extends Schema
+class IntegerType implements Schema
 {
     public function __construct(
         private ?int $min = null,

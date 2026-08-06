@@ -5,7 +5,7 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema;
 
 use stdClass;
 
-class ConstSchema extends Schema
+class ConstSchema implements Schema
 {
     /**
      * @param scalar $value

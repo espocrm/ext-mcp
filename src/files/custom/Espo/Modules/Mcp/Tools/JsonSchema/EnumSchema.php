@@ -5,7 +5,7 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema;
 
 use stdClass;
 
-class EnumSchema extends Schema
+class EnumSchema implements Schema
 {
     /**
      * @param array<int, scalar|null|Schema> $values

@@ -5,7 +5,7 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema;
 
 use stdClass;
 
-class GroupSchema extends Schema
+class GroupSchema implements Schema
 {
     /**
      * @param Schema[] $schemas
