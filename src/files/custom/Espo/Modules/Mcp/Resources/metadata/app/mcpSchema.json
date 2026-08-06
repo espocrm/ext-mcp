@@ -7,31 +7,38 @@
         },
         "number": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
         },
         "url": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
         },
         "enum": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\EnumFilterSchemaProvider"
         },
         "array": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArrayFilterSchemaProvider"
         },
         "multiEnum": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArrayFilterSchemaProvider"
         },
         "checklist": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArrayFilterSchemaProvider"
         },
         "urlMultiple": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArrayFilterSchemaProvider"
         },
         "email": {
             "select": true,

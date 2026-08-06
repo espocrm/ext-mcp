@@ -8,7 +8,7 @@ use stdClass;
 class EnumSchema implements Schema
 {
     /**
-     * @param array<int, scalar|null|Schema> $values
+     * @param array<int, scalar|null|stdClass|(stdClass|scalar|null)[]> $values
      */
     public function __construct(
         private array $values,
@@ -20,10 +20,6 @@ class EnumSchema implements Schema
     {
         $object = (object) [
             'enum' => array_map(function ($item) {
-                if ($item instanceof Schema) {
-                    $item->jsonSerialize();
-                }
-
                 return $item;
             }, $this->values),
         ];
@@ -38,5 +34,4 @@ class EnumSchema implements Schema
 
         return $object;
     }
-
 }

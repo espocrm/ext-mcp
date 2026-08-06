@@ -7,7 +7,6 @@ use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Schema\FieldFilter\FieldFilterSchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
-use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
@@ -18,7 +17,7 @@ use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
 /**
  * @noinspection PhpUnused
  */
-class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
+class EnumFilterSchemaProvider implements FieldFilterSchemaProvider
 {
     public function __construct(
         private EnumOptionsProvider $enumOptionsProvider,
@@ -31,9 +30,7 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
      */
     public function get(string $entityType, string $field): array
     {
-        $value = new StringType(
-            description: "Query string.",
-        );
+        $value = new StringType();
 
         $filedDefs = $this->ormDefs->getEntity($entityType)->getField($field);
         $options = $this->enumOptionsProvider->get($filedDefs);
@@ -41,14 +38,14 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
         if ($options) {
             $value = GroupSchema::createAnyOf(
                 schemas: [
-                    new StringType(
-                        description: "Query string.",
-                    ),
-                    new EnumSchema(
-                        values: $options,
-                    ),
+                    ...array_map(function (string $it) use ($entityType, $field) {
+                        return new ConstSchema(
+                            value: $it,
+                            title: $this->defaultLanguage->translateOption($it, $field, $entityType),
+                        );
+                    }, $options)
                 ],
-                description: "Query string.",
+                description: 'Options.',
             );
         }
 
@@ -61,9 +58,14 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOff,
                         schemas: [
-                            new ConstSchema(value: Type::EQUALS),
-                            new ConstSchema(value: Type::STARTS_WITH),
-                            new ConstSchema(value: Type::CONTAINS),
+                            new ConstSchema(
+                                value: Type::IN,
+                                description: 'Matches one of the listed values.',
+                            ),
+                            new ConstSchema(
+                                value: Type::NOT_IN,
+                                description: 'Does not match any of the listed values.',
+                            ),
                         ],
                     ),
                     'value' => $value,
@@ -73,7 +75,7 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type',
                     'value',
                 ],
-                description: "'$label' field filter.",
+                description: "'$label' field filter. Field type is 'Enum'.",
             ),
             new ObjectType(
                 properties: [

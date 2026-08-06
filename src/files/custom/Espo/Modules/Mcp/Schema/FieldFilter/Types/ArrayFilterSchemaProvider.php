@@ -7,9 +7,9 @@ use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Schema\FieldFilter\FieldFilterSchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
-use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\ORM\Defs;
@@ -18,7 +18,7 @@ use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
 /**
  * @noinspection PhpUnused
  */
-class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
+class ArrayFilterSchemaProvider implements FieldFilterSchemaProvider
 {
     public function __construct(
         private EnumOptionsProvider $enumOptionsProvider,
@@ -31,24 +31,29 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
      */
     public function get(string $entityType, string $field): array
     {
-        $value = new StringType(
-            description: "Query string.",
+        $value = new ArrayType(
+            items: new StringType(),
+            uniqueItems: true,
+            description: 'Options.',
         );
 
         $filedDefs = $this->ormDefs->getEntity($entityType)->getField($field);
         $options = $this->enumOptionsProvider->get($filedDefs);
 
         if ($options) {
-            $value = GroupSchema::createAnyOf(
-                schemas: [
-                    new StringType(
-                        description: "Query string.",
-                    ),
-                    new EnumSchema(
-                        values: $options,
-                    ),
-                ],
-                description: "Query string.",
+            $value = new ArrayType(
+                items: GroupSchema::createAnyOf(
+                    schemas: [
+                        ...array_map(function (string $it) use ($entityType, $field) {
+                            return new ConstSchema(
+                                value: $it,
+                                title: $this->defaultLanguage->translateOption($it, $field, $entityType),
+                            );
+                        }, $options)
+                    ],
+                ),
+                uniqueItems: true,
+                description: 'Options.',
             );
         }
 
@@ -61,9 +66,18 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOff,
                         schemas: [
-                            new ConstSchema(value: Type::EQUALS),
-                            new ConstSchema(value: Type::STARTS_WITH),
-                            new ConstSchema(value: Type::CONTAINS),
+                            new ConstSchema(
+                                value: Type::ARRAY_ANY_OF,
+                                description: 'At least one provided values is present.',
+                            ),
+                            new ConstSchema(
+                                value: Type::ARRAY_ALL_OF,
+                                description: 'All provided values are present.',
+                            ),
+                            new ConstSchema(
+                                value: Type::ARRAY_NONE_OF,
+                                description: 'None of provided values is present.',
+                            ),
                         ],
                     ),
                     'value' => $value,
@@ -73,7 +87,7 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type',
                     'value',
                 ],
-                description: "'$label' field filter.",
+                description: "'$label' field filter. Field type is 'Array'.",
             ),
             new ObjectType(
                 properties: [
@@ -81,8 +95,8 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOff,
                         schemas: [
-                            new ConstSchema(value: Type::IS_NULL),
-                            new ConstSchema(value: Type::IS_NOT_NULL),
+                            new ConstSchema(value: Type::ARRAY_IS_EMPTY),
+                            new ConstSchema(value: Type::ARRAY_IS_NOT_EMPTY),
                         ],
                     ),
                 ],
