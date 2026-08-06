@@ -179,7 +179,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         foreach ($data->filterFields as $field) {
             $provider = $this->fieldFilterSchemaProviderFactory->create($data->entityType, $field);
 
-            $schemas = [...$schemas, $provider->get($data->entityType, $field)];
+            $schemas = [...$schemas, ...$provider->get($data->entityType, $field)];
         }
 
         return new ArrayType(
