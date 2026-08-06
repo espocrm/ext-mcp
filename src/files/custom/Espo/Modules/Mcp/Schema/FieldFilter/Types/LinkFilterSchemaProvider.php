@@ -3,71 +3,71 @@
 
 namespace Espo\Modules\Mcp\Schema\FieldFilter\Types;
 
+use Espo\Core\Acl;
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Schema\FieldFilter\FieldFilterSchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
-use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
-use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
 
 /**
  * @noinspection PhpUnused
  */
-class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
+class LinkFilterSchemaProvider implements FieldFilterSchemaProvider
 {
     public function __construct(
-        private EnumOptionsProvider $enumOptionsProvider,
         private Language $defaultLanguage,
         private Defs $ormDefs,
+        private Acl $acl,
     ) {}
-
     /**
-     * @return ObjectType[]
+     * @inheritDoc
      */
     public function get(string $entityType, string $field): array
     {
-        $value = new StringType(
-            description: "Query string.",
-        );
-
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
-        $options = $this->enumOptionsProvider->get($fieldDefs);
+        $linkDefs = $this->ormDefs->getEntity($entityType)->tryGetRelation($field);
 
-        if ($options) {
-            $value = GroupSchema::createAnyOf(
-                schemas: [
-                    new StringType(
-                        description: "Query string.",
-                    ),
-                    new EnumSchema(
-                        values: $options,
-                    ),
-                ],
-                description: "Query string.",
-            );
+        if (!$linkDefs) {
+            return [];
+        }
+
+        $foreignEntityType = $linkDefs->tryGetForeignEntityType();
+
+        if (!$foreignEntityType) {
+            return [];
+        }
+
+        if (!$this->acl->checkScope($foreignEntityType)) {
+            return [];
         }
 
         $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
 
+        $foreignScopeLabel = $this->defaultLanguage->translateLabel($foreignEntityType, 'scopeNames');
+
         return [
             new ObjectType(
                 properties: [
-                    'attribute' => new ConstSchema(value: $field),
+                    'attribute' => new ConstSchema(
+                        value: $field . 'Id',
+                        description: "Attribute name. Field name plus an `Id` prefix.",
+                    ),
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOff,
                         schemas: [
                             new ConstSchema(value: Type::EQUALS),
-                            new ConstSchema(value: Type::STARTS_WITH),
-                            new ConstSchema(value: Type::CONTAINS),
+                            new ConstSchema(value: Type::NOT_EQUALS),
                         ],
                     ),
-                    'value' => $value,
+                    'value' => new StringType(
+                        description: "'$foreignScopeLabel' record ID. Tool to retrieve IDs: `Find.$foreignEntityType`."
+                    ),
                 ],
                 required: [
                     'attribute',
@@ -81,7 +81,7 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
                     [
                         new ObjectType(
                             properties: [
-                                'attribute' => new ConstSchema(value: $field),
+                                'attribute' => new ConstSchema(value: $field . 'Id'),
                                 'type' => new GroupSchema(
                                     keyword: GroupKeyword::anyOff,
                                     schemas: [
@@ -94,9 +94,9 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
                                 'attribute',
                                 'type',
                             ],
-                            description: "'$label' field filter checking if the value is set or not.",
-                        ),
-                    ] : []
+                            description: "'$label' field filter checking if the value is empty or not.",
+                        )
+                    ]: []
             ),
         ];
     }

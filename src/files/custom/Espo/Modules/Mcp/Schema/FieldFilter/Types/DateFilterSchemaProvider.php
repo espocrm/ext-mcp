@@ -12,6 +12,8 @@ use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
+use Espo\ORM\Defs;
+use Espo\ORM\Defs\Params\FieldParam;
 
 /**
  * @noinspection PhpUnused
@@ -22,10 +24,12 @@ class DateFilterSchemaProvider implements FieldFilterSchemaProvider
 
     public function __construct(
         private Language $defaultLanguage,
+        private Defs $ormDefs,
     ) {}
 
     public function get(string $entityType, string $field): array
     {
+        $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
         $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
 
         return [
@@ -109,13 +113,18 @@ class DateFilterSchemaProvider implements FieldFilterSchemaProvider
                                 value: Type::LAST_FISCAL_QUARTER,
                                 description: "Value falls on the last fiscal quarter.",
                             ),
-                            new ConstSchema(
-                                value: Type::IS_NULL,
-                                description: 'Is empty value.',
-                            ),
-                            new ConstSchema(
-                                value: Type::IS_NOT_NULL,
-                                description: 'Is not empty value.',
+                            ...(
+                                !$fieldDefs->getParam(FieldParam::REQUIRED) ?
+                                    [
+                                        new ConstSchema(
+                                            value: Type::IS_NOT_NULL,
+                                            description: 'Value is set.',
+                                        ),
+                                        new ConstSchema(
+                                            value: Type::IS_NULL,
+                                            description: 'Value is not set.',
+                                        ),
+                                    ]: []
                             ),
                         ],
                     ),

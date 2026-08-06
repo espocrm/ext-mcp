@@ -37,8 +37,8 @@ class ArrayFilterSchemaProvider implements FieldFilterSchemaProvider
             description: 'Options.',
         );
 
-        $filedDefs = $this->ormDefs->getEntity($entityType)->getField($field);
-        $options = $this->enumOptionsProvider->get($filedDefs);
+        $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
+        $options = $this->enumOptionsProvider->get($fieldDefs);
 
         if ($options) {
             $value = new ArrayType(

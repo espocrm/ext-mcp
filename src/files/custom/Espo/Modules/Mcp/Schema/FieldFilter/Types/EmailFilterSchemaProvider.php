@@ -54,8 +54,8 @@ class EmailFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOff,
                         schemas: [
-                            new ConstSchema(value: Type::IS_NULL),
                             new ConstSchema(value: Type::IS_NOT_NULL),
+                            new ConstSchema(value: Type::IS_NULL),
                         ],
                     ),
                 ],

@@ -112,15 +112,18 @@
         },
         "datetimeOptional": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\DatetimeFilterSchemaProvider"
         },
         "link": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkFilterSchemaProvider"
         },
         "linkOne": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkFilterSchemaProvider"
         },
         "linkMultiple": {
             "select": true,

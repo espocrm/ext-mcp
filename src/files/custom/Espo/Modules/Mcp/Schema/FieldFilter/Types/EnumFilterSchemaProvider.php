@@ -32,8 +32,8 @@ class EnumFilterSchemaProvider implements FieldFilterSchemaProvider
     {
         $value = new StringType();
 
-        $filedDefs = $this->ormDefs->getEntity($entityType)->getField($field);
-        $options = $this->enumOptionsProvider->get($filedDefs);
+        $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
+        $options = $this->enumOptionsProvider->get($fieldDefs);
 
         if ($options) {
             $value = GroupSchema::createAnyOf(
@@ -83,8 +83,8 @@ class EnumFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOff,
                         schemas: [
-                            new ConstSchema(value: Type::IS_NULL),
                             new ConstSchema(value: Type::IS_NOT_NULL),
+                            new ConstSchema(value: Type::IS_NULL),
                         ],
                     ),
                 ],
