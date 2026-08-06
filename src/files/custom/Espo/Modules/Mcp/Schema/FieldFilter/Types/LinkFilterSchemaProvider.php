@@ -25,9 +25,7 @@ class LinkFilterSchemaProvider implements FieldFilterSchemaProvider
         private Defs $ormDefs,
         private Acl $acl,
     ) {}
-    /**
-     * @inheritDoc
-     */
+
     public function get(string $entityType, string $field): array
     {
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
@@ -66,7 +64,9 @@ class LinkFilterSchemaProvider implements FieldFilterSchemaProvider
                         ],
                     ),
                     'value' => new StringType(
-                        description: "'$foreignScopeLabel' record ID. Tool to retrieve IDs: `Find.$foreignEntityType`."
+                        description:
+                            "'$foreignScopeLabel' record ID. Foreign type: `$foreignEntityType`. " .
+                            "Tool to retrieve IDs: `Find.$foreignEntityType`."
                     ),
                 ],
                 required: [

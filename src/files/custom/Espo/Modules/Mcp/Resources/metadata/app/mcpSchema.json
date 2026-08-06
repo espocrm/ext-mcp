@@ -125,11 +125,11 @@
             "filter": true,
             "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkFilterSchemaProvider"
         },
-        "linkMultiple": {
+        "linkParent": {
             "select": true,
             "filter": true
         },
-        "linkParent": {
+        "linkMultiple": {
             "select": true,
             "filter": true
         }
