@@ -132,7 +132,8 @@
         },
         "linkMultiple": {
             "select": true,
-            "filter": true
+            "filter": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkMultipleFilterSchemaProvider"
         }
     }
 }
