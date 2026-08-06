@@ -1,15 +1,15 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Schema\FieldFilter\Types;
+namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
@@ -17,7 +17,7 @@ use Espo\ORM\Defs\Params\FieldParam;
 /**
  * @noinspection PhpUnused
  */
-class IntFilterSchemaProvider implements FieldFilterSchemaProvider
+class NumericFilterSchemaProvider implements FieldFilterSchemaProvider
 {
     public function __construct(
         private Language $defaultLanguage,
@@ -26,7 +26,7 @@ class IntFilterSchemaProvider implements FieldFilterSchemaProvider
 
     public function get(string $entityType, string $field): array
     {
-        $value = new IntegerType(
+        $value = new NumberType(
             description: "Query value.",
         );
 

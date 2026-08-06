@@ -1,7 +1,7 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Schema\FieldFilter;
+namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter;
 
 use Espo\Core\InjectableFactory;
 use Espo\Core\Utils\Metadata;

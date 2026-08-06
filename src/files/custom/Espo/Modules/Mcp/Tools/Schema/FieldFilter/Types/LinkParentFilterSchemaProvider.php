@@ -1,12 +1,12 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Schema\FieldFilter\Types;
+namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 
 use Espo\Core\Acl;
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;

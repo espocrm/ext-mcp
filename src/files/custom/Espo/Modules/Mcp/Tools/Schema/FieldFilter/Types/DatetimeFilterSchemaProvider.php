@@ -1,7 +1,7 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Schema\FieldFilter\Types;
+namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 
 /**
  * @noinspection PhpUnused

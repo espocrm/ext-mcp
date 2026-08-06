@@ -1,58 +1,36 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Schema\FieldFilter\Types;
+namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
-use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
-use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
 
 /**
  * @noinspection PhpUnused
  */
-class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
+class IntFilterSchemaProvider implements FieldFilterSchemaProvider
 {
     public function __construct(
-        private EnumOptionsProvider $enumOptionsProvider,
         private Language $defaultLanguage,
         private Defs $ormDefs,
     ) {}
 
-    /**
-     * @return ObjectType[]
-     */
     public function get(string $entityType, string $field): array
     {
-        $value = new StringType(
-            description: "Query string.",
+        $value = new IntegerType(
+            description: "Query value.",
         );
 
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
-        $options = $this->enumOptionsProvider->get($fieldDefs);
-
-        if ($options) {
-            $value = GroupSchema::createAnyOf(
-                schemas: [
-                    new StringType(
-                        description: "Query string.",
-                    ),
-                    new EnumSchema(
-                        values: $options,
-                    ),
-                ],
-                description: "Query string.",
-            );
-        }
-
         $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
 
         return [
@@ -63,8 +41,10 @@ class VarcharFilterSchemaProvider implements FieldFilterSchemaProvider
                         keyword: GroupKeyword::anyOff,
                         schemas: [
                             new ConstSchema(value: Type::EQUALS),
-                            new ConstSchema(value: Type::STARTS_WITH),
-                            new ConstSchema(value: Type::CONTAINS),
+                            new ConstSchema(value: Type::GREATER_THAN),
+                            new ConstSchema(value: Type::GREATER_THAN_OR_EQUALS),
+                            new ConstSchema(value: Type::LESS_THAN),
+                            new ConstSchema(value: Type::LESS_THAN_OR_EQUALS),
                         ],
                     ),
                     'value' => $value,

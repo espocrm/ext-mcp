@@ -6,7 +6,7 @@ namespace Espo\Modules\Mcp\Tools\Feature\Find;
 use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
 use Espo\Core\Utils\Metadata;
-use Espo\Modules\Mcp\Schema\FieldFilter\FieldFilterSchemaProviderFactory;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProviderFactory;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
@@ -19,8 +19,10 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ArbitrarySchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
+use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProviderFactory;
 use Espo\ORM\Defs;
 
 /**
@@ -66,6 +68,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         private Defs $ormDefs,
         private Metadata $metadata,
         private FieldFilterSchemaProviderFactory $fieldFilterSchemaProviderFactory,
+        private FieldSchemaProviderFactory $fieldSchemaProviderFactory,
         private Acl $acl,
     ) {}
 
@@ -78,6 +81,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         return new Tool(
             name: 'Find.' . $data->entityType,
             inputSchema: new ObjectSchema($this->prepareInputSchema($data)),
+            outputSchema: new ArbitrarySchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),
         );
     }
@@ -293,6 +297,48 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
         return new StringType(
             description: $description,
+        );
+    }
+
+    /**
+     * @throws UnsupportedFeatureValue
+     */
+    private function prepareOutputSchema(FindData $data): Schema
+    {
+        return new ObjectType(
+            properties: [
+                'list' => $this->prepareOutputListSchema($data),
+                'total' => new IntegerType(
+                    description: <<<'EOT'
+                        Total number of records in the search result.
+
+                        Special values (if totals disabled):
+                         - `-1`: Has more records – pagination can be used to retrieve the next portion.
+                         - `-2`: Has no more records – reached the end of the list.
+                        EOT
+                )
+            ],
+        );
+    }
+
+    /**
+     * @throws UnsupportedFeatureValue
+     */
+    private function prepareOutputListSchema(FindData $data): Schema
+    {
+        $properties = [];
+
+        foreach ($data->selectFields as $field) {
+            $provider = $this->fieldSchemaProviderFactory->create($data->entityType, $field);
+
+            $properties = array_merge($properties, $provider->get($data->entityType, $field));
+        }
+
+        return new ArrayType(
+            items: new ObjectType(
+                properties: $properties,
+            ),
+            description: "Records.",
         );
     }
 }
