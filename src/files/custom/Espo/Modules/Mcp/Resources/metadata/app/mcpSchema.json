@@ -68,7 +68,8 @@
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\EnumSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\EnumSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\EnumSchemaProvider"
         },
         "array": {
             "select": true,
@@ -76,7 +77,8 @@
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\ArraySchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\ArraySchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\ArraySchemaProvider"
         },
         "multiEnum": {
             "select": true,
@@ -84,7 +86,8 @@
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\ArraySchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\ArraySchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\ArraySchemaProvider"
         },
         "checklist": {
             "select": true,
@@ -92,7 +95,8 @@
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\ArraySchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\ArraySchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\ArraySchemaProvider"
         },
         "urlMultiple": {
             "select": true,
@@ -100,7 +104,8 @@
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\ArraySchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\ArraySchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\UrlMultipleSchemaProvider"
         },
         "email": {
             "select": true,

@@ -51,6 +51,7 @@ class ArraySchemaProvider implements SchemaProvider
                         ...array_map(function (string $it) use ($entityType, $field) {
                             return new ConstSchema(
                                 value: $it,
+                                // @todo Translate referenced.
                                 title: $this->defaultLanguage->translateOption($it, $field, $entityType),
                             );
                         }, $options)

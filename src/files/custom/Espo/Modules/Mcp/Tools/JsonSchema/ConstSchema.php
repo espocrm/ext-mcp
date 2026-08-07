@@ -8,7 +8,7 @@ use stdClass;
 class ConstSchema implements Schema
 {
     /**
-     * @param scalar $value
+     * @param scalar|stdClass|stdClass[]|scalar[]|null $value
      */
     public function __construct(
         private mixed $value,

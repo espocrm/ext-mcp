@@ -37,7 +37,8 @@ class EnumSchemaProvider implements SchemaProvider
         $value = new StringType();
 
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
-        $options = $this->enumOptionsProvider->get($fieldDefs);
+
+        $options = $this->getOptions($fieldDefs);
 
         if ($options) {
             $value = GroupSchema::createAnyOf(
@@ -45,6 +46,7 @@ class EnumSchemaProvider implements SchemaProvider
                     ...array_map(function (string $it) use ($entityType, $field) {
                         return new ConstSchema(
                             value: $it,
+                            // @todo Translate referenced.
                             title: $this->defaultLanguage->translateOption($it, $field, $entityType),
                         );
                     }, $options)
@@ -99,5 +101,21 @@ class EnumSchemaProvider implements SchemaProvider
                 description: "'$label' field filter checking if the value is empty or not.",
             ),
         ];
+    }
+
+    /**
+     * @return ?string[]
+     */
+    private function getOptions(Defs\FieldDefs $fieldDefs): ?array
+    {
+        $options = $this->enumOptionsProvider->get($fieldDefs);
+
+        if ($options === null) {
+            return null;
+        }
+
+        $options = array_filter($options, fn ($it) => $it !== '');
+
+        return array_values($options);
     }
 }
