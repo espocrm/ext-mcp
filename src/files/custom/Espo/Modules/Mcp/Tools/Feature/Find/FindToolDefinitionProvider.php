@@ -6,6 +6,8 @@ namespace Espo\Modules\Mcp\Tools\Feature\Find;
 use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
 use Espo\Core\Utils\Metadata;
+use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params as FieldSchemaProviderParams;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params as FieldFilterSchemaProviderParams;
 use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProviderFactory;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
@@ -181,7 +183,12 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         foreach ($data->filterFields as $field) {
             $provider = $this->fieldFilterSchemaProviderFactory->create($data->entityType, $field);
 
-            $schemas = [...$schemas, ...$provider->get($data->entityType, $field)];
+            $params = new FieldFilterSchemaProviderParams(
+                entityType: $data->entityType,
+                field: $field,
+            );
+
+            $schemas = [...$schemas, ...$provider->get($params)];
         }
 
         return new ArrayType(
@@ -331,7 +338,12 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         foreach ($data->selectFields as $field) {
             $provider = $this->fieldSchemaProviderFactory->create($data->entityType, $field);
 
-            $properties = array_merge($properties, $provider->get($data->entityType, $field));
+            $params = new FieldSchemaProviderParams(
+                entityType: $data->entityType,
+                field: $field,
+            );
+
+            $properties = array_merge($properties, $provider->get($params));
         }
 
         return new ArrayType(

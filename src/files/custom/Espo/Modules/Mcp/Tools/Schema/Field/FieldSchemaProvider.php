@@ -4,11 +4,13 @@
 namespace Espo\Modules\Mcp\Tools\Schema\Field;
 
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
+use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 
 interface FieldSchemaProvider
 {
     /**
+     * @todo View type?
      * @return array<string, Schema>
      */
-    public function get(string $entityType, string $field): array;
+    public function get(Params $params): array;
 }

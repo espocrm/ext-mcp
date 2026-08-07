@@ -10,6 +10,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
 
 /**
  * @noinspection PhpUnused
@@ -20,8 +21,11 @@ class BoolFilterSchemaProvider implements FieldFilterSchemaProvider
         private Language $defaultLanguage,
     ) {}
 
-    public function get(string $entityType, string $field): array
+    public function get(Params $params): array
     {
+        $entityType = $params->entityType;
+        $field = $params->field;
+
         $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
 
         return [

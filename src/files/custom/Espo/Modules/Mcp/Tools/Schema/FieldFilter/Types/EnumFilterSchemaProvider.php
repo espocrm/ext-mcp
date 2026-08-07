@@ -11,6 +11,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
 use Espo\ORM\Defs;
 use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
 
@@ -28,8 +29,11 @@ class EnumFilterSchemaProvider implements FieldFilterSchemaProvider
     /**
      * @return ObjectType[]
      */
-    public function get(string $entityType, string $field): array
+    public function get(Params $params): array
     {
+        $entityType = $params->entityType;
+        $field = $params->field;
+
         $value = new StringType();
 
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);

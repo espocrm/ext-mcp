@@ -13,6 +13,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
 
@@ -27,8 +28,11 @@ class LinkMultipleFilterSchemaProvider implements FieldFilterSchemaProvider
         private Acl $acl,
     ) {}
 
-    public function get(string $entityType, string $field): array
+    public function get(Params $params): array
     {
+        $entityType = $params->entityType;
+        $field = $params->field;
+
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
         $linkDefs = $this->ormDefs->getEntity($entityType)->tryGetRelation($field);
 

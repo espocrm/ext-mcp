@@ -11,6 +11,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
 
@@ -24,8 +25,11 @@ class NumericFilterSchemaProvider implements FieldFilterSchemaProvider
         private Defs $ormDefs,
     ) {}
 
-    public function get(string $entityType, string $field): array
+    public function get(Params $params): array
     {
+        $entityType = $params->entityType;
+        $field = $params->field;
+
         $value = new NumberType(
             description: "Query value.",
         );
