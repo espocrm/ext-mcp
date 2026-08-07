@@ -29,14 +29,9 @@ class DatetimeSchemaProvider implements SchemaProvider
     {
         $fieldDefs = $this->ormDefs->getEntity($params->entityType)->getField($params->field);
 
-        $maxLength = null;
         $required = [];
 
-        if ($params->isWriteAction()) {
-            $maxLength = $fieldDefs->getParam(FieldParam::MAX_LENGTH);
-        }
-
-        if ($fieldDefs->getParam(FieldParam::REQUIRED)) {
+        if ($fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
             $required[] = $params->field;
         }
 
@@ -45,7 +40,6 @@ class DatetimeSchemaProvider implements SchemaProvider
         $label = $this->defaultLanguage->translateLabel($params->field, 'fields', $params->entityType);
 
         $property = new StringType(
-            maxLength: $maxLength,
             format: StringFormat::dateTime,
             title: $label,
             description: $description,

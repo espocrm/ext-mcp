@@ -199,13 +199,15 @@
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\DatetimeSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\DatetimeSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\DatetimeOptionalSchemaProvider"
         },
         "duration": {
             "select": true,
             "read": true,
             "create": true,
-            "edit": true
+            "edit": true,
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\DurationSchemaProvider"
         },
         "link": {
             "select": true,
