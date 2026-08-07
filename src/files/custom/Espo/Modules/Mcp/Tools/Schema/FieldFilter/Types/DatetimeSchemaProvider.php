@@ -6,7 +6,7 @@ namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 /**
  * @noinspection PhpUnused
  */
-class DatetimeFilterSchemaProvider extends DateFilterSchemaProvider
+class DatetimeSchemaProvider extends DateSchemaProvider
 {
     protected bool $isDateTime = true;
 }

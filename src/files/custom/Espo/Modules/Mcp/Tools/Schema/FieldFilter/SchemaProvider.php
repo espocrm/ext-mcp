@@ -4,9 +4,9 @@
 namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter;
 
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider\Params;
 
-interface FieldFilterSchemaProvider
+interface SchemaProvider
 {
     /**
      * @return ObjectType[]

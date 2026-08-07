@@ -3,137 +3,137 @@
         "varchar": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider"
         },
         "number": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider"
         },
         "url": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider"
         },
         "personName": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider"
         },
         "text": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider"
         },
         "wysiwyg": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider"
         },
         "phone": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider"
         },
         "enum": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\EnumFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\EnumSchemaProvider"
         },
         "array": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArrayFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArraySchemaProvider"
         },
         "multiEnum": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArrayFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArraySchemaProvider"
         },
         "checklist": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArrayFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArraySchemaProvider"
         },
         "urlMultiple": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArrayFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\ArraySchemaProvider"
         },
         "email": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\EmailFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\EmailSchemaProvider"
         },
         "float": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericSchemaProvider"
         },
         "currency": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericSchemaProvider"
         },
         "currencyConverted": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericSchemaProvider"
         },
         "decimal": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\NumericSchemaProvider"
         },
         "int": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\IntFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\IntSchemaProvider"
         },
         "autoincrement": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\IntFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\IntSchemaProvider"
         },
         "bool": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\BoolFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\BoolSchemaProvider"
         },
         "date": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\DateFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\DateSchemaProvider"
         },
         "datetime": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\DatetimeFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\DatetimeSchemaProvider"
         },
         "datetimeOptional": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\DatetimeFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\DatetimeSchemaProvider"
         },
         "link": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkSchemaProvider"
         },
         "linkOne": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkSchemaProvider"
         },
         "linkParent": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkParentFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkParentSchemaProvider"
         },
         "linkMultiple": {
             "select": true,
             "filter": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkMultipleFilterSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Schema\\FieldFilter\\Types\\LinkMultipleSchemaProvider"
         }
     }
 }

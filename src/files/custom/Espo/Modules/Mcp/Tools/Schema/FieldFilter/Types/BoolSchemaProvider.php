@@ -5,17 +5,17 @@ namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider\Params;
 
 /**
  * @noinspection PhpUnused
  */
-class BoolFilterSchemaProvider implements FieldFilterSchemaProvider
+class BoolSchemaProvider implements SchemaProvider
 {
     public function __construct(
         private Language $defaultLanguage,

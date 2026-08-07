@@ -5,36 +5,58 @@ namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider\Params;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
+use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
 
 /**
  * @noinspection PhpUnused
  */
-class NumericFilterSchemaProvider implements FieldFilterSchemaProvider
+class VarcharSchemaProvider implements SchemaProvider
 {
     public function __construct(
+        private EnumOptionsProvider $enumOptionsProvider,
         private Language $defaultLanguage,
         private Defs $ormDefs,
     ) {}
 
+    /**
+     * @return ObjectType[]
+     */
     public function get(Params $params): array
     {
         $entityType = $params->entityType;
         $field = $params->field;
 
-        $value = new NumberType(
-            description: "Query value.",
+        $value = new StringType(
+            description: "Query string.",
         );
 
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
+        $options = $this->enumOptionsProvider->get($fieldDefs);
+
+        if ($options) {
+            $value = GroupSchema::createAnyOf(
+                schemas: [
+                    new StringType(
+                        description: "Query string.",
+                    ),
+                    new EnumSchema(
+                        values: $options,
+                    ),
+                ],
+                description: "Query string.",
+            );
+        }
+
         $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
 
         return [
@@ -45,10 +67,8 @@ class NumericFilterSchemaProvider implements FieldFilterSchemaProvider
                         keyword: GroupKeyword::anyOff,
                         schemas: [
                             new ConstSchema(value: Type::EQUALS),
-                            new ConstSchema(value: Type::GREATER_THAN),
-                            new ConstSchema(value: Type::GREATER_THAN_OR_EQUALS),
-                            new ConstSchema(value: Type::LESS_THAN),
-                            new ConstSchema(value: Type::LESS_THAN_OR_EQUALS),
+                            new ConstSchema(value: Type::STARTS_WITH),
+                            new ConstSchema(value: Type::CONTAINS),
                         ],
                     ),
                     'value' => $value,

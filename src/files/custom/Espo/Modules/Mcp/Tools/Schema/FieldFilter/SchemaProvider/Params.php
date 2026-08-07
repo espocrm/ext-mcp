@@ -1,7 +1,7 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
+namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider;
 
 readonly class Params
 {

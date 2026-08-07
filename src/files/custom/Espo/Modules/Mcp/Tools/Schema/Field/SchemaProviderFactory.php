@@ -9,7 +9,7 @@ use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
 use Espo\Modules\Mcp\Tools\Mcp\BindingProvider;
 use Espo\ORM\Defs;
 
-class FieldSchemaProviderFactory
+class SchemaProviderFactory
 {
     public function __construct(
         private InjectableFactory $injectableFactory,
@@ -21,7 +21,7 @@ class FieldSchemaProviderFactory
     /**
      * @throws UnsupportedFeatureValue
      */
-    public function create(string $entityType, string $field): FieldSchemaProvider
+    public function create(string $entityType, string $field): SchemaProvider
     {
         $fieldDefs = $this->defs
             ->tryGetEntity($entityType)
@@ -33,7 +33,7 @@ class FieldSchemaProviderFactory
 
         $type = $fieldDefs->getType();
 
-        /** @var ?class-string<FieldSchemaProvider> $className */
+        /** @var ?class-string<SchemaProvider> $className */
         $className =
             $this->metadata->get("entityDefs.$entityType.fields.$field.mcpFieldSchemaProviderClassName") ??
             $this->metadata->get("app.mcpSchema.fieldTypes.$type.schemaProviderClassName");

@@ -5,21 +5,21 @@ namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider\Params;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
 
 /**
  * @noinspection PhpUnused
  */
-class DateFilterSchemaProvider implements FieldFilterSchemaProvider
+class DateSchemaProvider implements SchemaProvider
 {
     protected bool $isDateTime = false;
 

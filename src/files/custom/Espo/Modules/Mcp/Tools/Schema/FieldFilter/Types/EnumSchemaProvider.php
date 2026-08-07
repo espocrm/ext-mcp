@@ -5,21 +5,20 @@ namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider\Params;
 use Espo\ORM\Defs;
 use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
 
 /**
  * @noinspection PhpUnused
  */
-class ArrayFilterSchemaProvider implements FieldFilterSchemaProvider
+class EnumSchemaProvider implements SchemaProvider
 {
     public function __construct(
         private EnumOptionsProvider $enumOptionsProvider,
@@ -35,28 +34,21 @@ class ArrayFilterSchemaProvider implements FieldFilterSchemaProvider
         $entityType = $params->entityType;
         $field = $params->field;
 
-        $value = new ArrayType(
-            items: new StringType(),
-            uniqueItems: true,
-            description: 'Options.',
-        );
+        $value = new StringType();
 
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
         $options = $this->enumOptionsProvider->get($fieldDefs);
 
         if ($options) {
-            $value = new ArrayType(
-                items: GroupSchema::createAnyOf(
-                    schemas: [
-                        ...array_map(function (string $it) use ($entityType, $field) {
-                            return new ConstSchema(
-                                value: $it,
-                                title: $this->defaultLanguage->translateOption($it, $field, $entityType),
-                            );
-                        }, $options)
-                    ],
-                ),
-                uniqueItems: true,
+            $value = GroupSchema::createAnyOf(
+                schemas: [
+                    ...array_map(function (string $it) use ($entityType, $field) {
+                        return new ConstSchema(
+                            value: $it,
+                            title: $this->defaultLanguage->translateOption($it, $field, $entityType),
+                        );
+                    }, $options)
+                ],
                 description: 'Options.',
             );
         }
@@ -71,16 +63,12 @@ class ArrayFilterSchemaProvider implements FieldFilterSchemaProvider
                         keyword: GroupKeyword::anyOff,
                         schemas: [
                             new ConstSchema(
-                                value: Type::ARRAY_ANY_OF,
-                                description: 'At least one provided values is present.',
+                                value: Type::IN,
+                                description: 'Matches one of the listed values.',
                             ),
                             new ConstSchema(
-                                value: Type::ARRAY_ALL_OF,
-                                description: 'All provided values are present.',
-                            ),
-                            new ConstSchema(
-                                value: Type::ARRAY_NONE_OF,
-                                description: 'None of provided values is present.',
+                                value: Type::NOT_IN,
+                                description: 'Does not match any of the listed values.',
                             ),
                         ],
                     ),
@@ -91,7 +79,7 @@ class ArrayFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type',
                     'value',
                 ],
-                description: "'$label' field filter. Field type is 'Array'.",
+                description: "'$label' field filter. Field type is 'Enum'.",
             ),
             new ObjectType(
                 properties: [
@@ -99,8 +87,8 @@ class ArrayFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOff,
                         schemas: [
-                            new ConstSchema(value: Type::ARRAY_IS_EMPTY),
-                            new ConstSchema(value: Type::ARRAY_IS_NOT_EMPTY),
+                            new ConstSchema(value: Type::IS_NOT_NULL),
+                            new ConstSchema(value: Type::IS_NULL),
                         ],
                     ),
                 ],

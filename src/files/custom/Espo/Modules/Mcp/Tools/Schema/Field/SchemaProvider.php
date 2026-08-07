@@ -6,7 +6,7 @@ namespace Espo\Modules\Mcp\Tools\Schema\Field;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 
-interface FieldSchemaProvider
+interface SchemaProvider
 {
     /**
      * @todo View type?

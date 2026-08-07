@@ -6,21 +6,20 @@ namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 use Espo\Core\Acl;
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider\Params;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
 
 /**
  * @noinspection PhpUnused
  */
-class LinkMultipleFilterSchemaProvider implements FieldFilterSchemaProvider
+class LinkSchemaProvider implements SchemaProvider
 {
     public function __construct(
         private Language $defaultLanguage,
@@ -58,32 +57,19 @@ class LinkMultipleFilterSchemaProvider implements FieldFilterSchemaProvider
             new ObjectType(
                 properties: [
                     'attribute' => new ConstSchema(
-                        value: $field . 'Ids',
-                        description: "Record IDs attribute name. Field name plus an `Ids` prefix.",
+                        value: $field . 'Id',
+                        description: "Attribute name for record ID. Field name plus an `Id` prefix.",
                     ),
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOff,
                         schemas: [
-                            new ConstSchema(
-                                value: Type::IS_LINKED_WITH_ANY,
-                                description: 'Is linked with at least one of provider record.',
-                            ),
-                            new ConstSchema(
-                                value: Type::IS_LINKED_WITH_ALL,
-                                description: 'Is linked with all provider records.',
-                            ),
-                            new ConstSchema(
-                                value: Type::IS_NOT_LINKED_WITH,
-                                description: 'Is linked with all provider records.',
-                            ),
+                            new ConstSchema(value: Type::EQUALS),
+                            new ConstSchema(value: Type::NOT_EQUALS),
                         ],
                     ),
-                    'value' => new ArrayType(
-                        items: new StringType(
-                            description: 'Record ID.',
-                        ),
+                    'value' => new StringType(
                         description:
-                            "'$foreignScopeLabel' record IDs. Foreign type: `$foreignEntityType`. " .
+                            "'$foreignScopeLabel' record ID. Foreign type: `$foreignEntityType`. " .
                             "Tool to retrieve IDs: `Find.$foreignEntityType`."
                     ),
                 ],
@@ -103,14 +89,8 @@ class LinkMultipleFilterSchemaProvider implements FieldFilterSchemaProvider
                                 'type' => new GroupSchema(
                                     keyword: GroupKeyword::anyOff,
                                     schemas: [
-                                        new ConstSchema(
-                                            value: Type::IS_LINKED_WITH_ANY,
-                                            description: 'Is not empty.',
-                                        ),
-                                        new ConstSchema(
-                                            value: Type::IS_LINKED_WITH_NONE,
-                                            description: 'Is empty.',
-                                        ),
+                                        new ConstSchema(value: Type::IS_NOT_NULL),
+                                        new ConstSchema(value: Type::IS_NULL),
                                     ],
                                 ),
                             ],

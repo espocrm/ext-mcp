@@ -7,8 +7,8 @@ use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
 use Espo\Core\Utils\Metadata;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params as FieldSchemaProviderParams;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params as FieldFilterSchemaProviderParams;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProviderFactory;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider\Params as FieldFilterSchemaProviderParams;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProviderFactory as FilterFilterSchemaProviderFactory;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
@@ -24,7 +24,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ArbitrarySchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
-use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProviderFactory;
+use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProviderFactory as FieldSchemaProviderFactory;
 use Espo\ORM\Defs;
 
 /**
@@ -69,7 +69,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         private Language $defaultLanguage,
         private Defs $ormDefs,
         private Metadata $metadata,
-        private FieldFilterSchemaProviderFactory $fieldFilterSchemaProviderFactory,
+        private FilterFilterSchemaProviderFactory $fieldFilterSchemaProviderFactory,
         private FieldSchemaProviderFactory $fieldSchemaProviderFactory,
         private Acl $acl,
     ) {}

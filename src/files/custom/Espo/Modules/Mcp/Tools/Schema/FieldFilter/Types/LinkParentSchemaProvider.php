@@ -6,20 +6,20 @@ namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 use Espo\Core\Acl;
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
-use Espo\Modules\Mcp\Tools\Schema\FieldFilter\FieldFilterSchemaProvider\Params;
+use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider\Params;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
 
 /**
  * @noinspection PhpUnused
  */
-class LinkFilterSchemaProvider implements FieldFilterSchemaProvider
+class LinkParentSchemaProvider implements SchemaProvider
 {
     public function __construct(
         private Language $defaultLanguage,
@@ -33,32 +33,28 @@ class LinkFilterSchemaProvider implements FieldFilterSchemaProvider
         $field = $params->field;
 
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
-        $linkDefs = $this->ormDefs->getEntity($entityType)->tryGetRelation($field);
 
-        if (!$linkDefs) {
+        $foreignEntityTypes = $fieldDefs->getParam('entityList') ?? [];
+
+        if (!is_array($foreignEntityTypes) || !$foreignEntityTypes) {
             return [];
         }
 
-        $foreignEntityType = $linkDefs->tryGetForeignEntityType();
+        $foreignEntityTypes = array_filter($foreignEntityTypes, fn ($it) => $this->acl->checkScope($it));
+        $foreignEntityTypes = array_values($foreignEntityTypes);
 
-        if (!$foreignEntityType) {
-            return [];
-        }
-
-        if (!$this->acl->checkScope($foreignEntityType)) {
+        if (!$foreignEntityTypes) {
             return [];
         }
 
         $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
-
-        $foreignScopeLabel = $this->defaultLanguage->translateLabel($foreignEntityType, 'scopeNames');
 
         return [
             new ObjectType(
                 properties: [
                     'attribute' => new ConstSchema(
                         value: $field . 'Id',
-                        description: "Attribute name for record ID. Field name plus an `Id` prefix.",
+                        description: "Attribute name. Field name plus an `Id` prefix.",
                     ),
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOff,
@@ -69,8 +65,9 @@ class LinkFilterSchemaProvider implements FieldFilterSchemaProvider
                     ),
                     'value' => new StringType(
                         description:
-                            "'$foreignScopeLabel' record ID. Foreign type: `$foreignEntityType`. " .
-                            "Tool to retrieve IDs: `Find.$foreignEntityType`."
+                            "Foreign record ID. " .
+                            "Foreign types: " . $this->composeEntityTypesString($foreignEntityTypes) . ". " .
+                            "Tools to retrieve IDs: `Find.{entityType}`."
                     ),
                 ],
                 required: [
@@ -78,7 +75,39 @@ class LinkFilterSchemaProvider implements FieldFilterSchemaProvider
                     'type',
                     'value',
                 ],
-                description: "'$label' field filter.",
+                description: "'$label' ID filter. ID of a polymorphic link.",
+            ),
+            new ObjectType(
+                properties: [
+                    'attribute' => new ConstSchema(
+                        value: $field . 'Type',
+                        description: "Attribute name. Field name plus an `Type` prefix.",
+                    ),
+                    'type' => new GroupSchema(
+                        keyword: GroupKeyword::anyOff,
+                        schemas: [
+                            new ConstSchema(value: Type::EQUALS),
+                            new ConstSchema(value: Type::NOT_EQUALS),
+                        ],
+                    ),
+                    'value' => GroupSchema::createAnyOf(
+                        schemas: array_map(function (string $it) {
+                            return new ConstSchema(
+                                value: $it,
+                                title: $this->defaultLanguage->translateLabel($it, 'scopeNames'),
+                            );
+                        }, $foreignEntityTypes),
+                        description:
+                            "Foreign record Entity Type. " .
+                            "Foreign types: " . $this->composeEntityTypesString($foreignEntityTypes)  .  "." ,
+                    ),
+                ],
+                required: [
+                    'attribute',
+                    'type',
+                    'value',
+                ],
+                description: "'$label' type filter. Entity Type of a polymorphic link.",
             ),
             ...(
                 !$fieldDefs->getParam(FieldParam::REQUIRED) ?
@@ -101,7 +130,21 @@ class LinkFilterSchemaProvider implements FieldFilterSchemaProvider
                             description: "'$label' field filter checking if the value is empty or not.",
                         )
                     ]: []
-            ),
+                ),
         ];
+    }
+
+    /**
+     * @param string[] $entityTypes
+     */
+    private function composeEntityTypesString(array $entityTypes): string
+    {
+        $items = [];
+
+        foreach ($entityTypes as $entityType) {
+            $items[] = '`' . $entityType . '`';
+        }
+
+        return implode(', ', $items);
     }
 }
