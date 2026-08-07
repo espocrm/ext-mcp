@@ -53,15 +53,6 @@
             "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider",
             "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WysiwygSchemaProvider"
         },
-        "phone": {
-            "select": true,
-            "filter": true,
-            "read": true,
-            "create": true,
-            "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider",
-            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\PhoneSchemaProvider"
-        },
         "enum": {
             "select": true,
             "filter": true,
@@ -107,13 +98,39 @@
             "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\ArraySchemaProvider",
             "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\UrlMultipleSchemaProvider"
         },
+        "phone": {
+            "select": true,
+            "filter": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\VarcharSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\PhoneSchemaProvider"
+        },
         "email": {
             "select": true,
             "filter": true,
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\EmailSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\EmailSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\EmailSchemaProvider"
+        },
+        "int": {
+            "select": true,
+            "filter": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\IntSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\IntSchemaProvider"
+        },
+        "autoincrement": {
+            "select": true,
+            "filter": true,
+            "read": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\IntSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\AutoincrementSchemaProvider"
         },
         "float": {
             "select": true,
@@ -121,7 +138,24 @@
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\NumericSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\NumericSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\FloatSchemaProvider"
+        },
+        "decimal": {
+            "select": true,
+            "filter": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\NumericSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\DecimalSchemaProvider"
+        },
+        "currencyConverted": {
+            "select": true,
+            "filter": true,
+            "read": true,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\NumericSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\CurrencyConvertedSchemaProvider"
         },
         "currency": {
             "select": true,
@@ -130,34 +164,6 @@
             "create": true,
             "edit": true,
             "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\NumericSchemaProvider"
-        },
-        "currencyConverted": {
-            "select": true,
-            "filter": true,
-            "read": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\NumericSchemaProvider"
-        },
-        "decimal": {
-            "select": true,
-            "filter": true,
-            "read": true,
-            "create": true,
-            "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\NumericSchemaProvider"
-        },
-        "int": {
-            "select": true,
-            "filter": true,
-            "read": true,
-            "create": true,
-            "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\IntSchemaProvider"
-        },
-        "autoincrement": {
-            "select": true,
-            "filter": true,
-            "read": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\IntSchemaProvider"
         },
         "bool": {
             "select": true,
