@@ -3,14 +3,14 @@
 
 namespace Espo\Modules\Mcp\Tools\Schema\Field;
 
-use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
+use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 
+/**
+ * @todo When using for a writing action, check readOnly. Skip. Check readOnlyAfterCreate.
+ * @todo Check edit field access when using for writing action. SKip.
+ */
 interface SchemaProvider
 {
-    /**
-     * @todo View type?
-     * @return array<string, Schema>
-     */
-    public function get(Params $params): array;
+    public function get(Params $params): Result;
 }

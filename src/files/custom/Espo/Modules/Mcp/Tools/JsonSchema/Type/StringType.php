@@ -50,4 +50,12 @@ class StringType implements Schema
 
         return $object;
     }
+
+    public function withDescription(?string $description): self
+    {
+        $object = clone $this;
+        $object->description = $description;
+
+        return $object;
+    }
 }

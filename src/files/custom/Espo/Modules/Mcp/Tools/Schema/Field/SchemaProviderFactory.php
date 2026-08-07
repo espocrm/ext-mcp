@@ -8,6 +8,7 @@ use Espo\Core\Utils\Metadata;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
 use Espo\Modules\Mcp\Tools\Mcp\BindingProvider;
 use Espo\ORM\Defs;
+use Espo\ORM\Name\Attribute;
 
 class SchemaProviderFactory
 {
@@ -23,15 +24,7 @@ class SchemaProviderFactory
      */
     public function create(string $entityType, string $field): SchemaProvider
     {
-        $fieldDefs = $this->defs
-            ->tryGetEntity($entityType)
-            ?->tryGetField($field);
-
-        if (!$fieldDefs) {
-            throw new UnsupportedFeatureValue("No field '$entityType.$field'.");
-        }
-
-        $type = $fieldDefs->getType();
+        $type = $this->getFieldType($entityType, $field);
 
         /** @var ?class-string<SchemaProvider> $className */
         $className =
@@ -43,5 +36,25 @@ class SchemaProviderFactory
         }
 
         return $this->injectableFactory->createWithBinding($className, $this->bindingProvider->get());
+    }
+
+    /**
+     * @throws UnsupportedFeatureValue
+     */
+    private function getFieldType(string $entityType, string $field): string
+    {
+        $fieldDefs = $this->defs
+            ->tryGetEntity($entityType)
+            ?->tryGetField($field);
+
+        if ($field === Attribute::ID) {
+            return $fieldDefs?->getType() ?? Attribute::ID;
+        }
+
+        if (!$fieldDefs) {
+            throw new UnsupportedFeatureValue("No field '$entityType.$field'.");
+        }
+
+        return $fieldDefs->getType();
     }
 }
