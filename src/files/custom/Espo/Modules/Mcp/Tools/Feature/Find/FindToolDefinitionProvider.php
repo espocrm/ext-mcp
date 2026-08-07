@@ -336,11 +336,15 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     private function prepareOutputListSchema(FindData $data): Schema
     {
         $properties = [];
+        $suppress = [];
 
         $fields = [Attribute::ID, ...$data->selectFields];
 
         foreach ($fields as $field) {
-            if (!$this->acl->checkField($data->entityType, $field)) {
+            if (
+                !$this->acl->checkField($data->entityType, $field) ||
+                in_array($field, $suppress)
+            ) {
                 continue;
             }
 
@@ -355,6 +359,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
             $result = $provider->get($params);
 
             $properties = array_merge($properties, $result->properties);
+            $suppress = array_merge($suppress, $result->suppress);
         }
 
         return new ArrayType(

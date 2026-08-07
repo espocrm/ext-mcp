@@ -30,7 +30,7 @@ class EnumSchemaProvider implements SchemaProvider
 
         $required = [];
 
-        if ($fieldDefs->getParam(FieldParam::REQUIRED)) {
+        if ($fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
             $required[] = $params->field;
         }
 

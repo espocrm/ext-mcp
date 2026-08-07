@@ -33,7 +33,7 @@ class WysiwygSchemaProvider implements SchemaProvider
             $maxLength = $fieldDefs->getParam(FieldParam::MAX_LENGTH);
         }
 
-        if ($fieldDefs->getParam(FieldParam::REQUIRED)) {
+        if ($fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
             $required[] = $params->field;
         }
 

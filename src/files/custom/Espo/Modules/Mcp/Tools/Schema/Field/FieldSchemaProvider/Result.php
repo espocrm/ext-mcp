@@ -10,10 +10,13 @@ readonly class Result
     /**
      * @todo When reading 'required', use `array_values(array_unique(...))`.
      * @param array<string, Schema> $properties
-     * @param string[] $required
+     * @param string[] $required Required attributes.
+     * @param string[] $suppress Suppress fields. If a field already defined attributes for a field.
+     *     Applied only for next fields.
      */
     public function __construct(
         public array $properties = [],
         public array $required = [],
+        public array $suppress = [],
     ) {}
 }

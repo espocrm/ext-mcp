@@ -48,7 +48,7 @@ class IntSchemaProvider implements SchemaProvider
             title: $label,
         );
 
-        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
             $property = Util::wrapWithNull($property);
         }
 

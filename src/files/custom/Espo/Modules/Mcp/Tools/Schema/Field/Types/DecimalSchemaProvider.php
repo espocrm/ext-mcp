@@ -31,7 +31,7 @@ class DecimalSchemaProvider implements SchemaProvider
         $min = null;
         $max = null;
 
-        if ($fieldDefs->getParam(FieldParam::REQUIRED)) {
+        if ($fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
             $required[] = $params->field;
         }
 
