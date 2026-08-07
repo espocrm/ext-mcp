@@ -3,10 +3,13 @@
 
 namespace Espo\Modules\Mcp\Tools\JsonSchema;
 
+use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
 class ConstSchema implements Schema
 {
+    use CommonTrait;
+
     /**
      * @param scalar|stdClass|stdClass[]|scalar[]|null $value
      */

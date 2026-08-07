@@ -4,10 +4,13 @@
 namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
+use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
 class ArrayType implements Schema
 {
+    use CommonTrait;
+
     public function __construct(
         private Schema $items,
         private ?int $minItems = null,

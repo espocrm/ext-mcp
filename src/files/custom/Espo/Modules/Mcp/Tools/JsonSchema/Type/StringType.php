@@ -5,10 +5,13 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
+use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
 class StringType implements Schema
 {
+    use CommonTrait;
+
     public function __construct(
         private ?int $minLength = null,
         private ?int $maxLength = null,
@@ -47,14 +50,6 @@ class StringType implements Schema
         if ($this->description !== null) {
             $object->description = $this->description;
         }
-
-        return $object;
-    }
-
-    public function withDescription(?string $description): self
-    {
-        $object = clone $this;
-        $object->description = $description;
 
         return $object;
     }

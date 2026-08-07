@@ -8,6 +8,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Util;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
 
@@ -41,13 +42,19 @@ class IntSchemaProvider implements SchemaProvider
 
         $label = $this->defaultLanguage->translateLabel($params->field, 'fields', $params->entityType);
 
+        $property = new IntegerType(
+            min: $min,
+            max: $max,
+            title: $label,
+        );
+
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
+            $property = Util::wrapWithNull($property);
+        }
+
         return new Result(
             properties: [
-                $params->field => new IntegerType(
-                    min: $min,
-                    max: $max,
-                    title: $label,
-                ),
+                $params->field => $property,
             ],
             required: $required,
         );

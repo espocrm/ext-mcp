@@ -10,6 +10,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Util;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
 use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
@@ -66,6 +67,10 @@ class VarcharSchemaProvider implements SchemaProvider
                 title: $label,
                 description: $description,
             );
+        }
+
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
+            $property = Util::wrapWithNull($property);
         }
 
         return new Result(

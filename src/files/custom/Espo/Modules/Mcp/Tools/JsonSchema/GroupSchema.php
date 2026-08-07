@@ -3,10 +3,13 @@
 
 namespace Espo\Modules\Mcp\Tools\JsonSchema;
 
+use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
 class GroupSchema implements Schema
 {
+    use CommonTrait;
+
     /**
      * @param Schema[] $schemas
      */

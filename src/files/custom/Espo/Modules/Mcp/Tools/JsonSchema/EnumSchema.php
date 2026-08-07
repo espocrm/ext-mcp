@@ -3,10 +3,13 @@
 
 namespace Espo\Modules\Mcp\Tools\JsonSchema;
 
+use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
 class EnumSchema implements Schema
 {
+    use CommonTrait;
+
     /**
      * @param array<int, scalar|null|stdClass|(stdClass|scalar|null)[]> $values
      */
