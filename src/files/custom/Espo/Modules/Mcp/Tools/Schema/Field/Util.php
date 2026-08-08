@@ -7,6 +7,9 @@ use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 
+/**
+ * @todo Consider a nullable type instead.
+ */
 class Util
 {
     public static function wrapWithNull(Schema $schema): GroupSchema

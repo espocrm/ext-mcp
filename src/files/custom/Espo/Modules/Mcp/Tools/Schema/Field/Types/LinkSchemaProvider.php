@@ -61,7 +61,7 @@ class LinkSchemaProvider implements SchemaProvider
 
         $idProperty = new StringType(
             description:
-                "ID attribute of the '$label' link field. Field name: `$params->field`. " .
+                "An ID attribute of the '$label' link field. Field name: `$params->field`. " .
                 "Specifies the '$foreignScopeLabel' record ID. Foreign type: `$foreignEntityType`. " .
                 "Tool to retrieve IDs: `Find.$foreignEntityType`."
         );
@@ -77,7 +77,7 @@ class LinkSchemaProvider implements SchemaProvider
         if (!$params->isWriteAction()) {
             $nameProperty = new StringType(
                 description:
-                    "Name attribute of '$label' link field. Field name: `$params->field`. " .
+                    "A Name attribute of '$label' link field. Field name: `$params->field`. " .
                     "Contains the related record name.",
             );
 

@@ -63,10 +63,12 @@ class LinkMultipleParentSchemaProvider implements SchemaProvider
         $foreignScopeLabel = $this->defaultLanguage->translateLabel($foreignEntityType, 'scopeNames');
 
         $idsProperty = new ArrayType(
-            items: new StringType(),
+            items: new StringType(
+                description: "`$foreignEntityType` record ID.",
+            ),
             minItems: $minItems,
             description:
-                "IDs attribute of the '$label' link-multiple field. Field name: `$params->field`. " .
+                "An IDs attribute of the '$label' link-multiple field. Field name: `$params->field`. " .
                 "Specifies the '$foreignScopeLabel' record IDs. Foreign type: `$foreignEntityType`. " .
                 "Tool to retrieve IDs: `Find.$foreignEntityType`."
         );

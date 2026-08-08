@@ -64,14 +64,14 @@ class LinkParentSchemaProvider implements SchemaProvider
 
         $idProperty = new StringType(
             description:
-                "ID attribute of the '$label' link-parent (polymorphic) field. Field name: `$params->field`. " .
+                "An ID attribute of the '$label' link-parent (polymorphic) field. Field name: `$params->field`. " .
                 "Specifies the foreign record ID." .
                 "Tool to retrieve IDs: `Find.{entityType}`."
         );
 
         $typeProperty = new StringType(
             description:
-                "Type attribute of the '$label' link-parent (polymorphic) field. Field name: `$params->field`. " .
+                "A Type attribute of the '$label' link-parent (polymorphic) field. Field name: `$params->field`. " .
                 "Specifies the foreign entity type.",
         );
 
@@ -91,7 +91,7 @@ class LinkParentSchemaProvider implements SchemaProvider
         if (!$params->isWriteAction()) {
             $nameProperty = new StringType(
                 description:
-                    "Name attribute of '$label' link-parent field. Field name: `$params->field`. " .
+                    "A Name attribute of '$label' link-parent field. Field name: `$params->field`. " .
                     "Contains the related record name.",
             );
 
