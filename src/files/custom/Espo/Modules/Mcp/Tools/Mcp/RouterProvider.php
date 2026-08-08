@@ -35,6 +35,7 @@ class RouterProvider
             ProtocolVersionCheck::class,
         ]);
 
+        // @todo In metadata.
         $router->registerMultiple([
             Method::SERVER_DISCOVER => ServerDiscoverHandler::class,
             Method::TOOLS_LIST => ToolsListHandler::class,

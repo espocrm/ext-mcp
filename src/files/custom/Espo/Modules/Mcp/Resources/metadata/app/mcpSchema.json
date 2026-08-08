@@ -3,6 +3,9 @@
         "id": {
             "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\IdSchemaProvider"
         },
+        "foreign": {
+
+        },
         "varchar": {
             "select": true,
             "filter": true,
@@ -215,7 +218,8 @@
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\LinkSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\LinkSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\LinkSchemaProvider"
         },
         "linkOne": {
             "select": true,
@@ -223,7 +227,8 @@
             "read": true,
             "create": true,
             "edit": true,
-            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\LinkSchemaProvider"
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\LinkSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\LinkSchemaProvider"
         },
         "linkParent": {
             "select": true,

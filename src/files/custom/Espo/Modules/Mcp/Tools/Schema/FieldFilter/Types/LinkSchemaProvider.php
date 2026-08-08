@@ -35,11 +35,7 @@ class LinkSchemaProvider implements SchemaProvider
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
         $linkDefs = $this->ormDefs->getEntity($entityType)->tryGetRelation($field);
 
-        if (!$linkDefs) {
-            return [];
-        }
-
-        $foreignEntityType = $linkDefs->tryGetForeignEntityType();
+        $foreignEntityType = $linkDefs?->tryGetForeignEntityType() ?? $fieldDefs->getParam('entity');
 
         if (!$foreignEntityType) {
             return [];
@@ -50,7 +46,6 @@ class LinkSchemaProvider implements SchemaProvider
         }
 
         $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
-
         $foreignScopeLabel = $this->defaultLanguage->translateLabel($foreignEntityType, 'scopeNames');
 
         return [
