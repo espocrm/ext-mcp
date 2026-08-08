@@ -18,7 +18,7 @@ class ObjectType implements Schema
     public function __construct(
         private array $properties = [],
         private array $required = [],
-        private ?bool $additionalProperties = null,
+        private Schema|bool|null $additionalProperties = null,
         private ?string $title = null,
         private ?string $description = null,
     ) {}
@@ -36,7 +36,9 @@ class ObjectType implements Schema
         }
 
         if ($this->additionalProperties !== null) {
-            $object->additionalProperties = $this->additionalProperties;
+            $object->additionalProperties = is_bool($this->additionalProperties) ?
+                $this->additionalProperties :
+                $this->additionalProperties->jsonSerialize();
         }
 
         if ($this->title !== null) {
