@@ -17,7 +17,7 @@ use Espo\ORM\Defs\Params\FieldParam;
 /**
  * @noinspection PhpUnused
  */
-class LinkSchemaProvider implements SchemaProvider
+class LinkParentSchemaProvider implements SchemaProvider
 {
     public function __construct(
         private Defs $ormDefs,
@@ -31,19 +31,22 @@ class LinkSchemaProvider implements SchemaProvider
         $field = $params->field;
 
         $idAttribute = $field . 'Id';
+        $typeAttribute = $field . 'Type';
         $nameAttribute = $field . 'Name';
 
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
-        $linkDefs = $this->ormDefs->getEntity($entityType)->tryGetRelation($field);
         $idAttributeDefs = $this->ormDefs->getEntity($entityType)->getAttribute($field . 'Id');
 
-        $foreignEntityType = $linkDefs?->tryGetForeignEntityType() ?? $fieldDefs->getParam('entity');
+        $foreignEntityTypes = $fieldDefs->getParam('entityList') ?? [];
 
-        if (!$foreignEntityType) {
+        if (!is_array($foreignEntityTypes) || !$foreignEntityTypes) {
             return new Result();
         }
 
-        if ($params->isWriteAction() && !$this->acl->checkScope($foreignEntityType)) {
+        $foreignEntityTypes = array_filter($foreignEntityTypes, fn ($it) => $this->acl->checkScope($it));
+        $foreignEntityTypes = array_values($foreignEntityTypes);
+
+        if (!$foreignEntityTypes) {
             return new Result();
         }
 
@@ -54,30 +57,41 @@ class LinkSchemaProvider implements SchemaProvider
             $idAttributeDefs->getParam(AttributeParam::DEFAULT) === null
         ) {
             $required[] = $idAttribute;
+            $required[] = $typeAttribute;
         }
 
         $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
-        $foreignScopeLabel = $this->defaultLanguage->translateLabel($foreignEntityType, 'scopeNames');
 
         $idProperty = new StringType(
             description:
-                "ID attribute of the '$label' link field. Field name: `$params->field`. " .
-                "Specifies the '$foreignScopeLabel' record ID. Foreign type: `$foreignEntityType`. " .
-                "Tool to retrieve IDs: `Find.$foreignEntityType`."
+                "ID attribute of the '$label' link-parent (polymorphic) field. Field name: `$params->field`. " .
+                "Specifies the foreign record ID." .
+                "Tool to retrieve IDs: `Find.{entityType}`."
+        );
+
+        $typeProperty = new StringType(
+            description:
+                "Type attribute of the '$label' link-parent (polymorphic) field. Field name: `$params->field`. " .
+                "Specifies the foreign entity type.",
         );
 
         if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
             $idProperty = Util::wrapWithNull($idProperty);
         }
 
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
+            $typeProperty = Util::wrapWithNull($typeProperty);
+        }
+
         $properties = [
             $idAttribute => $idProperty,
+            $typeAttribute => $typeProperty,
         ];
 
         if (!$params->isWriteAction()) {
             $nameProperty = new StringType(
                 description:
-                    "Name attribute of '$label' link field. Field name: `$params->field`. " .
+                    "Name attribute of '$label' link-parent field. Field name: `$params->field`. " .
                     "Contains the related record name.",
             );
 
