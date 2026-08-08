@@ -3,12 +3,11 @@
 
 namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 
-use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
 use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
-class StringType implements Schema
+class StringType implements Type
 {
     use CommonTrait;
 

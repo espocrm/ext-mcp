@@ -3,11 +3,10 @@
 
 namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
 
-use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
-class NumberType implements Schema
+class NumberType implements Type
 {
     use CommonTrait;
 

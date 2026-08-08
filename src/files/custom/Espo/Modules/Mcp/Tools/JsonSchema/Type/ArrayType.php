@@ -7,7 +7,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
-class ArrayType implements Schema
+class ArrayType implements Type
 {
     use CommonTrait;
 
