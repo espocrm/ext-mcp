@@ -45,7 +45,7 @@ class DateSchemaProvider implements SchemaProvider
             description: $description,
         );
 
-        if (!$fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
             $property = Util::wrapWithNull($property);
         }
 

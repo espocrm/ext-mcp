@@ -15,14 +15,14 @@ class DateHelper
         $after = $fieldDefs->getParam('after');
 
         if ($before) {
-            $description .= " If set, must be earlier than `$before` field.";
+            $description .= " If set, must be earlier than the `$before` field.";
         }
 
         if ($after) {
             if ($fieldDefs->getParam('afterOrEqual')) {
-                $description = " If set, must be later than `$after` field or equal to it.";
+                $description = " If set, must be later than the `$after` field or equal to it.";
             } else {
-                $description = " If set, must be later than `$after` field.";
+                $description = " If set, must be later than the `$after` field.";
             }
         }
 

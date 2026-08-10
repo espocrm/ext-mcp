@@ -9,12 +9,14 @@ use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\BooleanType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NullType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\JsonSchema\UnionTypeSchema;
+use Espo\Modules\Mcp\Tools\Schema\Field\DateHelper;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
@@ -22,6 +24,9 @@ use Espo\Modules\Mcp\Tools\Schema\Field\Types\ArraySchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\BoolSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\CurrencyConvertedSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\CurrencySchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\DateSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\DatetimeOptionalSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\DatetimeSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionsProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionTranslator;
 use Espo\ORM\Defs;
@@ -103,6 +108,153 @@ class TypesTest extends TestCase
                     ),
                 ],
                 suppress: ['testCurrency'],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testDate(): void
+    {
+        $provider = new DateSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::DATE,
+                    required: true,
+                    params: [
+                        'before' => 'testAnother',
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+            dateHelper: new DateHelper(),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new StringType(
+                        format: StringFormat::date,
+                        title: 'Field',
+                        description: "If set, must be earlier than the `testAnother` field.",
+                    ),
+                ],
+                required: ['test'],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testDatetime(): void
+    {
+        $provider = new DatetimeSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::DATETIME,
+                    required: true,
+                    params: [
+                        'after' => 'testAnother',
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+            dateHelper: new DateHelper(),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new StringType(
+                        format: StringFormat::dateTime,
+                        title: 'Field',
+                        description: "If set, must be later than the `testAnother` field.",
+                    ),
+                ],
+                required: ['test'],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testDatetimeOptional(): void
+    {
+        $language = $this->createLanguage(
+            fields: [
+                'test' => 'Field',
+                'testDate' => 'Field (Date)',
+            ],
+        );
+
+        $provider = new DatetimeOptionalSchemaProvider(
+            defaultLanguage: $language,
+            datetimeSchemaProvider: new DatetimeSchemaProvider(
+                ormDefs: $this->createOrmDefs(
+                    entityDefs: self::createEntityDefs(
+                        entityType: 'Test',
+                        field: 'test',
+                        type: FieldType::DATETIME_OPTIONAL,
+                        required: true,
+                        params: [
+                            'after' => 'testAnother',
+                        ],
+                    ),
+                ),
+                defaultLanguage: $language,
+                dateHelper: new DateHelper(),
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new StringType(
+                        format: StringFormat::dateTime,
+                        title: 'Field',
+                        description: "If set, must be later than the `testAnother` field.",
+                    ),
+                    'testDate' => new UnionTypeSchema(
+                        schemas: [
+                            new StringType(
+                                format: StringFormat::date,
+                                title: 'Field (Date)',
+                                description: "Is set only when `test` represents all-day (the time part is omitted). " .
+                                    "Should be `null` otherwise.",
+                            ),
+                            new NullType(),
+                        ],
+                    ),
+                ],
+                required: ['test'],
+                suppress: ['testDate']
             ),
             actual: $provider->get(
                 params: new Params(

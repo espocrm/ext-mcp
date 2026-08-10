@@ -44,7 +44,7 @@ class DatetimeOptionalSchemaProvider implements SchemaProvider
 
         $label = $this->defaultLanguage->translateLabel($dateField, 'fields', $params->entityType);
 
-        $description = "Only set when `$params->field` represents all-day (the time part is omitted). " .
+        $description = "Is set only when `$params->field` represents all-day (the time part is omitted). " .
             "Should be `null` otherwise.";
 
         $property = new StringType(

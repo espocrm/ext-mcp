@@ -33,7 +33,7 @@ class TextSchemaProvider implements SchemaProvider
             $maxLength = $fieldDefs->getParam(FieldParam::MAX_LENGTH);
         }
 
-        if ($fieldDefs->getParam(FieldParam::REQUIRED)) {
+        if ($fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
             $required[] = $params->field;
         }
 
@@ -51,7 +51,7 @@ class TextSchemaProvider implements SchemaProvider
             description: $description,
         );
 
-        if (!$fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
             $property = Util::wrapWithNull($property);
         }
 
