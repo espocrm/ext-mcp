@@ -93,7 +93,9 @@ class CurrencySchemaProvider implements SchemaProvider
         if ($fieldDefs->getParam(FieldParam::REQUIRED)) {
             $codeProperty = $codeProperty->withDefault($defaultCode);
         } else {
-            $codeDescription .= " Use `null` if the `$field` field is null.";
+            if ($params->isWriteAction()) {
+                $codeDescription .= " Use `null` if the `$field` field is null.";
+            }
         }
 
         $codeProperty = $codeProperty->withDescription($codeDescription);

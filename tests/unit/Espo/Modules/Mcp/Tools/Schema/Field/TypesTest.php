@@ -13,6 +13,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\BooleanType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NullType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\JsonSchema\UnionTypeSchema;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
@@ -61,7 +62,7 @@ class TypesTest extends TestCase
         );
     }
 
-    public function testCurrency(): void
+    public function testCurrencyNumeric(): void
     {
         $provider = new CurrencySchemaProvider(
             ormDefs: $this->createOrmDefs(
@@ -69,6 +70,9 @@ class TypesTest extends TestCase
                     entityType: 'Test',
                     field: 'test',
                     type: FieldType::CURRENCY,
+                    params: [
+                        'min' => 0,
+                    ],
                 ),
             ),
             defaultLanguage: $this->createLanguage(
@@ -85,6 +89,7 @@ class TypesTest extends TestCase
                     'test' => new UnionTypeSchema(
                         schemas: [
                             new NumberType(
+                                minimum: 0,
                                 title: 'Field',
                                 description: "Amount. Currency code is set in the `testCurrency` field.",
                             ),
@@ -103,7 +108,60 @@ class TypesTest extends TestCase
                 params: new Params(
                     entityType: 'Test',
                     field: 'test',
-                    action: Action::Read,
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testCurrencyDecimal(): void
+    {
+        $provider = new CurrencySchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::CURRENCY,
+                    required: true,
+                    params: [
+                        'decimal' => true,
+                        'min' => 0,
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+            currencyConfig: $this->createCurrencyConfig('EUR', ['EUR', 'USD']),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new StringType(
+                        pattern: "^-?\\d+(?:\\.\\d+)?$",
+                        title: 'Field',
+                        description: "Amount. Currency code is set in the `testCurrency` field. " .
+                            "Min value: `0`.",
+                    ),
+                    'testCurrency' => (new EnumSchema(
+                        values: ['EUR', 'USD'],
+                        description: "Currency code for the `test` field.",
+                    ))->withDefault('EUR'),
+                ],
+                required: [
+                    'test',
+                    'testCurrency',
+                ],
+                suppress: ['testCurrency'],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
                 ),
             ),
         );
