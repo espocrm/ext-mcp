@@ -9,9 +9,10 @@ use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionsProvider;
+use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionTranslator;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
-use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
 
 /**
  * @noinspection PhpUnused
@@ -22,6 +23,7 @@ class EnumSchemaProvider implements SchemaProvider
         private Defs $ormDefs,
         private Language $defaultLanguage,
         private EnumOptionsProvider $enumOptionsProvider,
+        private EnumOptionTranslator $enumOptionTranslator,
     ) {}
 
     public function get(Params $params): Result
@@ -47,8 +49,7 @@ class EnumSchemaProvider implements SchemaProvider
             ...array_map(function (string $it) use ($params) {
                 return new ConstSchema(
                     value: $it,
-                    // @todo Translate referenced.
-                    title: $this->defaultLanguage->translateOption($it, $params->field, $params->entityType),
+                    title: $this->enumOptionTranslator->translate($it, $params->field, $params->entityType),
                 );
             }, $nonEmptyOptions)
         ];

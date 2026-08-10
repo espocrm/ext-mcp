@@ -11,9 +11,9 @@ use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Util;
+use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionsProvider;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\FieldParam;
-use Espo\Tools\OpenApi\Util\EnumOptionsProvider;
 
 /**
  * @noinspection PhpUnused
