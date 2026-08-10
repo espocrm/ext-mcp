@@ -8,6 +8,5 @@ readonly class Params
     public function __construct(
         public string $entityType,
         public string $field,
-        public ?string $description,
     ) {}
 }

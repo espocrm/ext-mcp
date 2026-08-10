@@ -33,6 +33,6 @@
         "featureAlreadyExists": "The same feature already exists in the endpoint."
     },
     "tooltips": {
-        "findSelectFields": "Which fields to allow to fetch. Specify optional description (for LLM) for fields."
+        "findSelectFields": "Specify which fields to allow to fetch and optional description (for LLM) for each field."
     }
 }

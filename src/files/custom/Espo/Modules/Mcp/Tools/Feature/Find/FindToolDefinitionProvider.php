@@ -189,7 +189,6 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
             $params = new FieldFilterSchemaProviderParams(
                 entityType: $data->entityType,
                 field: $field->name,
-                description: $field->description,
             );
 
             $schemas = [...$schemas, ...$provider->get($params)];
