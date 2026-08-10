@@ -3,15 +3,24 @@
 
 namespace tests\unit\Espo\Modules\Mcp\Tools\Schema\Field;
 
+use Espo\Core\Currency\ConfigDataProvider as CurrencyConfig;
 use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\BooleanType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\NullType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
+use Espo\Modules\Mcp\Tools\JsonSchema\UnionTypeSchema;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\ArraySchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\BoolSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\CurrencyConvertedSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\CurrencySchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionsProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionTranslator;
 use Espo\ORM\Defs;
@@ -22,6 +31,126 @@ use PHPUnit\Framework\TestCase;
 #[AllowMockObjectsWithoutExpectations]
 class TypesTest extends TestCase
 {
+    public function testBool(): void
+    {
+        $language = $this->createLanguage(
+            fields: [
+                'test' => 'Field',
+            ],
+        );
+
+        $provider = new BoolSchemaProvider(
+            defaultLanguage: $language,
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new BooleanType(
+                        title: 'Field'
+                    ),
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testCurrency(): void
+    {
+        $provider = new CurrencySchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::CURRENCY,
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+            currencyConfig: $this->createCurrencyConfig('EUR', ['EUR', 'USD']),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new UnionTypeSchema(
+                        schemas: [
+                            new NumberType(
+                                title: 'Field',
+                                description: "Amount. Currency code is set in the `testCurrency` field.",
+                            ),
+                            new NullType(),
+                        ],
+                    ),
+                    'testCurrency' => new EnumSchema(
+                        values: ['EUR', 'USD', null],
+                        description: "Currency code for the `test` field. " .
+                            "Use `null` if the `test` field is null.",
+                    ),
+                ],
+                suppress: ['testCurrency'],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Read,
+                ),
+            ),
+        );
+    }
+
+    public function testCurrencyConverted(): void
+    {
+        $provider = new CurrencyConvertedSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::CURRENCY_CONVERTED,
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'testConverted' => 'Field Converted',
+                ],
+            ),
+            currencyConfig: $this->createCurrencyConfig('EUR'),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'testConverted' => new UnionTypeSchema(
+                        schemas: [
+                            new NumberType(
+                                title: 'Field Converted',
+                                description: "Amount of `test` field converted to EUR currency.",
+                            ),
+                            new NullType(),
+                        ]
+                    ),
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'testConverted',
+                    action: Action::Read,
+                ),
+            ),
+        );
+    }
+
     public function testArray(): void
     {
         $entityDefs = self::createEntityDefs(
@@ -31,41 +160,29 @@ class TypesTest extends TestCase
             required: true,
         );
 
-        $language = $this->createLanguage(
-            fields: [
-                'test' => 'Test Field',
-            ],
-        );
-
-        $enumOptionsProvider = $this->createEnumOptionsProvider(
-            fieldDefs: $entityDefs->getField('test'),
-            options: ['a', 'b'],
-        );
-
-        $enumOptionTranslator = $this->createEnumOptionTranslator([
-            'test' => [
-                'a' => 'A',
-                'b' => 'B',
-            ]
-        ]);
-
         $provider = new ArraySchemaProvider(
-            ormDefs: $this->createOrmDefs($entityDefs),
-            defaultLanguage: $language,
-            enumOptionsProvider: $enumOptionsProvider,
-            enumOptionTranslator: $enumOptionTranslator,
-        );
-
-        $result = $provider->get(
-            params: new Params(
-                entityType: 'Test',
-                field: 'test',
-                action: Action::Find,
+            ormDefs: $this->createOrmDefs(
+                entityDefs: $entityDefs,
             ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+            enumOptionsProvider: $this->createEnumOptionsProvider(
+                fieldDefs: $entityDefs->getField('test'),
+                options: ['a', 'b'],
+            ),
+            enumOptionTranslator: $this->createEnumOptionTranslator([
+                'test' => [
+                    'a' => 'A',
+                    'b' => 'B',
+                ]
+            ]),
         );
 
         $this->assertEquals(
-            new Result(
+            expected: new Result(
                 properties: [
                     'test' => new ArrayType(
                         items: GroupSchema::createAnyOf(
@@ -81,11 +198,49 @@ class TypesTest extends TestCase
                             ],
                         ),
                         uniqueItems: true,
-                        title: 'Test Field',
+                        title: 'Field',
                     ),
                 ],
             ),
-            $result
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Find,
+                ),
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new ArrayType(
+                        items: GroupSchema::createAnyOf(
+                            schemas: [
+                                new ConstSchema(
+                                    value: 'a',
+                                    title: 'A',
+                                ),
+                                new ConstSchema(
+                                    value: 'b',
+                                    title: 'B',
+                                ),
+                            ],
+                        ),
+                        minItems: 1,
+                        uniqueItems: true,
+                        title: 'Field',
+                    ),
+                ],
+                required: ['test'],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
         );
     }
 
@@ -171,5 +326,21 @@ class TypesTest extends TestCase
             ],
             name: $entityType,
         );
+    }
+
+    /**
+     * @param string[] $codes
+     */
+    private function createCurrencyConfig(string $defaultCode, array $codes = []): CurrencyConfig
+    {
+        $currencyConfig = $this->createMock(CurrencyConfig::class);
+
+        $currencyConfig->method('getDefaultCurrency')
+            ->willReturn($defaultCode);
+
+        $currencyConfig->method('getCurrencyList')
+            ->willReturn($codes);
+
+        return $currencyConfig;
     }
 }

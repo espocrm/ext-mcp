@@ -19,7 +19,7 @@ class EnumOptionsProvider
     {
         /** @var ?string $path */
         $path = $fieldDefs->getParam('optionsPath');
-        /** @var ?string $path */
+        /** @var ?string $ref */
         $ref = $fieldDefs->getParam('optionsReference');
 
         if (!$path && $ref && str_contains($ref, '.')) {

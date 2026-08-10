@@ -26,21 +26,21 @@ class CurrencyConvertedSchemaProvider implements SchemaProvider
 
     public function get(Params $params): Result
     {
-        $fieldDefs = $this->ormDefs->getEntity($params->entityType)->getField($params->field);
-
         if ($params->isWriteAction()) {
             return new Result();
         }
 
         $label = $this->defaultLanguage->translateLabel($params->field, 'fields', $params->entityType);
 
-        $field = substr($params->field, -8);
+        $field = substr($params->field, 0, -9);
+
+        $fieldDefs = $this->ormDefs->getEntity($params->entityType)->getField($field);
 
         $currency = $this->currencyConfig->getDefaultCurrency();
 
         $property = new NumberType(
             title: $label,
-            description: "Amount of `$field` field converted to $currency currency."
+            description: "Amount of `$field` field converted to $currency currency.",
         );
 
         if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {

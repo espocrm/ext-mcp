@@ -53,7 +53,7 @@ class CurrencySchemaProvider implements SchemaProvider
         $codeList = $this->currencyConfig->getCurrencyList();
         $defaultCode = $this->currencyConfig->getDefaultCurrency();
 
-        $description = "Amount. Currency code is set in `$codeField` field.";
+        $description = "Amount. Currency code is set in the `$codeField` field.";
 
         $property = new NumberType(
             minimum: $min,
@@ -78,17 +78,25 @@ class CurrencySchemaProvider implements SchemaProvider
             );
         }
 
-        $codeProperty = new EnumSchema(
-            values: $codeList,
-            description: "Currency code for `$field` field.",
-        );
-
-        $codeProperty = $codeProperty->withDefault($defaultCode);
-
         if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
             $property = Util::wrapWithNull($property);
-            $codeProperty = Util::wrapWithNull($codeProperty);
+
+            $codeList[] = null;
         }
+
+        $codeDescription = "Currency code for the `$field` field.";
+
+        $codeProperty = new EnumSchema(
+            values: $codeList,
+        );
+
+        if ($fieldDefs->getParam(FieldParam::REQUIRED)) {
+            $codeProperty = $codeProperty->withDefault($defaultCode);
+        } else {
+            $codeDescription .= " Use `null` if the `$field` field is null.";
+        }
+
+        $codeProperty = $codeProperty->withDescription($codeDescription);
 
         return new Result(
             properties: [
