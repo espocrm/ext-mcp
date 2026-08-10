@@ -57,7 +57,7 @@ readonly class FindData implements Data
             throw new InvalidArgumentException("No 'textFilter.");
         }
 
-        self::assertArrayOfFields($selectFields, 'selectFields');
+        self::assertArrayOfFields($selectFields, 'selectFields', true);
         self::assertArrayOfFields($filterFields, 'filterFields');
 
         self::assertArrayOfStrings($primaryFilters, 'primaryFilters');
@@ -69,7 +69,7 @@ readonly class FindData implements Data
             selectFields: array_map(function ($it) {
                 return new Field(
                     name: $it->name,
-                    description: $it->description,
+                    description: $it->description ?? null,
                 );
             }, $selectFields),
             primaryFilters: $primaryFilters,
@@ -77,7 +77,7 @@ readonly class FindData implements Data
             filterFields: array_map(function ($it) {
                 return new Field(
                     name: $it->name,
-                    description: $it->description,
+                    description: $it->description ?? null,
                 );
             }, $filterFields),
         );
@@ -96,9 +96,9 @@ readonly class FindData implements Data
     }
 
     /**
-     * @phpstan-assert (object{name: string, description: string|null} & stdClass)[] $value
+     * @phpstan-assert (object{name: string, description?: string|null} & stdClass)[] $value
      */
-    private static function assertArrayOfFields(mixed $value, string $name): void
+    private static function assertArrayOfFields(mixed $value, string $name, bool $hasDescription = false): void
     {
         if (!is_array($value)) {
             throw new InvalidArgumentException("No '$name'.");
@@ -117,12 +117,14 @@ readonly class FindData implements Data
                 throw new InvalidArgumentException("Bad '$name'.");
             }
 
-            if (!property_exists($it, 'description')) {
-                throw new InvalidArgumentException("Bad '$name'.");
-            }
-
-            if (!is_string($it->description) && !is_null($it->description)) {
-                throw new InvalidArgumentException("Bad '$name'.");
+            if ($hasDescription) {
+                if (
+                    property_exists($it, 'description') &&
+                    !is_string($it->description) &&
+                    !is_null($it->description)
+                ) {
+                    throw new InvalidArgumentException("Bad '$name'.");
+                }
             }
         }
     }

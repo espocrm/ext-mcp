@@ -9,7 +9,6 @@ use Espo\Core\FieldValidation\Validator\Failure;
 use Espo\Core\Utils\Log;
 use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\DataFactory;
-use Espo\Modules\Mcp\Tools\Feature\DataValidator;
 use Espo\Modules\Mcp\Tools\Feature\DataValidatorFactory;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\BadFeatureData;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;

@@ -6,7 +6,80 @@
         },
         "record": {
             "client": {
-                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-find"
+                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-find",
+                "dynamicLogic": {
+                    "fields": {
+                        "entityType": {
+                            "readOnly": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "or",
+                                        "value": [
+                                            {
+                                                "type": "isNotEmpty",
+                                                "attribute": "selectFields"
+                                            },
+                                            {
+                                                "type": "isNotEmpty",
+                                                "attribute": "filterFields"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        "textFilter": {
+                            "visible": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "entityType"
+                                    }
+                                ]
+                            }
+                        },
+                        "primaryFilters": {
+                            "visible": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "entityType"
+                                    }
+                                ]
+                            }
+                        },
+                        "boolFilters": {
+                            "visible": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "entityType"
+                                    }
+                                ]
+                            }
+                        },
+                        "selectFields": {
+                            "visible": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "entityType"
+                                    }
+                                ]
+                            }
+                        },
+                        "filterFields": {
+                            "visible": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "entityType"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
             },
             "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindData",
             "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindTextComposer",
@@ -31,11 +104,12 @@
                 "selectFields": {
                     "type": "jsonArray",
                     "required": true,
-                    "view": "modules/mcp/views/feature-record/fields/fields"
+                    "view": "modules/mcp/views/feature-record/fields/fields",
+                    "tooltip": "McpFeature.findSelectFields"
                 },
                 "filterFields": {
                     "type": "multiEnum",
-                    "view": "modules/mcp/views/feature-record/fields/fields"
+                    "view": "modules/mcp/views/feature-record/fields/find/filter-fields"
                 }
             },
             "defaults": {
@@ -53,12 +127,6 @@
                         ],
                         [
                             {
-                                "name": "selectFields",
-                                "labelTranslation": "McpFeature.dataFields.selectFields"
-                            }
-                        ],
-                        [
-                            {
                                 "name": "primaryFilters",
                                 "labelTranslation": "McpFeature.dataFields.primaryFilters"
                             },
@@ -69,14 +137,21 @@
                         ],
                         [
                             {
-                                "name": "filterFields",
-                                "labelTranslation": "McpFeature.dataFields.filterFields"
+                                "name": "textFilter",
+                                "labelTranslation": "McpFeature.dataFields.textFilter"
+                            },
+                            false
+                        ],
+                        [
+                            {
+                                "name": "selectFields",
+                                "labelTranslation": "McpFeature.dataFields.selectFields"
                             }
                         ],
                         [
                             {
-                                "name": "textFilter",
-                                "labelTranslation": "McpFeature.dataFields.textFilter"
+                                "name": "filterFields",
+                                "labelTranslation": "McpFeature.dataFields.filterFields"
                             }
                         ]
                     ]

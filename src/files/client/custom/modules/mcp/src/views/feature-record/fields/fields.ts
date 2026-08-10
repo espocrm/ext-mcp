@@ -9,7 +9,7 @@ import ArrayFieldAdd from 'views/modals/array-field-add';
 
 interface ItemSchema {
     name: string;
-    description: string | null;
+    description?: string | null;
 }
 
 export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
@@ -55,6 +55,8 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
     private itemCollection: Collection<Model<ItemSchema>> | null = null
 
     private itemViews: ItemView[]
+
+    protected hasDescription: boolean = true
 
     protected data(): Record<string, any> {
         return {
@@ -157,7 +159,8 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
                 model: model,
                 mode: mode === 'edit' ? 'edit' : 'detail',
                 onRemove: () => this.removeRow(i),
-                targetEntityType: this.model.attributes.targetEntityType ?? null,
+                targetEntityType: this.model.attributes.entityType ?? null,
+                hasDescription: this.hasDescription,
             });
 
             this.itemViews.push(view);
@@ -188,10 +191,15 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
         }
 
         return this.itemCollection.models.map(item => {
-            return {
+            const output: ItemSchema = {
                 name: item.attributes.name!,
-                description: item.attributes.description ?? null,
             };
+
+            if (this.hasDescription) {
+                output.description = item.attributes.description ?? null;
+            }
+
+            return output;
         });
     }
 
@@ -240,10 +248,13 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
 
         const add = async (names: string[]) => {
             names.forEach(name => {
-                items.push({
-                    name: name,
-                    description: null,
-                });
+                const item: ItemSchema = {name};
+
+                if (this.hasDescription) {
+                    item.description = null;
+                }
+
+                items.push(item);
             });
 
             this.model.setMultiple({
@@ -279,14 +290,11 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
     }
 
     fetch(): Record<string, any> {
-        const items = this.getItemsFromCollection().map(item => {
-            return {
-                name: item.name,
-                description: item.description,
-            };
-        });
+        const items = this.getItemsFromCollection().map(item => ({...item}));
 
-        return {items};
+        return {
+            [this.name]: items,
+        };
     }
 }
 
@@ -295,6 +303,7 @@ interface ItemViewOptions {
     mode: 'edit' | 'detail';
     model: Model<ItemSchema>;
     onRemove: () => void;
+    hasDescription: boolean,
 }
 
 class ItemView extends View<{
@@ -305,7 +314,10 @@ class ItemView extends View<{
     // language=Handlebars
     protected templateContent = `
         <div class="row">
-            <div class="detail-field-container col-md-6" data-role="label">{{label}}</div>
+            <div
+                class=" {{#if isEditMode}} detail-field-container {{/if}} col-md-6"
+                data-role="label"
+            >{{label}}</div>
             <div class=" {{columnClassName}} " data-role="description">{{{descriptionField}}}</div>
             {{#if isEditMode}}
                 <div class="col-md-1" style="text-align: center;">
@@ -324,7 +336,7 @@ class ItemView extends View<{
 
     private readonly targetEntityType: string | null
 
-    private descriptionView: TextFieldView
+    private descriptionView: TextFieldView | null = null;
 
     protected data(): Record<string, any> {
         const label = this.translate(this.model.attributes.name!, 'fields', this.targetEntityType);
@@ -346,19 +358,28 @@ class ItemView extends View<{
     protected setup() {
         this.addActionHandler('removeRow', () => this.options.onRemove());
 
-        this.descriptionView = new TextFieldView({
-            name: 'description',
-            mode: this.mode,
-            model: this.model,
-            params: {
-                rowsMin: 1,
-            },
-        });
+        if (this.options.hasDescription) {
+            this.descriptionView = new TextFieldView({
+                name: 'description',
+                mode: this.mode === 'edit' ? 'edit' : 'list',
+                model: this.model,
+                params: {
+                    rowsMin: 1,
+                },
+                readOnly: this.mode === 'detail',
+            });
 
-        this.assignView('descriptionField', this.descriptionView);
+            this.assignView('descriptionField', this.descriptionView);
+        }
     }
 
     validate(): boolean {
-        return this.descriptionView.validate();
+        let notValid = false;
+
+        if (this.descriptionView && this.descriptionView.validate()) {
+            notValid = true;
+        }
+
+        return notValid;
     }
 }

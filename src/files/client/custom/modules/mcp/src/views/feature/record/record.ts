@@ -4,6 +4,7 @@ import View from 'view';
 import Model from 'model';
 import DetailRecordView, {PanelDefs} from 'views/record/detail';
 import EditRecordView, {EditRecordViewOptions} from 'views/record/edit';
+import {Defs} from 'dynamic-logic';
 
 export default class FeatureRecordView extends View<{
     options: {
@@ -12,6 +13,7 @@ export default class FeatureRecordView extends View<{
         parentModel: Model,
         detailLayout: PanelDefs[],
         viewSetupHandler: string | null,
+        fieldsDynamicLogic: Defs['fields'] | null,
     }
 }> {
 
@@ -52,6 +54,9 @@ export default class FeatureRecordView extends View<{
             bottomView: null,
             isWide: true,
             shortcutKeysEnabled: true,
+            dynamicLogicDefs: {
+                fields: this.options.fieldsDynamicLogic ?? {},
+            },
         } as EditRecordViewOptions;
 
         if (this.options.mode === 'edit') {

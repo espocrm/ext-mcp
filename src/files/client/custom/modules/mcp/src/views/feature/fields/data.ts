@@ -5,6 +5,7 @@ import Model from 'model';
 import Utils from 'utils';
 import FeatureRecordView from 'modules/mcp/views/feature/record/record';
 import {PanelDefs} from 'views/record/detail';
+import {Defs} from 'dynamic-logic';
 
 export default class FeatureDataFieldView extends BaseFieldView {
 
@@ -72,7 +73,12 @@ export default class FeatureDataFieldView extends BaseFieldView {
             fields?: Record<string, any>,
             layout?: PanelDefs[],
             defaults?: Record<string, any>,
-            client?: {viewSetupHandler?: string},
+            client?: {
+                viewSetupHandler?: string,
+                dynamicLogic?: {
+                    fields?: Defs['fields'],
+                },
+            },
         };
 
         let initialValues = {};
@@ -95,6 +101,7 @@ export default class FeatureDataFieldView extends BaseFieldView {
             parentModel: this.model,
             detailLayout: Utils.cloneDeep(params.layout ?? []),
             viewSetupHandler: params.client?.viewSetupHandler ?? null,
+            fieldsDynamicLogic: params.client?.dynamicLogic?.fields ?? null,
         });
 
         await this.assignView('sub', this.subView, `[data-name="sub"]`);
