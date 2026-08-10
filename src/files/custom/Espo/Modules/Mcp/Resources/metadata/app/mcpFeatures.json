@@ -29,7 +29,7 @@
                     "view": "modules/mcp/views/feature-record/fields/bool-filters"
                 },
                 "selectFields": {
-                    "type": "multiEnum",
+                    "type": "jsonArray",
                     "required": true,
                     "view": "modules/mcp/views/feature-record/fields/select-fields"
                 },
