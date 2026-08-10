@@ -4,6 +4,7 @@
 namespace Espo\Modules\Mcp\Tools\Feature\Find;
 
 use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\Find\FindData\Field;
 use InvalidArgumentException;
 use stdClass;
 
@@ -12,10 +13,10 @@ readonly class FindData implements Data
     public const string TYPE = 'Find';
 
     /**
-     * @param string[] $selectFields
+     * @param Field[] $selectFields
      * @param string[] $primaryFilters
      * @param string[] $boolFilters
-     * @param string[] $filterFields
+     * @param Field[] $filterFields
      */
     public function __construct(
         public string $entityType,
@@ -56,18 +57,29 @@ readonly class FindData implements Data
             throw new InvalidArgumentException("No 'textFilter.");
         }
 
-        self::assertArrayOfStrings($selectFields, 'selectFields');
+        self::assertArrayOfFields($selectFields, 'selectFields');
+        self::assertArrayOfFields($filterFields, 'filterFields');
+
         self::assertArrayOfStrings($primaryFilters, 'primaryFilters');
         self::assertArrayOfStrings($boolFilters, 'boolFilters');
-        self::assertArrayOfStrings($filterFields, 'filterFields');
 
         return new FindData(
             entityType: $entityType,
             textFilter: $textFilter,
-            selectFields: $selectFields,
+            selectFields: array_map(function ($it) {
+                return new Field(
+                    name: $it->name,
+                    description: $it->description,
+                );
+            }, $selectFields),
             primaryFilters: $primaryFilters,
             boolFilters: $boolFilters,
-            filterFields: $filterFields,
+            filterFields: array_map(function ($it) {
+                return new Field(
+                    name: $it->name,
+                    description: $it->description,
+                );
+            }, $filterFields),
         );
     }
 
@@ -81,6 +93,38 @@ readonly class FindData implements Data
             'boolFilters' => $this->boolFilters,
             'filterFields' => $this->filterFields,
         ];
+    }
+
+    /**
+     * @phpstan-assert (object{name: string, description: string|null} & stdClass)[] $value
+     */
+    private static function assertArrayOfFields(mixed $value, string $name): void
+    {
+        if (!is_array($value)) {
+            throw new InvalidArgumentException("No '$name'.");
+        }
+
+        foreach ($value as $it) {
+            if (!$it instanceof stdClass) {
+                throw new InvalidArgumentException("Bad '$name'.");
+            }
+
+            if (!property_exists($it, 'name')) {
+                throw new InvalidArgumentException("Bad '$name'.");
+            }
+
+            if (!is_string($it->name)) {
+                throw new InvalidArgumentException("Bad '$name'.");
+            }
+
+            if (!property_exists($it, 'description')) {
+                throw new InvalidArgumentException("Bad '$name'.");
+            }
+
+            if (!is_string($it->description) && !is_null($it->description)) {
+                throw new InvalidArgumentException("Bad '$name'.");
+            }
+        }
     }
 
     /**

@@ -12,9 +12,9 @@ interface ItemSchema {
     description: string | null;
 }
 
-export default class FeatureRecordSelectFieldsFieldView extends BaseFieldView<{
+export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
     model: Model<Record<string, any> & {
-        targetEntityType: string | null,
+        entityType: string | null,
     }>
 }> {
 
@@ -76,7 +76,7 @@ export default class FeatureRecordSelectFieldsFieldView extends BaseFieldView<{
     protected initElement() {}
 
     protected setup() {
-        this.addActionHandler('addRow', () => this.addRow());
+        this.addActionHandler('add', () => this.add());
 
         this.validations.push(() => this.validateItems());
         this.validations.push(() => this.validateRequired());
@@ -195,30 +195,48 @@ export default class FeatureRecordSelectFieldsFieldView extends BaseFieldView<{
         });
     }
 
-    private async addRow() {
+    private async add() {
         const items = this.getItemsFromModel() ?? [];
 
         const currentFields = this.getItemsFromModel()?.map(it => it.name) ?? [];
 
-        const targetEntityType = this.model.attributes.targetEntityType;
+        const targetEntityType = this.model.attributes.entityType;
 
         if (!targetEntityType) {
             throw new Error();
         }
 
-        const fields = (this.recordHelper?.getFieldOptionList(this.name) ?? [])
+        let fields = (this.recordHelper?.getFieldOptionList(this.name) ?? [])
             .filter(it => !currentFields.includes(it));
+
+        const translatedOptions = this.getFieldTranslations(targetEntityType, fields);
+
+        fields = fields.sort((a, b) => {
+            const labelA = translatedOptions[a] ?? a;
+            const labelB = translatedOptions[b] ?? b;
+
+            return labelA.localeCompare(labelB);
+        });
 
         const view = new ArrayFieldAdd({
             options: fields,
-            translation: this.getFieldTranslations(targetEntityType, fields),
+            translatedOptions: translatedOptions,
         });
 
         await this.assignView('dialog', view);
         await view.render();
 
-        this.listenTo(view, 'add-mass', (names: string[]) => add(names));
-        this.listenTo(view, 'add', (name: string) => add([name]));
+        this.listenTo(view, 'add-mass', (names: string[]) => {
+            add(names);
+
+            view.close();
+        });
+
+        this.listenTo(view, 'add', (name: string) => {
+            add([name]);
+
+            view.close();
+        });
 
         const add = async (names: string[]) => {
             names.forEach(name => {
@@ -242,7 +260,9 @@ export default class FeatureRecordSelectFieldsFieldView extends BaseFieldView<{
 
         items.splice(index, 1);
 
-        this.model.setMultiple({items}, {ui: true});
+        this.model.setMultiple({
+            [this.name]: items,
+        }, {ui: true});
 
         await this.prepare();
         await this.reRender();
@@ -285,10 +305,10 @@ class ItemView extends View<{
     // language=Handlebars
     protected templateContent = `
         <div class="row">
-            <div class=" {{columnClassName}} " data-role="label">{{label}}</div>
+            <div class="detail-field-container col-md-6" data-role="label">{{label}}</div>
             <div class=" {{columnClassName}} " data-role="description">{{{descriptionField}}}</div>
             {{#if isEditMode}}
-                <div class="col-md-2" style="text-align: center;">
+                <div class="col-md-1" style="text-align: center;">
                     <a
                         role="button"
                         data-action="removeRow"

@@ -31,11 +31,11 @@
                 "selectFields": {
                     "type": "jsonArray",
                     "required": true,
-                    "view": "modules/mcp/views/feature-record/fields/select-fields"
+                    "view": "modules/mcp/views/feature-record/fields/fields"
                 },
                 "filterFields": {
                     "type": "multiEnum",
-                    "view": "modules/mcp/views/feature-record/fields/filter-fields"
+                    "view": "modules/mcp/views/feature-record/fields/fields"
                 }
             },
             "defaults": {
