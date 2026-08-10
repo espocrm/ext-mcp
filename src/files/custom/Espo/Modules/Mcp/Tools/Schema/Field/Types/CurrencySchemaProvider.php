@@ -86,17 +86,14 @@ class CurrencySchemaProvider implements SchemaProvider
 
         $codeDescription = "Currency code for the `$field` field.";
 
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED) && $params->isWriteAction()) {
+            $codeDescription .= " Use `null` if the `$field` field is null.";
+        }
+
         $codeProperty = new EnumSchema(
             values: $codeList,
+            default: $fieldDefs->getParam(FieldParam::REQUIRED) ? $defaultCode : null,
         );
-
-        if ($fieldDefs->getParam(FieldParam::REQUIRED)) {
-            $codeProperty = $codeProperty->withDefault($defaultCode);
-        } else {
-            if ($params->isWriteAction()) {
-                $codeDescription .= " Use `null` if the `$field` field is null.";
-            }
-        }
 
         $codeProperty = $codeProperty->withDescription($codeDescription);
 

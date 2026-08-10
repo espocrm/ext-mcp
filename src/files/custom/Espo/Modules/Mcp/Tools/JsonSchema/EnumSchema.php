@@ -12,11 +12,13 @@ class EnumSchema implements Schema
 
     /**
      * @param array<int, scalar|null|stdClass|(stdClass|scalar|null)[]> $values
+     * @param scalar|null|stdClass|(stdClass|scalar|null)[] $default
      */
     public function __construct(
         private array $values,
         private ?string $title = null,
         private ?string $description = null,
+        private mixed $default = null,
     ) {}
 
     public function jsonSerialize(): stdClass
@@ -33,6 +35,10 @@ class EnumSchema implements Schema
 
         if ($this->description !== null) {
             $object->description = $this->description;
+        }
+
+        if ($this->default !== null) {
+            $object->default = $this->default;
         }
 
         return $object;

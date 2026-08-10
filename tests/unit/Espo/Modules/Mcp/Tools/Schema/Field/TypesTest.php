@@ -301,7 +301,8 @@ class TypesTest extends TestCase
                     'testCurrency' => (new EnumSchema(
                         values: ['EUR', 'USD'],
                         description: "Currency code for the `test` field.",
-                    ))->withDefault('EUR'),
+                        default: 'EUR',
+                    )),
                 ],
                 required: [
                     'test',
