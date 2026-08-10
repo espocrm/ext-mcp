@@ -11,10 +11,11 @@ class NumberType implements Type
     use CommonTrait;
 
     public function __construct(
-        private int|float|null $min = null,
+        private int|float|null $minimum = null,
         private int|float|null $exclusiveMinimum = null,
-        private int|float|null $max = null,
+        private int|float|null $maximum = null,
         private int|float|null $exclusiveMaximum = null,
+        private int|float|null $multipleOf = null,
         private ?string $title = null,
         private ?string $description = null,
     ) {}
@@ -28,20 +29,24 @@ class NumberType implements Type
             'type' => 'number',
         ];
 
-        if ($this->min !== null) {
-            $object->min = $this->min;
+        if ($this->minimum !== null) {
+            $object->minimum = $this->minimum;
         }
 
         if ($this->exclusiveMinimum !== null) {
             $object->exclusiveMinimum = $this->exclusiveMinimum;
         }
 
-        if ($this->max !== null) {
-            $object->max = $this->max;
+        if ($this->maximum !== null) {
+            $object->maximum = $this->maximum;
         }
 
         if ($this->exclusiveMaximum !== null) {
             $object->exclusiveMaximum = $this->exclusiveMaximum;
+        }
+
+        if ($this->multipleOf !== null) {
+            $object->multipleOf = $this->multipleOf;
         }
 
         if ($this->title !== null) {

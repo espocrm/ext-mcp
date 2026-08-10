@@ -98,12 +98,12 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     {
         $inputSchemaProperties = [
             'maxSize' => new IntegerType(
-                min: 1,
-                max: self::MAX_SIZE_LIMIT,
+                minimum: 1,
+                maximum: self::MAX_SIZE_LIMIT,
                 description: self::MAX_SIZE_DESCRIPTION,
             ),
             'offset' => new IntegerType(
-                min: 0,
+                minimum: 0,
                 description: self::OFFSET_DESCRIPTION,
             ),
             'select' => $this->getSelectSchema($data),

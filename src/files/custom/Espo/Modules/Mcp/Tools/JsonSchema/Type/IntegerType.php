@@ -11,10 +11,11 @@ class IntegerType implements Type
     use CommonTrait;
 
     public function __construct(
-        private ?int $min = null,
+        private ?int $minimum = null,
         private ?int $exclusiveMinimum = null,
-        private ?int $max = null,
+        private ?int $maximum = null,
         private ?int $exclusiveMaximum = null,
+        private ?int $multipleOf = null,
         private ?string $title = null,
         private ?string $description = null,
     ) {}
@@ -25,20 +26,24 @@ class IntegerType implements Type
             'type' => 'integer',
         ];
 
-        if ($this->min !== null) {
-            $object->min = $this->min;
+        if ($this->minimum !== null) {
+            $object->minimum = $this->minimum;
         }
 
         if ($this->exclusiveMinimum !== null) {
             $object->exclusiveMinimum = $this->exclusiveMinimum;
         }
 
-        if ($this->max !== null) {
-            $object->max = $this->max;
+        if ($this->maximum !== null) {
+            $object->maximum = $this->maximum;
         }
 
         if ($this->exclusiveMaximum !== null) {
             $object->exclusiveMaximum = $this->exclusiveMaximum;
+        }
+
+        if ($this->multipleOf !== null) {
+            $object->multipleOf = $this->multipleOf;
         }
 
         if ($this->title !== null) {

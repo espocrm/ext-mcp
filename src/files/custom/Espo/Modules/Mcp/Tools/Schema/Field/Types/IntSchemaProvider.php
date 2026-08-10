@@ -43,8 +43,8 @@ class IntSchemaProvider implements SchemaProvider
         $label = $this->defaultLanguage->translateLabel($params->field, 'fields', $params->entityType);
 
         $property = new IntegerType(
-            min: $min,
-            max: $max,
+            minimum: $min,
+            maximum: $max,
             title: $label,
         );
 

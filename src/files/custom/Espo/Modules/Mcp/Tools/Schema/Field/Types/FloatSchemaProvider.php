@@ -43,8 +43,8 @@ class FloatSchemaProvider implements SchemaProvider
         $label = $this->defaultLanguage->translateLabel($params->field, 'fields', $params->entityType);
 
         $property = new NumberType(
-            min: $min,
-            max: $max,
+            minimum: $min,
+            maximum: $max,
             title: $label,
         );
 

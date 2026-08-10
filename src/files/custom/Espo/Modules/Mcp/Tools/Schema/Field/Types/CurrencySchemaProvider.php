@@ -56,8 +56,8 @@ class CurrencySchemaProvider implements SchemaProvider
         $description = "Amount. Currency code is set in `$codeField` field.";
 
         $property = new NumberType(
-            min: $min,
-            max: $max,
+            minimum: $min,
+            maximum: $max,
             title: $label,
             description: $description,
         );
