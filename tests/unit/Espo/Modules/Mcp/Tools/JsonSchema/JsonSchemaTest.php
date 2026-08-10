@@ -3,13 +3,26 @@
 
 namespace tests\unit\Espo\Modules\Mcp\Tools\JsonSchema;
 
+use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\NotSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
+use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\BooleanType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NullType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
+use Espo\Modules\Mcp\Tools\JsonSchema\UnionTypeSchema;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use stdClass;
+use Throwable;
+use UnexpectedValueException;
 
 class JsonSchemaTest extends TestCase
 {
@@ -20,7 +33,11 @@ class JsonSchemaTest extends TestCase
     }
 
     /**
-     * @return array{0: mixed, 1: Schema}[]
+     * @return array{
+     *     0: stdClass|null,
+     *     1: Schema,
+     *     2?: Throwable,
+     * }[]
      */
     public static function dataProvider(): array
     {
@@ -89,6 +106,220 @@ class JsonSchemaTest extends TestCase
                 ],
                 new NullType(),
             ],
+            [
+                (object) [
+                    'type' => 'string',
+                    'minLength' => 1,
+                    'maxLength' => 100,
+                    'pattern' => '[a-z]+',
+                ],
+                new StringType(
+                    minLength: 1,
+                    maxLength: 100,
+                    pattern: '[a-z]+',
+                ),
+            ],
+            [
+                (object) [
+                    'type' => 'string',
+                    'format' => 'date',
+                ],
+                new StringType(
+                    format: StringFormat::date,
+                ),
+            ],
+            [
+                (object) [
+                    'type' => 'array',
+                    'items' => (object) [
+                        'type' => 'string',
+                    ],
+                    'minItems' => 0,
+                    'maxItems' => 2,
+                    'uniqueItems' => true,
+                ],
+                new ArrayType(
+                    items: new StringType(),
+                    minItems: 0,
+                    maxItems: 2,
+                    uniqueItems: true,
+                ),
+            ],
+            [
+                (object) [
+                    'type' => 'object',
+                    'properties' => (object) [
+                        'a' => (object) [
+                            'type' => 'string',
+                        ],
+                        'b' => (object) [
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => ['a'],
+                ],
+                new ObjectType(
+                    properties: [
+                        'a' => new StringType(),
+                        'b' => new StringType(),
+                    ],
+                    required: ['a'],
+                ),
+            ],
+            [
+                (object) [
+                    'type' => 'object',
+                    'properties' => (object) [
+                        'a' => (object) [
+                            'type' => 'string',
+                        ],
+                        'b' => (object) [
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => ['a'],
+                ],
+                new ObjectType(
+                    properties: [
+                        'a' => new StringType(),
+                        'b' => new StringType(),
+                    ],
+                    required: ['a'],
+                ),
+            ],
+            [
+                (object) [
+                    'type' => 'object',
+                    'additionalProperties' => true,
+                ],
+                new ObjectType(
+                    additionalProperties: true,
+                ),
+            ],
+            [
+                (object) [
+                    'type' => 'object',
+                    'additionalProperties' => (object) [
+                        'type' => 'string',
+                    ],
+                ],
+                new ObjectType(
+                    additionalProperties: new StringType(),
+                ),
+            ],
+            [
+                (object) [
+                    'const' => 1,
+                ],
+                new ConstSchema(value: 1),
+            ],
+            [
+                (object) [
+                    'const' => (object) [
+                        'a' => 'b'
+                    ],
+                ],
+                new ConstSchema(
+                    value: (object) [
+                        'a' => 'b'
+                    ],
+                ),
+            ],
+            [
+                (object) [
+                    'enum' => [1, 2],
+                ],
+                new EnumSchema(values: [1, 2]),
+            ],
+            [
+                (object) [
+                    'enum' => [
+                        (object) [
+                            'a' => 1
+                        ],
+                        (object) [
+                            'b' => 2
+                        ],
+                    ],
+                ],
+                new EnumSchema(
+                    values: [
+                        (object) [
+                            'a' => 1
+                        ],
+                        (object) [
+                            'b' => 2
+                        ],
+                    ]
+                ),
+            ],
+            [
+                (object) [
+                    'anyOf' => [
+                        (new StringType())->jsonSerialize(),
+                        (new NumberType())->jsonSerialize(),
+                    ],
+                ],
+                new GroupSchema(
+                    keyword: GroupKeyword::anyOf,
+                    schemas: [
+                        new StringType(),
+                        new NumberType(),
+                    ],
+                )
+            ],
+            [
+                (object) [
+                    'not' => (new StringType())->jsonSerialize(),
+                ],
+                new NotSchema(
+                    schema: new StringType()
+                ),
+            ],
+            [
+                (object) [
+                    'type' => ['string', 'null'],
+                    'minLength' => 1,
+                ],
+                new UnionTypeSchema(
+                    schemas: [
+                        new StringType(
+                            minLength: 1,
+                        ),
+                        new NullType()
+                    ],
+                ),
+            ],
         ];
+    }
+
+    public function testUnionTypeSameType(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+
+        new UnionTypeSchema(
+            schemas: [
+                new StringType(
+                    minLength: 1,
+                ),
+                new StringType(),
+            ],
+        );
+    }
+
+    public function testUnionTypeSameProperty(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+
+        new UnionTypeSchema(
+            schemas: [
+                new IntegerType(
+                    minimum: 1,
+                ),
+                new NumberType(
+                    minimum: 1,
+                ),
+            ],
+        );
     }
 }

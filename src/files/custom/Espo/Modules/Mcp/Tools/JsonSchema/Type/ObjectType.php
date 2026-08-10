@@ -27,9 +27,13 @@ class ObjectType implements Type
     {
         $object = (object) [
             'type' => 'object',
-            'properties' => (object) array_map(fn ($item) => $item->jsonSerialize(), $this->properties),
-            'additionalProperties' => $this->additionalProperties,
         ];
+
+        $properties = array_map(fn ($item) => $item->jsonSerialize(), $this->properties);
+
+        if ($properties) {
+            $object->properties = (object) $properties;
+        }
 
         if ($this->required) {
             $object->required = $this->required;
@@ -39,6 +43,8 @@ class ObjectType implements Type
             $object->additionalProperties = is_bool($this->additionalProperties) ?
                 $this->additionalProperties :
                 $this->additionalProperties->jsonSerialize();
+        } else {
+            unset($object->additionalProperties);
         }
 
         if ($this->title !== null) {

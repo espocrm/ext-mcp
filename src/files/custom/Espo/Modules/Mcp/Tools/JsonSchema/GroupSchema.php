@@ -30,7 +30,7 @@ class GroupSchema implements Schema
     ): self {
 
         return new self(
-            keyword: GroupKeyword::anyOff,
+            keyword: GroupKeyword::anyOf,
             schemas: $schemas,
             title: $title,
             description: $description,

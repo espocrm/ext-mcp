@@ -62,7 +62,7 @@ class LinkMultipleSchemaProvider implements SchemaProvider
                         description: "Record IDs attribute name. Field name plus an `Ids` prefix.",
                     ),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(
                                 value: Type::IS_LINKED_WITH_ANY,
@@ -101,7 +101,7 @@ class LinkMultipleSchemaProvider implements SchemaProvider
                             properties: [
                                 'attribute' => new ConstSchema(value: $field . 'Id'),
                                 'type' => new GroupSchema(
-                                    keyword: GroupKeyword::anyOff,
+                                    keyword: GroupKeyword::anyOf,
                                     schemas: [
                                         new ConstSchema(
                                             value: Type::IS_LINKED_WITH_ANY,

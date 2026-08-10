@@ -20,7 +20,10 @@ class UnionTypeSchema implements Schema
         private array $schemas,
         private ?string $title = null,
         private ?string $description = null,
-    ) {}
+    ) {
+        // Validates.
+        $this->jsonSerialize();
+    }
 
     public function jsonSerialize(): stdClass
     {
@@ -45,7 +48,7 @@ class UnionTypeSchema implements Schema
             unset($itemAssoc['type']);
 
             foreach ($itemAssoc as $k => $v) {
-                if (array_key_exists($k, $v)) {
+                if (array_key_exists($k, $merged)) {
                     throw new UnexpectedValueException("Cannot have same attributes in schemas in union type.");
                 }
 

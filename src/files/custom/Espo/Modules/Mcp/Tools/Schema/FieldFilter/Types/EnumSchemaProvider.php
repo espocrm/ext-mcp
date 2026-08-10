@@ -62,7 +62,7 @@ class EnumSchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(
                                 value: Type::IN,
@@ -87,7 +87,7 @@ class EnumSchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::IS_NOT_NULL),
                             new ConstSchema(value: Type::IS_NULL),

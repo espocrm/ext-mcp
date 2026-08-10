@@ -57,7 +57,7 @@ class LinkParentSchemaProvider implements SchemaProvider
                         description: "Attribute name. Field name plus an `Id` prefix.",
                     ),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::EQUALS),
                             new ConstSchema(value: Type::NOT_EQUALS),
@@ -84,7 +84,7 @@ class LinkParentSchemaProvider implements SchemaProvider
                         description: "Attribute name. Field name plus an `Type` prefix.",
                     ),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::EQUALS),
                             new ConstSchema(value: Type::NOT_EQUALS),
@@ -116,7 +116,7 @@ class LinkParentSchemaProvider implements SchemaProvider
                             properties: [
                                 'attribute' => new ConstSchema(value: $field . 'Id'),
                                 'type' => new GroupSchema(
-                                    keyword: GroupKeyword::anyOff,
+                                    keyword: GroupKeyword::anyOf,
                                     schemas: [
                                         new ConstSchema(value: Type::IS_NOT_NULL),
                                         new ConstSchema(value: Type::IS_NULL),

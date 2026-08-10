@@ -35,7 +35,7 @@ class EmailSchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::EQUALS),
                         ],
@@ -56,7 +56,7 @@ class EmailSchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::IS_NOT_NULL),
                             new ConstSchema(value: Type::IS_NULL),

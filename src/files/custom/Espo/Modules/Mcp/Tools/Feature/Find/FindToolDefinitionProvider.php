@@ -108,7 +108,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
             ),
             'select' => $this->getSelectSchema($data),
             'order' => new GroupSchema(
-                keyword: GroupKeyword::anyOff,
+                keyword: GroupKeyword::anyOf,
                 schemas:[
                     new ConstSchema(
                         value: 'asc',
@@ -165,7 +165,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     private function getPrimaryFilterSchema(FindData $data): Schema
     {
         return new GroupSchema(
-            keyword: GroupKeyword::anyOff,
+            keyword: GroupKeyword::anyOf,
             schemas: array_map(function (string $filter) use ($data) {
                 return new ConstSchema(
                     value: $filter,
@@ -196,7 +196,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
         return new ArrayType(
             items: new GroupSchema(
-                keyword: GroupKeyword::anyOff,
+                keyword: GroupKeyword::anyOf,
                 schemas: $schemas,
             ),
             description: self::WHERE_DESCRIPTION,
@@ -206,7 +206,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     private function getOrderBySchema(FindData $data): Schema
     {
         return new GroupSchema(
-            keyword: GroupKeyword::anyOff,
+            keyword: GroupKeyword::anyOf,
             schemas: array_map(function ($field) use ($data) {
                 return new ConstSchema(
                     value: $field,

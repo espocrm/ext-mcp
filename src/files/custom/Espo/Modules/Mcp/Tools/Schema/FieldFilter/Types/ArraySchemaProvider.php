@@ -69,7 +69,7 @@ class ArraySchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(
                                 value: Type::ARRAY_ANY_OF,
@@ -98,7 +98,7 @@ class ArraySchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::ARRAY_IS_EMPTY),
                             new ConstSchema(value: Type::ARRAY_IS_NOT_EMPTY),

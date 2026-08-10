@@ -11,6 +11,10 @@ class StringType implements Type
 {
     use CommonTrait;
 
+    /**
+     * @param ?int<0, max> $minLength
+     * @param ?int<0, max> $maxLength
+     */
     public function __construct(
         private ?int $minLength = null,
         private ?int $maxLength = null,

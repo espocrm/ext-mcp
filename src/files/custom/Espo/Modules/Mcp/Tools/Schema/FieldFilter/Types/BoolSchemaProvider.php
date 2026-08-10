@@ -33,7 +33,7 @@ class BoolSchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::IS_TRUE),
                             new ConstSchema(value: Type::IS_FALSE),

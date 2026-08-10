@@ -41,7 +41,7 @@ class DateSchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(
                                 value: Type::ON,
@@ -79,7 +79,7 @@ class DateSchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(
                                 value: Type::TODAY,

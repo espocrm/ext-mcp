@@ -5,7 +5,7 @@ namespace Espo\Modules\Mcp\Tools\JsonSchema;
 
 enum GroupKeyword: string
 {
-    case anyOff = 'anyOff';
-    case allOf = 'allOff';
+    case anyOf = 'anyOf';
+    case allOf = 'allOf';
     case oneOf = 'oneOf';
 }

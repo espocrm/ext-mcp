@@ -11,6 +11,10 @@ class ArrayType implements Type
 {
     use CommonTrait;
 
+    /**
+     * @param ?int<0, max> $minItems
+     * @param ?int<0, max> $maxItems
+     */
     public function __construct(
         private Schema $items,
         private ?int $minItems = null,

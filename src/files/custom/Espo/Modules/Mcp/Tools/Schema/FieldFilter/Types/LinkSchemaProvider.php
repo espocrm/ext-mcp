@@ -56,7 +56,7 @@ class LinkSchemaProvider implements SchemaProvider
                         description: "Attribute name for record ID. Field name plus an `Id` prefix.",
                     ),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::EQUALS),
                             new ConstSchema(value: Type::NOT_EQUALS),
@@ -82,7 +82,7 @@ class LinkSchemaProvider implements SchemaProvider
                             properties: [
                                 'attribute' => new ConstSchema(value: $field . 'Id'),
                                 'type' => new GroupSchema(
-                                    keyword: GroupKeyword::anyOff,
+                                    keyword: GroupKeyword::anyOf,
                                     schemas: [
                                         new ConstSchema(value: Type::IS_NOT_NULL),
                                         new ConstSchema(value: Type::IS_NULL),

@@ -64,7 +64,7 @@ class VarcharSchemaProvider implements SchemaProvider
                 properties: [
                     'attribute' => new ConstSchema(value: $field),
                     'type' => new GroupSchema(
-                        keyword: GroupKeyword::anyOff,
+                        keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::EQUALS),
                             new ConstSchema(value: Type::STARTS_WITH),
@@ -87,7 +87,7 @@ class VarcharSchemaProvider implements SchemaProvider
                             properties: [
                                 'attribute' => new ConstSchema(value: $field),
                                 'type' => new GroupSchema(
-                                    keyword: GroupKeyword::anyOff,
+                                    keyword: GroupKeyword::anyOf,
                                     schemas: [
                                         new ConstSchema(value: Type::IS_NOT_NULL),
                                         new ConstSchema(value: Type::IS_NULL),
