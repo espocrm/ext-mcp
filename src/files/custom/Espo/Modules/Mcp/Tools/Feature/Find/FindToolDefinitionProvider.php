@@ -23,8 +23,8 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
-use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ArbitrarySchema;
-use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ObjectSchema;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProviderFactory as FieldSchemaProviderFactory;
 use Espo\ORM\Defs;
@@ -86,8 +86,8 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
         return new Tool(
             name: 'Find.' . $data->entityType,
-            inputSchema: new ObjectSchema($this->prepareInputSchema($data)),
-            outputSchema: new ArbitrarySchema($this->prepareOutputSchema($data)),
+            inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
+            outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),
         );
     }

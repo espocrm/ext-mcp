@@ -45,7 +45,7 @@ class ToolsCallGeneralProcessor
             throw new InternalError("Could not create data object.", previous: $e);
         }
 
-        return $processor->process($params, $data);
+        return $processor->process($params, $data, $toolEnvelope->tool->outputSchema);
     }
 
     /**

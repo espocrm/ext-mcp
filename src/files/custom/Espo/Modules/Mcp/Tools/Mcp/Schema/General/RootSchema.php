@@ -7,7 +7,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use JsonSerializable;
 use stdClass;
 
-class ArbitrarySchema implements JsonSerializable
+class RootSchema implements JsonSerializable
 {
     public const string SCHEMA = 'https://json-schema.org/draft/2020-12/schema';
 
@@ -18,8 +18,13 @@ class ArbitrarySchema implements JsonSerializable
     public function jsonSerialize(): stdClass
     {
         return (object) [
-            '$schema' => ArbitrarySchema::SCHEMA,
+            '$schema' => RootSchema::SCHEMA,
             ...get_object_vars($this->schema->jsonSerialize()),
         ];
+    }
+
+    public function getSchema(): Schema
+    {
+        return $this->schema;
     }
 }

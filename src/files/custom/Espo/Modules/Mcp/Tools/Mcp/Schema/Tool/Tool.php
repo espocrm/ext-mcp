@@ -3,8 +3,8 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Tool;
 
-use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ArbitrarySchema;
-use Espo\Modules\Mcp\Tools\Mcp\Schema\General\ObjectSchema;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use JsonSerializable;
 use stdClass;
 
@@ -12,8 +12,8 @@ readonly class Tool implements JsonSerializable
 {
     public function __construct(
         public string $name,
-        public ObjectSchema $inputSchema,
-        public ?ArbitrarySchema $outputSchema = null,
+        public RootObjectSchema $inputSchema,
+        public ?RootSchema $outputSchema = null,
         public ?string $title = null,
         public ?string $description = null,
         public ?ToolAnnotations $annotations = null,

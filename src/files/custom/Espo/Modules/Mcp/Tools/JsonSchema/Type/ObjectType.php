@@ -57,4 +57,25 @@ class ObjectType implements Type
 
         return $object;
     }
+
+    /**
+     * @return array<string, Schema>
+     */
+    public function getProperties(): array
+    {
+        return $this->properties;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRequired(): array
+    {
+        return $this->required;
+    }
+
+    public function getAdditionalProperties(): Schema|bool|null
+    {
+        return $this->additionalProperties;
+    }
 }

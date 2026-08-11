@@ -57,4 +57,24 @@ class ArrayType implements Type
 
         return $object;
     }
+
+    public function getItems(): Schema
+    {
+        return $this->items;
+    }
+
+    public function getMinItems(): ?int
+    {
+        return $this->minItems;
+    }
+
+    public function getMaxItems(): ?int
+    {
+        return $this->maxItems;
+    }
+
+    public function getUniqueItems(): ?bool
+    {
+        return $this->uniqueItems;
+    }
 }
