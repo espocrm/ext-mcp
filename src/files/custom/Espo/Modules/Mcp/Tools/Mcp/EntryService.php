@@ -26,8 +26,6 @@ class EntryService
 
         $router = $this->routerProvider->get($endpoint);
 
-        // @todo Isolate request and response?
-
         try {
             $response = $router->dispatch($request);
         } catch (Exceptions\Error $e) {

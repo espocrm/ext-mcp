@@ -19,7 +19,7 @@ class DiscoverResultProvider
     public function get(): DiscoverResult
     {
         $capabilities = new ServerCapabilities(
-            toolsCapability: new ToolsCapability(listChanged: false),
+            tools: new ToolsCapability(listChanged: false),
         );
 
         return new DiscoverResult(

@@ -5,7 +5,7 @@ namespace Espo\Modules\Mcp\Tools\Mcp\Exceptions;
 
 class UnsupportedProtocolVersionError extends Error
 {
-    protected int $rpcCode = -32700;
+    protected int $rpcCode = -32022;
 
     protected int $httpCode = 400;
 

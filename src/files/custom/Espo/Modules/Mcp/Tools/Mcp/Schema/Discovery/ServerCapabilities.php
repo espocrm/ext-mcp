@@ -9,25 +9,25 @@ use stdClass;
 readonly class ServerCapabilities implements JsonSerializable
 {
     public function __construct(
-        public ?PromptsCapability $promptsCapability = null,
-        public ?ToolsCapability $toolsCapability = null,
-        public ?ResourcesCapability $resourcesCapability = null,
+        public ?PromptsCapability $prompts = null,
+        public ?ToolsCapability $tools = null,
+        public ?ResourcesCapability $resources = null,
     ) {}
 
     public function jsonSerialize(): stdClass
     {
         $object = (object) [];
 
-        if ($this->promptsCapability) {
-            $object->promptsCapability = $this->promptsCapability->jsonSerialize();
+        if ($this->prompts) {
+            $object->prompts = $this->prompts->jsonSerialize();
         }
 
-        if ($this->toolsCapability) {
-            $object->toolsCapability = $this->toolsCapability->jsonSerialize();
+        if ($this->tools) {
+            $object->tools = $this->tools->jsonSerialize();
         }
 
-        if ($this->resourcesCapability) {
-            $object->resourcesCapability = $this->resourcesCapability->jsonSerialize();
+        if ($this->resources) {
+            $object->resources = $this->resources->jsonSerialize();
         }
 
         return $object;

@@ -12,7 +12,7 @@ use Espo\ORM\EntityManager;
 
 class EndpointProvider
 {
-    private const string SCOPE = 'Mcp';
+    private const string SCOPE = Scope::MCP;
 
     public function __construct(
         private EntityManager $entityManager,
