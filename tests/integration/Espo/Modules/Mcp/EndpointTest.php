@@ -176,6 +176,32 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('Find.Lead', $tools[0]->name);
         $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->inputSchema->{'$schema'});
         $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->outputSchema->{'$schema'});
+
+        $this->assertEquals('object', $tools[0]->inputSchema->type);
+
+        $this->assertEquals('string', $tools[0]->inputSchema->properties->textFilter->type);
+        $this->assertCount(3, $tools[0]->inputSchema->properties->orderBy->anyOf);
+        $this->assertCount(2, $tools[0]->inputSchema->properties->primaryFilter->anyOf);
+        $this->assertCount(1, $tools[0]->inputSchema->properties->boolFilterList->items->anyOf);
+        $this->assertEquals('array', $tools[0]->inputSchema->properties->where->type);
+
+        $this->assertEquals((object) [
+            'anyOf' => [
+                (object) [
+                    'const' => 'asc',
+                    'description' => 'Ascending order.',
+                ],
+                (object) [
+                    'const' => 'desc',
+                    'description' => 'Descending order.',
+                ],
+            ],
+            'description' => 'Sorting direction.',
+        ], $tools[0]->inputSchema->properties->order);
+
+        $this->assertEquals('object', $tools[0]->outputSchema->type);
+        $this->assertEquals('array', $tools[0]->outputSchema->properties->list->type);
+        $this->assertEquals('integer', $tools[0]->outputSchema->properties->total->type);
     }
 
     /**

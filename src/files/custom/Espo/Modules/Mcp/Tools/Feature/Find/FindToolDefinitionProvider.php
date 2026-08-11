@@ -165,14 +165,18 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
     private function getPrimaryFilterSchema(FindData $data): Schema
     {
+        $schemas = array_map(function (string $filter) use ($data) {
+            return new ConstSchema(
+                value: $filter,
+                title: $this->defaultLanguage->translateLabel($filter, 'presetFilters', $data->entityType),
+            );
+        }, $data->primaryFilters);
+
+        $schemas[] = new ConstSchema(value: null);
+
         return new GroupSchema(
             keyword: GroupKeyword::anyOf,
-            schemas: array_map(function (string $filter) use ($data) {
-                return new ConstSchema(
-                    value: $filter,
-                    title: $this->defaultLanguage->translateLabel($filter, 'presetFilters', $data->entityType),
-                );
-            }, $data->primaryFilters),
+            schemas: $schemas,
             description: self::PRIMARY_FILTER_DESCRIPTION,
         );
     }
@@ -238,7 +242,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
             $type = $fieldDefs->getType();
 
-            if (!$this->metadata->get("fields.$type.notSortable")) {
+            if ($this->metadata->get("fields.$type.notSortable")) {
                 return false;
             }
 
@@ -302,7 +306,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
                 return $this->defaultLanguage->translateLabel($it, 'fields', $data->entityType);
             }, $fields);
 
-            $fieldsPart = 'Fields: ' . implode(',', $translatedFields);
+            $fieldsPart = 'Fields: ' . implode(', ', $translatedFields);
         }
 
         $description = self::TEXT_FILTER_DESCRIPTION;
