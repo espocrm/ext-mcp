@@ -3,11 +3,13 @@
 
 namespace tests\unit\Espo\Modules\Mcp\Tools\Schema\Field;
 
+use Espo\Core\Acl;
 use Espo\Core\Currency\ConfigDataProvider as CurrencyConfig;
 use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
@@ -15,6 +17,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\BooleanType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NullType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\JsonSchema\UnionTypeSchema;
 use Espo\Modules\Mcp\Tools\Schema\Field\DateHelper;
@@ -35,10 +38,15 @@ use Espo\Modules\Mcp\Tools\Schema\Field\Types\EnumSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\FloatSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\IdSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\IntSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\LinkMultipleSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\LinkParentSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\LinkSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionsProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionTranslator;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\EntityDefs;
+use Espo\ORM\Type\AttributeType;
+use Espo\ORM\Type\RelationType;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
@@ -807,6 +815,488 @@ class TypesTest extends TestCase
         );
     }
 
+    public function testLinkMultipleWrite(): void
+    {
+        $acl = $this->createMock(Acl::class);
+
+        $acl->expects(self::once())
+            ->method('checkScope')
+            ->with('Another')
+            ->willReturn(true);
+
+        $provider = new LinkMultipleSchemaProvider(
+            ormDefs: $this->createOrmDefsMulti([
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'test' => [
+                                'type' => FieldType::LINK_MULTIPLE,
+                                'required' => true,
+                            ],
+                        ],
+                        'attributes' => [
+                            'testIds' => [
+                                'type' => AttributeType::JSON_ARRAY,
+                            ],
+                        ],
+                        'relations' => [
+                            'test' => [
+                                'type' => RelationType::HAS_MANY,
+                                'entity' => 'Another',
+                            ],
+                        ],
+                    ],
+                ),
+            ]),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+                scopeNames: [
+                    'Another' => 'Another Label'
+                ]
+            ),
+            acl: $acl,
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'testIds' => new ArrayType(
+                        items: new StringType(
+                            description: "'Another' record ID.",
+                        ),
+                        minItems: 1,
+                        title: 'Field (IDs)',
+                        description:
+                        "An IDs attribute of the 'Field' link-multiple field. Field name: `test`. " .
+                        "Specifies the 'Another Label' record IDs. Foreign type: `Another`. " .
+                        "Tool to retrieve IDs: `Find.Another`."
+                    ),
+                ],
+                required: [
+                    'testIds',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testLinkMultipleRead(): void
+    {
+        $acl = $this->createMock(Acl::class);
+
+        $provider = new LinkMultipleSchemaProvider(
+            ormDefs: $this->createOrmDefsMulti([
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'test' => [
+                                'type' => FieldType::LINK_MULTIPLE,
+                                'required' => true,
+                            ],
+                        ],
+                        'attributes' => [
+                            'testIds' => [
+                                'type' => AttributeType::JSON_ARRAY,
+                            ],
+                        ],
+                        'relations' => [
+                            'test' => [
+                                'type' => RelationType::HAS_MANY,
+                                'entity' => 'Another',
+                            ],
+                        ],
+                    ],
+                ),
+            ]),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+                scopeNames: [
+                    'Another' => 'Another Label'
+                ]
+            ),
+            acl: $acl,
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'testIds' => new ArrayType(
+                        items: new StringType(
+                            description: "'Another' record ID.",
+                        ),
+                        minItems: 1,
+                        title: 'Field (IDs)',
+                        description:
+                            "An IDs attribute of the 'Field' link-multiple field. Field name: `test`. " .
+                            "Specifies the 'Another Label' record IDs. Foreign type: `Another`. " .
+                            "Tool to retrieve IDs: `Find.Another`."
+                    ),
+                    'testNames' => new ObjectType(
+                        additionalProperties: new StringType(
+                            description: "Record name.",
+                        ),
+                        description:
+                            "Names attribute of 'Field' link-multiple field. Field name: `test`. " .
+                            "Contains the mapping of IDs to record names.",
+                    ),
+                ],
+                required: [
+                    'testIds',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Read,
+                ),
+            ),
+        );
+    }
+
+    public function testLinkParentWrite(): void
+    {
+        $acl = $this->createMock(Acl::class);
+
+        $acl->method('checkScope')
+            ->willReturnCallback(function ($scope) {
+                if ($scope === 'C') {
+                    return false;
+                }
+
+                return true;
+            });
+
+        $provider = new LinkParentSchemaProvider(
+            ormDefs: $this->createOrmDefsMulti([
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'parent' => [
+                                'type' => FieldType::LINK_PARENT,
+                                'required' => true,
+                                'entityList' => ['A', 'B', 'C'],
+                            ],
+                        ],
+                        'attributes' => [
+                            'parentId' => [
+                                'type' => AttributeType::FOREIGN_ID,
+                            ],
+                        ],
+                    ],
+                ),
+            ]),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'parent' => 'Parent',
+                ],
+                scopeNames: [
+                    'A' => 'A Label',
+                    'B' => 'B Label',
+                ],
+            ),
+            acl: $acl,
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'parentId' => new StringType(
+                        title: "Parent (ID)",
+                        description:
+                            "An ID attribute of the 'Parent' link-parent (polymorphic) field. " .
+                            "Field name: `parent`. " .
+                            "Specifies the foreign record ID." .
+                            "Tool to retrieve IDs: `Find.{entityType}`."
+                    ),
+                    'parentType' => new GroupSchema(
+                        keyword: GroupKeyword::anyOf,
+                        schemas: [
+                            new ConstSchema(
+                                value: 'A',
+                                title: 'A Label',
+                            ),
+                            new ConstSchema(
+                                value: 'B',
+                                title: 'B Label',
+                            ),
+                        ],
+                        title: "Parent (Type)",
+                        description:
+                            "A Type attribute of the 'Parent' link-parent (polymorphic) field. " .
+                            "Field name: `parent`. " .
+                            "Specifies the foreign entity type.",
+                    ),
+                ],
+                required: [
+                    'parentId',
+                    'parentType',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'parent',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testLinkParentRead(): void
+    {
+        $acl = $this->createMock(Acl::class);
+
+        $acl->method('checkScope')
+            ->willReturnCallback(function () {
+                return true;
+            });
+
+        $provider = new LinkParentSchemaProvider(
+            ormDefs: $this->createOrmDefsMulti([
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'parent' => [
+                                'type' => FieldType::LINK_PARENT,
+                                'required' => true,
+                                'entityList' => ['A'],
+                            ],
+                        ],
+                        'attributes' => [
+                            'parentId' => [
+                                'type' => AttributeType::FOREIGN_ID,
+                            ],
+                        ],
+                    ],
+                ),
+            ]),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'parent' => 'Parent',
+                ],
+                scopeNames: [
+                    'A' => 'A Label',
+                ],
+            ),
+            acl: $acl,
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'parentId' => new StringType(
+                        title: "Parent (ID)",
+                        description:
+                        "An ID attribute of the 'Parent' link-parent (polymorphic) field. " .
+                        "Field name: `parent`. " .
+                        "Specifies the foreign record ID." .
+                        "Tool to retrieve IDs: `Find.{entityType}`."
+                    ),
+                    'parentType' => new GroupSchema(
+                        keyword: GroupKeyword::anyOf,
+                        schemas: [
+                            new ConstSchema(
+                                value: 'A',
+                                title: 'A Label',
+                            ),
+                        ],
+                        title: "Parent (Type)",
+                        description:
+                            "A Type attribute of the 'Parent' link-parent (polymorphic) field. " .
+                            "Field name: `parent`. " .
+                            "Specifies the foreign entity type.",
+                    ),
+                    'parentName' => new StringType(
+                        title: 'Parent (Name)',
+                        description:
+                            "A Name attribute of 'Parent' link-parent field. Field name: `parent`. " .
+                            "Contains the related record name.",
+                    )
+                ],
+                required: [
+                    'parentId',
+                    'parentType',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'parent',
+                    action: Action::Read,
+                ),
+            ),
+        );
+    }
+
+    public function testLinkWrite(): void
+    {
+        $acl = $this->createMock(Acl::class);
+
+        $acl->method('checkScope')
+            ->willReturnCallback(function ($scope) {
+                if ($scope === 'A') {
+                    return true;
+                }
+
+                return false;
+            });
+
+        $provider = new LinkSchemaProvider(
+            ormDefs: $this->createOrmDefsMulti([
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'field' => [
+                                'type' => FieldType::LINK,
+                                'required' => true,
+                            ],
+                        ],
+                        'attributes' => [
+                            'fieldId' => [
+                                'type' => AttributeType::FOREIGN_ID,
+                            ],
+                        ],
+                        'relations' => [
+                            'field' => [
+                                'type' => RelationType::BELONGS_TO,
+                                'entity' => 'A',
+                            ]
+                        ],
+                    ],
+                ),
+            ]),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'field' => 'Field',
+                ],
+                scopeNames: [
+                    'A' => 'A Label',
+                ],
+            ),
+            acl: $acl,
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'fieldId' => new StringType(
+                        title: "Field (ID)",
+                        description:
+                            "An ID attribute of the 'Field' link field. Field name: `field`. " .
+                            "Specifies the 'A Label' record ID. Foreign type: `A`. " .
+                            "Tool to retrieve IDs: `Find.A`."
+                    ),
+                ],
+                required: [
+                    'fieldId',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'field',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testLinkRead(): void
+    {
+        $acl = $this->createMock(Acl::class);
+
+        $acl->method('checkScope')
+            ->willReturnCallback(function ($scope) {
+                if ($scope === 'A') {
+                    return true;
+                }
+
+                return false;
+            });
+
+        $provider = new LinkSchemaProvider(
+            ormDefs: $this->createOrmDefsMulti([
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'field' => [
+                                'type' => FieldType::LINK,
+                                'required' => true,
+                            ],
+                        ],
+                        'attributes' => [
+                            'fieldId' => [
+                                'type' => AttributeType::FOREIGN_ID,
+                            ],
+                        ],
+                        'relations' => [
+                            'field' => [
+                                'type' => RelationType::BELONGS_TO,
+                                'entity' => 'A',
+                            ]
+                        ],
+                    ],
+                ),
+            ]),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'field' => 'Field',
+                ],
+                scopeNames: [
+                    'A' => 'A Label',
+                ],
+            ),
+            acl: $acl,
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'fieldId' => new StringType(
+                        title: "Field (ID)",
+                        description:
+                            "An ID attribute of the 'Field' link field. Field name: `field`. " .
+                            "Specifies the 'A Label' record ID. Foreign type: `A`. " .
+                            "Tool to retrieve IDs: `Find.A`."
+                    ),
+                    'fieldName' => new StringType(
+                        title: "Field (Name)",
+                        description:
+                            "A Name attribute of 'Field' link field. Field name: `field`. " .
+                            "Contains the related record name.",
+                    )
+                ],
+                required: [
+                    'fieldId',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'field',
+                    action: Action::Read,
+                ),
+            ),
+        );
+    }
+
     public function testDuration(): void
     {
         $provider = new DurationSchemaProvider(
@@ -919,14 +1409,23 @@ class TypesTest extends TestCase
     /**
      * @param array<string, string> $fields
      * @param array<string, array<string, string>> $options
+     * @param array<string, string> $scopeNames
      */
-    private function createLanguage(array $fields = [], array $options = []): Language
+    private function createLanguage(array $fields = [], array $options = [], array $scopeNames = []): Language
     {
         $language = $this->createMock(Language::class);
 
         $language->method('translateLabel')
-            ->willReturnCallback(function (string $name) use ($fields) {
-                return $fields[$name] ?? $name;
+            ->willReturnCallback(function (string $name, string $category) use ($fields, $scopeNames) {
+                if ($category === 'fields') {
+                    return $fields[$name] ?? $name;
+                }
+
+                if ($category === 'scopeNames') {
+                    return $scopeNames[$name] ?? $name;
+                }
+
+                return $name;
             });
 
         $language->method('translateOption')
@@ -945,6 +1444,25 @@ class TypesTest extends TestCase
             ->willReturnMap([
                 [$entityDefs->getName(), $entityDefs],
             ]);
+
+        return $defs;
+    }
+
+    /**
+     * @param EntityDefs[] $entityDefsList
+     */
+    private function createOrmDefsMulti(array $entityDefsList): Defs
+    {
+        $defs = $this->createMock(Defs::class);
+
+        $map = [];
+
+        foreach ($entityDefsList as $it) {
+            $map[] = [$it->getName(), $it];
+        }
+
+        $defs->method('getEntity')
+            ->willReturnMap($map);
 
         return $defs;
     }
@@ -970,6 +1488,20 @@ class TypesTest extends TestCase
                     ],
                 ],
             ],
+            name: $entityType,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $defs
+     */
+    private static function createEntityDefsCommon(
+        string $entityType,
+        array $defs,
+    ): EntityDefs {
+
+        return EntityDefs::fromRaw(
+            raw: $defs,
             name: $entityType,
         );
     }

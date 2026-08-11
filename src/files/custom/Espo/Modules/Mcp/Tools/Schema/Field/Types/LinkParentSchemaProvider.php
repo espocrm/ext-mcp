@@ -5,6 +5,9 @@ namespace Espo\Modules\Mcp\Tools\Schema\Field\Types;
 
 use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
+use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
@@ -63,13 +66,28 @@ class LinkParentSchemaProvider implements SchemaProvider
         $label = $this->defaultLanguage->translateLabel($field, 'fields', $entityType);
 
         $idProperty = new StringType(
+            title: "$label (ID)",
             description:
                 "An ID attribute of the '$label' link-parent (polymorphic) field. Field name: `$params->field`. " .
                 "Specifies the foreign record ID." .
                 "Tool to retrieve IDs: `Find.{entityType}`."
         );
 
-        $typeProperty = new StringType(
+        $typeSchemas = array_map(function ($it) {
+            return new ConstSchema(
+                value: $it,
+                title: $this->defaultLanguage->translateLabel($it, 'scopeNames'),
+            );
+        }, $foreignEntityTypes);
+
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
+            $typeSchemas[] = new ConstSchema(value: null);
+        }
+
+        $typeProperty = new GroupSchema(
+            keyword: GroupKeyword::anyOf,
+            schemas: $typeSchemas,
+            title: "$label (Type)",
             description:
                 "A Type attribute of the '$label' link-parent (polymorphic) field. Field name: `$params->field`. " .
                 "Specifies the foreign entity type.",
@@ -79,10 +97,6 @@ class LinkParentSchemaProvider implements SchemaProvider
             $idProperty = Util::wrapWithNull($idProperty);
         }
 
-        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
-            $typeProperty = Util::wrapWithNull($typeProperty);
-        }
-
         $properties = [
             $idAttribute => $idProperty,
             $typeAttribute => $typeProperty,
@@ -90,6 +104,7 @@ class LinkParentSchemaProvider implements SchemaProvider
 
         if (!$params->isWriteAction()) {
             $nameProperty = new StringType(
+                title: "$label (Name)",
                 description:
                     "A Name attribute of '$label' link-parent field. Field name: `$params->field`. " .
                     "Contains the related record name.",

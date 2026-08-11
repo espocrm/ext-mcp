@@ -60,6 +60,7 @@ class LinkSchemaProvider implements SchemaProvider
         $foreignScopeLabel = $this->defaultLanguage->translateLabel($foreignEntityType, 'scopeNames');
 
         $idProperty = new StringType(
+            title: "$label (ID)",
             description:
                 "An ID attribute of the '$label' link field. Field name: `$params->field`. " .
                 "Specifies the '$foreignScopeLabel' record ID. Foreign type: `$foreignEntityType`. " .
@@ -76,6 +77,7 @@ class LinkSchemaProvider implements SchemaProvider
 
         if (!$params->isWriteAction()) {
             $nameProperty = new StringType(
+                title: "$label (Name)",
                 description:
                     "A Name attribute of '$label' link field. Field name: `$params->field`. " .
                     "Contains the related record name.",

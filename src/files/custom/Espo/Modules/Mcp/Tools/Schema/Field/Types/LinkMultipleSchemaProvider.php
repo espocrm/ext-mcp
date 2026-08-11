@@ -36,7 +36,7 @@ class LinkMultipleSchemaProvider implements SchemaProvider
 
         $fieldDefs = $this->ormDefs->getEntity($entityType)->getField($field);
         $linkDefs = $this->ormDefs->getEntity($entityType)->tryGetRelation($field);
-        $idAttributeDefs = $this->ormDefs->getEntity($entityType)->getAttribute($field . 'Id');
+        $idsAttributeDefs = $this->ormDefs->getEntity($entityType)->getAttribute($field . 'Ids');
 
         $foreignEntityType = $linkDefs?->tryGetForeignEntityType() ?? $fieldDefs->getParam('entity');
 
@@ -53,7 +53,7 @@ class LinkMultipleSchemaProvider implements SchemaProvider
 
         if (
             $fieldDefs->getParam(FieldParam::REQUIRED) &&
-            $idAttributeDefs->getParam(AttributeParam::DEFAULT) === null
+            $idsAttributeDefs->getParam(AttributeParam::DEFAULT) === null
         ) {
             $required[] = $idsAttribute;
             $minItems = 1;
@@ -64,9 +64,10 @@ class LinkMultipleSchemaProvider implements SchemaProvider
 
         $idsProperty = new ArrayType(
             items: new StringType(
-                description: "`$foreignEntityType` record ID.",
+                description: "'$foreignEntityType' record ID.",
             ),
             minItems: $minItems,
+            title: "$label (IDs)",
             description:
                 "An IDs attribute of the '$label' link-multiple field. Field name: `$params->field`. " .
                 "Specifies the '$foreignScopeLabel' record IDs. Foreign type: `$foreignEntityType`. " .
