@@ -16,6 +16,8 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 
 class ToolsProvider
 {
+    private const int NAME_MAX_LENGTH = 64;
+
     public function __construct(
         private Endpoint $endpoint,
         private DataFactory $dataFactory,
@@ -63,11 +65,17 @@ class ToolsProvider
         }
 
         try {
-            return $provider->get($data);
+            $tool = $provider->get($data);
         } catch (UnsupportedFeatureValue $e) {
             throw new InternalError("Unsupported feature value.", previous: $e);
         } catch (NoUserAccess) {
             return null;
         }
+
+        if (strlen($tool->name) > self::NAME_MAX_LENGTH) {
+            throw new InternalError("Tool `$tool->name` name length should be not longer than 64 characters.");
+        }
+
+        return $tool;
     }
 }
