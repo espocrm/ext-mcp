@@ -58,7 +58,8 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
     private const string ORDER_BY_DESCRIPTION = 'Field to sort by.';
 
-    private const string WHERE_DESCRIPTION = 'Advanced filters. Logical AND is applied for multiple filters.';
+    private const string WHERE_DESCRIPTION =
+        'Advanced filters. Logical AND is applied when multiple filters are specified.';
 
     /**
      * @var array<string, string>

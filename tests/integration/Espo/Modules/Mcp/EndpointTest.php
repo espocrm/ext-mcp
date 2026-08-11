@@ -131,7 +131,7 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals(-32022, $body->error->code);
         $this->assertEquals(400, $response->getStatusCode());
 
-        //
+        // Discover.
 
         $response = $apiAction->process(
             $this->createEntryRequest(
@@ -153,7 +153,29 @@ class EndpointTest extends BaseTestCase
             ],
         ], $body->result?->capabilities);
 
-        print_r($body);
+        // Tools list.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_LIST,
+                slug: 'test',
+                id: 1,
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals(1, $body->id);
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals('private', $body->result?->cacheScope);
+
+        $tools = $body->result->tools;
+
+        $this->assertIsArray($tools);
+
+        $this->assertEquals('Find.Lead', $tools[0]->name);
+        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->inputSchema->{'$schema'});
+        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->outputSchema->{'$schema'});
     }
 
     /**
