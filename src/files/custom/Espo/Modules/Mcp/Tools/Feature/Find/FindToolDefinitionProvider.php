@@ -35,7 +35,7 @@ use Espo\ORM\Name\Attribute;
  */
 class FindToolDefinitionProvider implements ToolDefinitionProvider
 {
-    private const int MAX_SIZE_LIMIT = 200;
+    public const int MAX_SIZE_LIMIT = 100;
 
     private const string DESCRIPTION = "Searches '{scopeName}' records. Supports filtering, sorting, and pagination.";
 

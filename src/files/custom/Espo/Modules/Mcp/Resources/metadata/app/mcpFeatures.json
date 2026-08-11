@@ -2,7 +2,7 @@
     "Find": {
         "tool": {
             "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolDefinitionProvider",
-            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolProcessorClassName"
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolProcessor"
         },
         "record": {
             "client": {

@@ -24,12 +24,21 @@ class ToolsCallGeneralProcessor
      */
     public function process(CallToolRequestParams $params): CallToolResult
     {
-        $tool = $this->toolProvider->get($params->name);
-
-        $this->jsonSchemaValidator->assert($tool->inputSchema, $params->arguments);
+        $this->validate($params);
 
         $processor = $this->processorFactory->create($params->name);
 
         return $processor->process($params);
+    }
+
+    /**
+     * @throws InternalError
+     * @throws InvalidParamsError
+     */
+    private function validate(CallToolRequestParams $params): void
+    {
+        $tool = $this->toolProvider->get($params->name);
+
+        $this->jsonSchemaValidator->assert($tool->inputSchema, $params->arguments);
     }
 }
