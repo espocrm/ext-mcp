@@ -20,7 +20,7 @@ class ListToolsResultProvider
     public function get(): ListToolsResult
     {
         return new ListToolsResult(
-            tools: $this->toolsProvider->get(),
+            tools: $this->toolsProvider->getAll(),
             ttlMs: $this->cachePropertyProvider->getGeneralTtlMs(),
         );
     }

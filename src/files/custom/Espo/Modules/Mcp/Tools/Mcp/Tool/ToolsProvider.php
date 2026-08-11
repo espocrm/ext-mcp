@@ -12,6 +12,7 @@ use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProviderFactory;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
+use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 
 class ToolsProvider
@@ -25,17 +26,34 @@ class ToolsProvider
     ) {}
 
     /**
+     * @throws InternalError
+     * @throws InvalidParamsError
+     */
+    public function get(string $name): Tool
+    {
+        foreach ($this->getAll() as $tool) {
+            if ($tool->name !== $name) {
+                continue;
+            }
+
+            return $tool;
+        }
+
+        throw new InvalidParamsError("Tool `$name` not found.");
+    }
+
+    /**
      * @todo Cache. For user and endpoint.
      *
      * @return Tool[]
      * @throws InternalError
      */
-    public function get(): array
+    public function getAll(): array
     {
         $tools = [];
 
         foreach ($this->endpoint->getFeatures() as $feature) {
-            $tool = $this->getOne($feature);
+            $tool = $this->getForFeature($feature);
 
             if (!$tool) {
                 continue;
@@ -50,7 +68,7 @@ class ToolsProvider
     /**
      * @throws InternalError
      */
-    private function getOne(Feature $feature): ?Tool
+    private function getForFeature(Feature $feature): ?Tool
     {
         try {
             $data = $this->dataFactory->createForFeature($feature);
