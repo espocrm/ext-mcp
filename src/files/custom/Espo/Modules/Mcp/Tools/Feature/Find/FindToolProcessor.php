@@ -9,7 +9,7 @@ use Espo\Core\Record\Collection;
 use Espo\Core\Record\ServiceFactory;
 use Espo\Core\Select\SearchParams;
 use Espo\Entities\User;
-use Espo\Modules\Mcp\Entities\Feature;
+use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
@@ -20,6 +20,7 @@ use RuntimeException;
 use stdClass;
 
 /**
+ * @implements ToolProcessor<FindData>
  * @noinspection PhpUnused
  * @todo Filter output.
  */
@@ -31,7 +32,7 @@ class FindToolProcessor implements ToolProcessor
         private User $user,
     ) {}
 
-    public function process(CallToolRequestParams $params, Feature $feature): CallToolResult
+    public function process(CallToolRequestParams $params, Data $data): CallToolResult
     {
         $entityType = $this->fetchEntityType($params);
         $searchParams = $this->fetchSearchParams($params);

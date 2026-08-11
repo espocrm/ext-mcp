@@ -4,12 +4,14 @@
 namespace Espo\Modules\Mcp\Tools\Mcp\ToolsCall;
 
 use Espo\Modules\Mcp\Entities\Feature;
+use Espo\Modules\Mcp\Tools\Feature\DataFactory;
+use Espo\Modules\Mcp\Tools\Feature\Exceptions\BadFeatureData;
+use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;
 use Espo\Modules\Mcp\Tools\Mcp\JsonSchemaValidator\Validator;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
-use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolEnvelope;
 use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolProvider;
 use Espo\ORM\EntityManager;
 
@@ -20,6 +22,7 @@ class ToolsCallGeneralProcessor
         private Validator $jsonSchemaValidator,
         private ToolProcessorFactory $processorFactory,
         private EntityManager $entityManager,
+        private DataFactory $dataFactory,
     ) {}
 
     /**
@@ -36,7 +39,13 @@ class ToolsCallGeneralProcessor
 
         $processor = $this->processorFactory->create($params->name);
 
-        return $processor->process($params, $feature);
+        try {
+            $data = $this->dataFactory->createForFeature($feature);
+        } catch (BadFeatureData|UnsupportedType $e) {
+            throw new InternalError("Could not create data object.", previous: $e);
+        }
+
+        return $processor->process($params, $data);
     }
 
     /**
