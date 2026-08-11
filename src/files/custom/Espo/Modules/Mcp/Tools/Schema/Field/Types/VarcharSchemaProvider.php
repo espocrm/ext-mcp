@@ -59,7 +59,9 @@ class VarcharSchemaProvider implements SchemaProvider
         if ($options) {
             $property = GroupSchema::createAnyOf(
                 schemas: [
-                    $property->withDescription(null),
+                    $property
+                        ->withTitle(null)
+                        ->withDescription(null),
                     new EnumSchema(
                         values: $options,
                     ),

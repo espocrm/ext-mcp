@@ -6,6 +6,7 @@ namespace tests\unit\Espo\Modules\Mcp\Tools\Schema\Field;
 use Espo\Core\Acl;
 use Espo\Core\Currency\ConfigDataProvider as CurrencyConfig;
 use Espo\Core\ORM\Type\FieldType;
+use Espo\Core\Utils\Config;
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
@@ -41,6 +42,12 @@ use Espo\Modules\Mcp\Tools\Schema\Field\Types\IntSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\LinkMultipleSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\LinkParentSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\LinkSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\PersonNameSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\PhoneSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\TextSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\UrlSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\VarcharSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\WysiwygSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionsProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionTranslator;
 use Espo\ORM\Defs;
@@ -1364,6 +1371,322 @@ class TypesTest extends TestCase
                         maxLength: 255,
                         format: StringFormat::email,
                         title: 'Field',
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testPhone(): void
+    {
+        $config = $this->createMock(Config::class);
+
+        $provider = new PhoneSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'phoneNumber',
+                    type: FieldType::PHONE,
+                    required: true,
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'phoneNumber' => 'Phone',
+                ],
+            ),
+            config: $config,
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'phoneNumber' => new StringType(
+                        maxLength: 36,
+                        title: 'Phone',
+                        description: 'A phone number.',
+                    ),
+                ],
+                required: [
+                    'phoneNumber',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'phoneNumber',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testPersonName(): void
+    {
+        $provider = new PersonNameSchemaProvider(
+            ormDefs: $this->createOrmDefsMulti([
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'name' => [
+                                'type' => FieldType::PERSON_NAME,
+                            ],
+                            'lastName' => [
+                                'type' => FieldType::VARCHAR,
+                                'required' => true,
+                            ],
+                        ],
+                    ],
+                ),
+            ]),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'name' => 'Name',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'name' => new StringType(
+                        title: 'Name',
+                        description: 'Person name.',
+                    ),
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'name',
+                    action: Action::Read,
+                ),
+            ),
+        );
+    }
+
+    public function testText(): void
+    {
+        $provider = new TextSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::TEXT,
+                    required: true,
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Test',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new StringType(
+                        title: 'Test',
+                        description: "Multi-line string. Markdown is supported.",
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testWysiwyg(): void
+    {
+        $provider = new WysiwygSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::WYSIWYG,
+                    required: true,
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Test',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new StringType(
+                        title: 'Test',
+                        description: "HTML code. Only BODY contents. Only inline styles. No scripts.",
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testUrl(): void
+    {
+        $provider = new UrlSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::URL,
+                    required: true,
+                    params: [
+                        'protocolRequired' => true,
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Test',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new StringType(
+                        maxLength: 255,
+                        format: StringFormat::uri,
+                        title: 'Test',
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testVarcharWithoutOptions(): void
+    {
+        $entityDefs = self::createEntityDefs(
+            entityType: 'Test',
+            field: 'test',
+            type: FieldType::VARCHAR,
+            required: true,
+            params: [
+                'maxLength' => 100,
+            ],
+        );
+
+        $provider = new VarcharSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: $entityDefs,
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Test',
+                ],
+            ),
+            enumOptionsProvider: $this->createMock(EnumOptionsProvider::class),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' =>  new StringType(
+                        maxLength: 100,
+                        title: 'Test',
+                        description: "Single-line.",
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testVarcharWithOptions(): void
+    {
+        $entityDefs = self::createEntityDefs(
+            entityType: 'Test',
+            field: 'test',
+            type: FieldType::VARCHAR,
+            required: true,
+            params: [
+                'maxLength' => 100,
+            ],
+        );
+
+        $enumOptionsProvider = $this->createEnumOptionsProvider($entityDefs->getField('test'), ['A', 'B']);
+
+        $provider = new VarcharSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: $entityDefs,
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Test',
+                ],
+            ),
+            enumOptionsProvider: $enumOptionsProvider,
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => GroupSchema::createAnyOf(
+                        schemas: [
+                            new StringType(
+                                maxLength: 100,
+                            ),
+                            new EnumSchema(
+                                values: ['A', 'B'],
+                            ),
+                        ],
+                        title: 'Test',
+                        description: "Single-line.",
                     ),
                 ],
                 required: [

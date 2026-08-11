@@ -18,12 +18,16 @@ use Espo\ORM\Defs\Params\FieldParam;
 class PersonNameSchemaProvider implements SchemaProvider
 {
     public function __construct(
-        private Language $defaultLanguage,
         private Defs $ormDefs,
+        private Language $defaultLanguage,
     ) {}
 
     public function get(Params $params): Result
     {
+        if ($params->isWriteAction()) {
+            return new Result();
+        }
+
         $label = $this->defaultLanguage->translateLabel($params->field, 'fields', $params->entityType);
 
         $property = new StringType(

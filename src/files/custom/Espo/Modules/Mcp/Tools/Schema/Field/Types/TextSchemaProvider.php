@@ -40,7 +40,7 @@ class TextSchemaProvider implements SchemaProvider
         $description = "Multi-line string.";
 
         if (!$fieldDefs->getParam('displayRawText')) {
-            $description .= " Markdown supported.";
+            $description .= " Markdown is supported.";
         }
 
         $label = $this->defaultLanguage->translateLabel($params->field, 'fields', $params->entityType);
