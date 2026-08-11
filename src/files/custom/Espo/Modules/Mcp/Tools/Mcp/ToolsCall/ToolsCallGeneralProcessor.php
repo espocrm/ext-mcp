@@ -8,13 +8,14 @@ use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
-use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolsProvider;
+use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolProvider;
 
-class ToolsCallProcessor
+class ToolsCallGeneralProcessor
 {
     public function __construct(
-        private ToolsProvider $toolsProvider,
+        private ToolProvider $toolProvider,
         private Validator $jsonSchemaValidator,
+        private ToolProcessorFactory $processorFactory,
     ) {}
 
     /**
@@ -23,8 +24,12 @@ class ToolsCallProcessor
      */
     public function process(CallToolRequestParams $params): CallToolResult
     {
-        $tool = $this->toolsProvider->get($params->name);
+        $tool = $this->toolProvider->get($params->name);
 
         $this->jsonSchemaValidator->assert($tool->inputSchema, $params->arguments);
+
+        $processor = $this->processorFactory->create($params->name);
+
+        return $processor->process($params);
     }
 }

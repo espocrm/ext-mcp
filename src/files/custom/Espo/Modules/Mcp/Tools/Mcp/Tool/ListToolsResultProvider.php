@@ -11,7 +11,7 @@ class ListToolsResultProvider
 {
     public function __construct(
         private CachePropertyProvider $cachePropertyProvider,
-        private ToolsProvider $toolsProvider,
+        private ToolProvider $toolProvider,
     ) {}
 
     /**
@@ -20,7 +20,7 @@ class ListToolsResultProvider
     public function get(): ListToolsResult
     {
         return new ListToolsResult(
-            tools: $this->toolsProvider->getAll(),
+            tools: $this->toolProvider->getAll(),
             ttlMs: $this->cachePropertyProvider->getGeneralTtlMs(),
         );
     }

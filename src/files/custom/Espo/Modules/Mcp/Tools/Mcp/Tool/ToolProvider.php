@@ -15,7 +15,7 @@ use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 
-class ToolsProvider
+class ToolProvider
 {
     private const int NAME_MAX_LENGTH = 64;
 
