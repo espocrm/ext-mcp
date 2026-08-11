@@ -32,4 +32,9 @@ class NotSchema implements Schema
 
         return $object;
     }
+
+    public function getSchema(): Schema
+    {
+        return $this->schema;
+    }
 }

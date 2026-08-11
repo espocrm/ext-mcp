@@ -73,4 +73,12 @@ class UnionTypeSchema implements Schema
 
         return $object;
     }
+
+    /**
+     * @return Type[]
+     */
+    public function getSchemas(): array
+    {
+        return $this->schemas;
+    }
 }

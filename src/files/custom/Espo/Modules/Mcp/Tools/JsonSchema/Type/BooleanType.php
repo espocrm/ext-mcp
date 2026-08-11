@@ -36,4 +36,9 @@ class BooleanType implements Type
 
         return $object;
     }
+
+    public function getDefault(): ?bool
+    {
+        return $this->default;
+    }
 }

@@ -61,4 +61,34 @@ class IntegerType implements Type
 
         return $object;
     }
+
+    public function getMinimum(): ?int
+    {
+        return $this->minimum;
+    }
+
+    public function getExclusiveMinimum(): ?int
+    {
+        return $this->exclusiveMinimum;
+    }
+
+    public function getMaximum(): ?int
+    {
+        return $this->maximum;
+    }
+
+    public function getExclusiveMaximum(): ?int
+    {
+        return $this->exclusiveMaximum;
+    }
+
+    public function getMultipleOf(): ?int
+    {
+        return $this->multipleOf;
+    }
+
+    public function getDefault(): ?int
+    {
+        return $this->default;
+    }
 }

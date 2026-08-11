@@ -62,4 +62,25 @@ class GroupSchema implements Schema
 
         return $object;
     }
+
+    public function getKeyword(): GroupKeyword
+    {
+        return $this->keyword;
+    }
+
+    /**
+     * @return Schema[]
+     */
+    public function getSchemas(): array
+    {
+        return $this->schemas;
+    }
+
+    /**
+     * @return scalar|stdClass|stdClass[]|scalar[]|null
+     */
+    public function getDefault(): mixed
+    {
+        return $this->default;
+    }
 }

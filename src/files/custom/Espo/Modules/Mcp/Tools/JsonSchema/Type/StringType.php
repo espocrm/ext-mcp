@@ -61,4 +61,29 @@ class StringType implements Type
 
         return $object;
     }
+
+    public function getMinLength(): ?int
+    {
+        return $this->minLength;
+    }
+
+    public function getMaxLength(): ?int
+    {
+        return $this->maxLength;
+    }
+
+    public function getPattern(): ?string
+    {
+        return $this->pattern;
+    }
+
+    public function getFormat(): ?StringFormat
+    {
+        return $this->format;
+    }
+
+    public function getDefault(): ?string
+    {
+        return $this->default;
+    }
 }

@@ -43,4 +43,20 @@ class EnumSchema implements Schema
 
         return $object;
     }
+
+    /**
+     * @return array<int, scalar|null|stdClass|(stdClass|scalar|null)[]>
+     */
+    public function getValues(): array
+    {
+        return $this->values;
+    }
+
+    /**
+     * @return scalar|null|stdClass|(stdClass|scalar|null)[]
+     */
+    public function getDefault(): mixed
+    {
+        return $this->default;
+    }
 }

@@ -25,7 +25,6 @@ use stdClass;
 /**
  * @implements ToolProcessor<FindData>
  * @noinspection PhpUnused
- * @todo Filter output.
  */
 class FindToolProcessor implements ToolProcessor
 {

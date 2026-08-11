@@ -21,9 +21,6 @@ class NumberType implements Type
         private int|float|null $default = null,
     ) {}
 
-    /**
-     * @inheritDoc
-     */
     public function jsonSerialize(): stdClass
     {
         $object = (object) [
@@ -63,5 +60,35 @@ class NumberType implements Type
         }
 
         return $object;
+    }
+
+    public function getMinimum(): float|int|null
+    {
+        return $this->minimum;
+    }
+
+    public function getExclusiveMinimum(): float|int|null
+    {
+        return $this->exclusiveMinimum;
+    }
+
+    public function getMaximum(): float|int|null
+    {
+        return $this->maximum;
+    }
+
+    public function getExclusiveMaximum(): float|int|null
+    {
+        return $this->exclusiveMaximum;
+    }
+
+    public function getMultipleOf(): float|int|null
+    {
+        return $this->multipleOf;
+    }
+
+    public function getDefault(): float|int|null
+    {
+        return $this->default;
     }
 }
