@@ -244,7 +244,7 @@
             "create": true,
             "edit": true,
             "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\LinkMultipleSchemaProvider",
-            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\LinkMultipleParentSchemaProvider"
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\LinkMultipleSchemaProvider"
         }
     }
 }

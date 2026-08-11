@@ -12,21 +12,25 @@ class GroupSchema implements Schema
 
     /**
      * @param Schema[] $schemas
+     * @param scalar|stdClass|stdClass[]|scalar[]|null $default
      */
     public function __construct(
         private GroupKeyword $keyword,
         private array $schemas,
         private ?string $title = null,
         private ?string $description = null,
+        private mixed $default = null,
     ) {}
 
     /**
      * @param Schema[] $schemas
+     * @param scalar|stdClass|stdClass[]|scalar[]|null $default
      */
     public static function createAnyOf(
         array $schemas,
         ?string $title = null,
         ?string $description = null,
+        mixed $default = null,
     ): self {
 
         return new self(
@@ -34,6 +38,7 @@ class GroupSchema implements Schema
             schemas: $schemas,
             title: $title,
             description: $description,
+            default: $default,
         );
     }
 
@@ -49,6 +54,10 @@ class GroupSchema implements Schema
 
         if ($this->description !== null) {
             $object->description = $this->description;
+        }
+
+        if ($this->default !== null) {
+            $object->default = $this->default;
         }
 
         return $object;

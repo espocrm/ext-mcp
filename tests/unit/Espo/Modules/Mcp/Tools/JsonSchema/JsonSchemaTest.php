@@ -63,11 +63,13 @@ class JsonSchemaTest extends TestCase
                     'exclusiveMinimum' => 0,
                     'exclusiveMaximum' => 1.1,
                     'multipleOf' => 0.01,
+                    'default' => 0,
                 ],
                 new NumberType(
                     exclusiveMinimum: 0,
                     exclusiveMaximum: 1.1,
-                    multipleOf: 0.01
+                    multipleOf: 0.01,
+                    default: 0,
                 )
             ],
             [
@@ -88,10 +90,12 @@ class JsonSchemaTest extends TestCase
                     'type' => 'integer',
                     'minimum' => 0,
                     'maximum' => 1,
+                    'default' => 0,
                 ],
                 new IntegerType(
                     minimum: 0,
                     maximum: 1,
+                    default: 0,
                 ),
             ],
             [
@@ -99,6 +103,15 @@ class JsonSchemaTest extends TestCase
                     'type' => 'boolean',
                 ],
                 new BooleanType(),
+            ],
+            [
+                (object) [
+                    'type' => 'boolean',
+                    'default' => true,
+                ],
+                new BooleanType(
+                    default: true,
+                ),
             ],
             [
                 (object) [
@@ -112,11 +125,13 @@ class JsonSchemaTest extends TestCase
                     'minLength' => 1,
                     'maxLength' => 100,
                     'pattern' => '[a-z]+',
+                    'default' => 'abc',
                 ],
                 new StringType(
                     minLength: 1,
                     maxLength: 100,
                     pattern: '[a-z]+',
+                    default: 'abc',
                 ),
             ],
             [
@@ -266,6 +281,23 @@ class JsonSchemaTest extends TestCase
                         new StringType(),
                         new NumberType(),
                     ],
+                )
+            ],
+            [
+                (object) [
+                    'anyOf' => [
+                        (new StringType())->jsonSerialize(),
+                        (new NumberType())->jsonSerialize(),
+                    ],
+                    'default' => 10,
+                ],
+                new GroupSchema(
+                    keyword: GroupKeyword::anyOf,
+                    schemas: [
+                        new StringType(),
+                        new NumberType(),
+                    ],
+                    default: 10,
                 )
             ],
             [

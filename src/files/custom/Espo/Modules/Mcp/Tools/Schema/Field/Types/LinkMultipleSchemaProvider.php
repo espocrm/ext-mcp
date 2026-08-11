@@ -18,7 +18,7 @@ use Espo\ORM\Defs\Params\FieldParam;
 /**
  * @noinspection PhpUnused
  */
-class LinkMultipleParentSchemaProvider implements SchemaProvider
+class LinkMultipleSchemaProvider implements SchemaProvider
 {
     public function __construct(
         private Defs $ormDefs,

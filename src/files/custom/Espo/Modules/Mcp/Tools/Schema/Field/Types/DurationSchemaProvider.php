@@ -25,9 +25,11 @@ class DurationSchemaProvider implements SchemaProvider
     {
         $fieldDefs = $this->ormDefs->getEntity($params->entityType)->getField($params->field);
 
+        $default = $fieldDefs->getParam(FieldParam::DEFAULT);
+
         $required = [];
 
-        if ($fieldDefs->getParam(FieldParam::DEFAULT) === null) {
+        if ($fieldDefs->getParam(FieldParam::REQUIRED) && $default === null) {
             $required[] = $params->field;
         }
 
@@ -40,6 +42,8 @@ class DurationSchemaProvider implements SchemaProvider
                 $params->field => new IntegerType(
                     title: $label,
                     description: $description,
+                    default: $default !== null && $params->isWriteAction() ?
+                        $default : null,
                 )
             ],
             required: $required,

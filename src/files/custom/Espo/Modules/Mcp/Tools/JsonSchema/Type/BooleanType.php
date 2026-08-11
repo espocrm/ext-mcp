@@ -13,6 +13,7 @@ class BooleanType implements Type
     public function __construct(
         private ?string $title = null,
         private ?string $description = null,
+        private ?bool $default = null,
     ) {}
 
     public function jsonSerialize(): stdClass
@@ -27,6 +28,10 @@ class BooleanType implements Type
 
         if ($this->description !== null) {
             $object->description = $this->description;
+        }
+
+        if ($this->default !== null) {
+            $object->default = $this->default;
         }
 
         return $object;

@@ -18,6 +18,7 @@ class NumberType implements Type
         private int|float|null $multipleOf = null,
         private ?string $title = null,
         private ?string $description = null,
+        private int|float|null $default = null,
     ) {}
 
     /**
@@ -55,6 +56,10 @@ class NumberType implements Type
 
         if ($this->description !== null) {
             $object->description = $this->description;
+        }
+
+        if ($this->default !== null) {
+            $object->default = $this->default;
         }
 
         return $object;

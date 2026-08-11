@@ -22,6 +22,7 @@ class StringType implements Type
         private ?StringFormat $format = null,
         private ?string $title = null,
         private ?string $description = null,
+        private ?string $default = null,
     ) {}
 
     public function jsonSerialize(): stdClass
@@ -52,6 +53,10 @@ class StringType implements Type
 
         if ($this->description !== null) {
             $object->description = $this->description;
+        }
+
+        if ($this->default !== null) {
+            $object->default = $this->default;
         }
 
         return $object;

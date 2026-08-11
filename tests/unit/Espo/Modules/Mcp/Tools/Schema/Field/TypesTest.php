@@ -12,6 +12,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\BooleanType;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NullType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
@@ -27,6 +28,13 @@ use Espo\Modules\Mcp\Tools\Schema\Field\Types\CurrencySchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\DateSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\DatetimeOptionalSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\DatetimeSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\DecimalSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\DurationSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\EmailSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\EnumSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\FloatSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\IdSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\IntSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionsProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionTranslator;
 use Espo\ORM\Defs;
@@ -266,6 +274,52 @@ class TypesTest extends TestCase
         );
     }
 
+    public function testDecimal(): void
+    {
+        $provider = new DecimalSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::DECIMAL,
+                    required: true,
+                    params: [
+                        'min' => 0,
+                        'max' => 10,
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new StringType(
+                        pattern: "^-?\\d+(?:\\.\\d+)?$",
+                        title: 'Field',
+                        description: "A decimal number represented as string. " .
+                            "Min value: `0`. Max value: `10`.",
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
     public function testCurrencyDecimal(): void
     {
         $provider = new CurrencySchemaProvider(
@@ -298,11 +352,11 @@ class TypesTest extends TestCase
                         description: "Amount. Currency code is set in the `testCurrency` field. " .
                             "Min value: `0`.",
                     ),
-                    'testCurrency' => (new EnumSchema(
+                    'testCurrency' => new EnumSchema(
                         values: ['EUR', 'USD'],
                         description: "Currency code for the `test` field.",
                         default: 'EUR',
-                    )),
+                    ),
                 ],
                 required: [
                     'test',
@@ -444,6 +498,387 @@ class TypesTest extends TestCase
                     ),
                 ],
                 required: ['test'],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testEnumRequiredWithDefault(): void
+    {
+        $entityDefs = self::createEntityDefs(
+            entityType: 'Test',
+            field: 'test',
+            type: FieldType::ENUM,
+            required: true,
+            params: [
+                'default' => 'a',
+            ],
+        );
+
+        $provider = new EnumSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: $entityDefs,
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+            enumOptionsProvider: $this->createEnumOptionsProvider(
+                fieldDefs: $entityDefs->getField('test'),
+                options: ['a', 'b'],
+            ),
+            enumOptionTranslator: $this->createEnumOptionTranslator([
+                'test' => [
+                    'a' => 'A',
+                    'b' => 'B',
+                ]
+            ]),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => GroupSchema::createAnyOf(
+                        schemas: [
+                            new ConstSchema(
+                                value: 'a',
+                                title: 'A',
+                            ),
+                            new ConstSchema(
+                                value: 'b',
+                                title: 'B',
+                            ),
+                        ],
+                        title: 'Field',
+                        default: 'a',
+                    ),
+                ],
+                required: [],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testEnumRequiredNoDefault(): void
+    {
+        $entityDefs = self::createEntityDefs(
+            entityType: 'Test',
+            field: 'test',
+            type: FieldType::ENUM,
+            required: true,
+        );
+
+        $provider = new EnumSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: $entityDefs,
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+            enumOptionsProvider: $this->createEnumOptionsProvider(
+                fieldDefs: $entityDefs->getField('test'),
+                options: ['a', 'b'],
+            ),
+            enumOptionTranslator: $this->createEnumOptionTranslator([
+                'test' => [
+                    'a' => 'A',
+                    'b' => 'B',
+                ]
+            ]),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => GroupSchema::createAnyOf(
+                        schemas: [
+                            new ConstSchema(
+                                value: 'a',
+                                title: 'A',
+                            ),
+                            new ConstSchema(
+                                value: 'b',
+                                title: 'B',
+                            ),
+                        ],
+                        title: 'Field',
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testEnumNotRequired(): void
+    {
+        $entityDefs = self::createEntityDefs(
+            entityType: 'Test',
+            field: 'test',
+            type: FieldType::ENUM,
+        );
+
+        $provider = new EnumSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: $entityDefs,
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+            enumOptionsProvider: $this->createEnumOptionsProvider(
+                fieldDefs: $entityDefs->getField('test'),
+                options: ['', 'a', 'b'],
+            ),
+            enumOptionTranslator: $this->createEnumOptionTranslator([
+                'test' => [
+                    'a' => 'A',
+                    'b' => 'B',
+                ]
+            ]),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => GroupSchema::createAnyOf(
+                        schemas: [
+                            new ConstSchema(
+                                value: 'a',
+                                title: 'A',
+                            ),
+                            new ConstSchema(
+                                value: 'b',
+                                title: 'B',
+                            ),
+                            new ConstSchema(
+                                value: null,
+                            ),
+                        ],
+                        title: 'Field',
+                    ),
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testFloat(): void
+    {
+        $provider = new FloatSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::FLOAT,
+                    required: true,
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new NumberType(
+                        title: 'Field',
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testInt(): void
+    {
+        $provider = new IntSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::INT,
+                    required: true,
+                    params: [
+                        'min' => 0,
+                        'max' => 100,
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new IntegerType(
+                        minimum: 0,
+                        maximum: 100,
+                        title: 'Field',
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testId(): void
+    {
+        $provider = new IdSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'id',
+                    type: 'id',
+                ),
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'id' => new StringType(
+                        description: 'Record ID.',
+                    ),
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'id',
+                    action: Action::Read,
+                ),
+            ),
+        );
+    }
+
+    public function testDuration(): void
+    {
+        $provider = new DurationSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: 'duration',
+                    required: true,
+                    params: [
+                        'default' => 100,
+                    ]
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new IntegerType(
+                        title: 'Field',
+                        description: "Duration in seconds. `3600` is 1h, `1800` is 30m, `900` is 15m.",
+                        default: 100,
+                    ),
+                ],
+                required: [],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testEmail(): void
+    {
+        $provider = new EmailSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                entityDefs: self::createEntityDefs(
+                    entityType: 'Test',
+                    field: 'test',
+                    type: FieldType::EMAIL,
+                    required: true,
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'test' => new StringType(
+                        maxLength: 255,
+                        format: StringFormat::email,
+                        title: 'Field',
+                    ),
+                ],
+                required: [
+                    'test',
+                ],
             ),
             actual: $provider->get(
                 params: new Params(

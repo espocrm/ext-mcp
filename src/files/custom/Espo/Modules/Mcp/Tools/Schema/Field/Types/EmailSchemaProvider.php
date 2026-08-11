@@ -43,13 +43,10 @@ class EmailSchemaProvider implements SchemaProvider
 
         $label = $this->defaultLanguage->translateLabel($params->field, 'fields', $params->entityType);
 
-        $description = "An email address.";
-
         $property = new StringType(
             maxLength: $maxLength,
             format: StringFormat::email,
             title: $label,
-            description: $description,
         );
 
         if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {

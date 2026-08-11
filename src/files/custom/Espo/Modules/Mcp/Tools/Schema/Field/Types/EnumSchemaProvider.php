@@ -30,9 +30,11 @@ class EnumSchemaProvider implements SchemaProvider
     {
         $fieldDefs = $this->ormDefs->getEntity($params->entityType)->getField($params->field);
 
+        $default = $fieldDefs->getParam(FieldParam::DEFAULT);
+
         $required = [];
 
-        if ($fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
+        if ($fieldDefs->getParam(FieldParam::REQUIRED) && $default === null) {
             $required[] = $params->field;
         }
 
@@ -61,6 +63,7 @@ class EnumSchemaProvider implements SchemaProvider
         $property = GroupSchema::createAnyOf(
             schemas: $schemas,
             title: $label,
+            default: $params->isWriteAction() ? $default : null,
         );
 
         return new Result(
