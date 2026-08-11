@@ -88,10 +88,10 @@ readonly class FindData implements Data
         return (object) [
             'entityType' => $this->entityType,
             'textFilter' => $this->textFilter,
-            'selectFields' => $this->selectFields,
+            'selectFields' => array_map(fn ($it) => (object) get_object_vars($it), $this->selectFields),
             'primaryFilters' => $this->primaryFilters,
             'boolFilters' => $this->boolFilters,
-            'filterFields' => $this->filterFields,
+            'filterFields' => array_map(fn ($it) => (object) get_object_vars($it), $this->filterFields),
         ];
     }
 

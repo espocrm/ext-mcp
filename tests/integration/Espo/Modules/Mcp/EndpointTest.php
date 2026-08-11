@@ -5,6 +5,7 @@ namespace integration\Espo\Modules\Mcp;
 
 use Espo\Core\Acl\Table;
 use Espo\Core\Authentication\Logins\ApiKey;
+use Espo\Core\Name\Field;
 use Espo\Entities\Role;
 use Espo\Entities\Team;
 use Espo\Entities\User;
@@ -12,8 +13,9 @@ use Espo\Modules\Crm\Entities\Account;
 use Espo\Modules\Crm\Entities\Lead;
 use Espo\Modules\Crm\Entities\Opportunity;
 use Espo\Modules\Mcp\Entities\Endpoint;
+use Espo\Modules\Mcp\Entities\Feature;
+use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
 use Espo\Modules\Mcp\Tools\Mcp\Api\PostEntry;
-use Espo\Modules\Mcp\Tools\Mcp\RecordItemAction;
 use tests\integration\Core\BaseTestCase;
 
 class EndpointTest extends BaseTestCase
@@ -49,15 +51,32 @@ class EndpointTest extends BaseTestCase
 
         $endpoint = $em->getRDBRepositoryByClass(Endpoint::class)->getNew()
             ->setName('Test')
-            ->setSlug('test')
-            /*->setActions([
-                Account::ENTITY_TYPE . '.' . RecordItemAction::LIST,
-                Lead::ENTITY_TYPE . '.' . RecordItemAction::LIST,
-                Opportunity::ENTITY_TYPE . '.' . RecordItemAction::LIST,
-            ])*/;
+            ->setSlug('test');
         $em->saveEntity($endpoint);
 
         $em->getRelation($endpoint, Endpoint::LINK_USERS)->relate($apiUser);
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: Lead::ENTITY_TYPE,
+                        textFilter: true,
+                        selectFields: [
+                            new FindData\Field(Field::NAME, 'Lead name.'),
+                            new FindData\Field('accountName'),
+                            new FindData\Field('emailAddress'),
+                        ],
+                        primaryFilters: ['actual'],
+                        boolFilters: ['onlyMy'],
+                        filterFields: [
+                            new FindData\Field('status'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
 
         $request = $this->createRequest(
             method: 'POST',

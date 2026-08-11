@@ -5,6 +5,7 @@ namespace Espo\Modules\Mcp\Entities;
 
 use Espo\Core\Name\Field;
 use Espo\Core\ORM\Entity;
+use Espo\Modules\Mcp\Tools\Feature\Data;
 use stdClass;
 use UnexpectedValueException;
 
@@ -44,6 +45,16 @@ class Feature extends Entity
     public function setName(?string $name): self
     {
         return $this->set(Field::NAME, $name);
+    }
+
+    public function setData(Data $data): self
+    {
+        return $this->set(self::FIELD_DATA, $data->jsonSerialize());
+    }
+
+    public function setEndpoint(Endpoint $endpoint): self
+    {
+        return $this->setRelatedLinkOrEntity(self::LINK_ENDPOINT, $endpoint);
     }
 
     public function getEndpoint(): Endpoint
