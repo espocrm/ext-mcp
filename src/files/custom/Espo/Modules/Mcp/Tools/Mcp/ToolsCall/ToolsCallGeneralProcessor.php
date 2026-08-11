@@ -3,12 +3,15 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp\ToolsCall;
 
+use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Mcp\JsonSchemaValidator\Validator;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
+use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolEnvelope;
 use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolProvider;
+use Espo\ORM\EntityManager;
 
 class ToolsCallGeneralProcessor
 {
@@ -16,6 +19,7 @@ class ToolsCallGeneralProcessor
         private ToolProvider $toolProvider,
         private Validator $jsonSchemaValidator,
         private ToolProcessorFactory $processorFactory,
+        private EntityManager $entityManager,
     ) {}
 
     /**
@@ -24,21 +28,28 @@ class ToolsCallGeneralProcessor
      */
     public function process(CallToolRequestParams $params): CallToolResult
     {
-        $this->validate($params);
+        $toolEnvelope = $this->toolProvider->get($params->name);
+
+        $this->jsonSchemaValidator->assert($toolEnvelope->tool->inputSchema, $params->arguments);
+
+        $feature = $this->getFeature($toolEnvelope->featureId, $params->name);
 
         $processor = $this->processorFactory->create($params->name);
 
-        return $processor->process($params);
+        return $processor->process($params, $feature);
     }
 
     /**
      * @throws InternalError
-     * @throws InvalidParamsError
      */
-    private function validate(CallToolRequestParams $params): void
+    private function getFeature(string $id, string $name): Feature
     {
-        $tool = $this->toolProvider->get($params->name);
+        $feature = $this->entityManager->getRDBRepositoryByClass(Feature::class)->getById($id);
 
-        $this->jsonSchemaValidator->assert($tool->inputSchema, $params->arguments);
+        if (!$feature) {
+            throw new InternalError("Feature `$id` for tool `$name` not found.");
+        }
+
+        return $feature;
     }
 }

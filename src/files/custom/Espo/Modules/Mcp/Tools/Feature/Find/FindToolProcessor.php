@@ -8,6 +8,8 @@ use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Record\Collection;
 use Espo\Core\Record\ServiceFactory;
 use Espo\Core\Select\SearchParams;
+use Espo\Entities\User;
+use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
@@ -19,21 +21,23 @@ use stdClass;
 
 /**
  * @noinspection PhpUnused
+ * @todo Filter output.
  */
 class FindToolProcessor implements ToolProcessor
 {
     public function __construct(
         private ServiceFactory $serviceFactory,
         private EntityOutput $entityOutput,
+        private User $user,
     ) {}
 
-    public function process(CallToolRequestParams $params): CallToolResult
+    public function process(CallToolRequestParams $params, Feature $feature): CallToolResult
     {
         $entityType = $this->fetchEntityType($params);
         $searchParams = $this->fetchSearchParams($params);
 
         try {
-            $service = $this->serviceFactory->create($entityType);
+            $service = $this->serviceFactory->createForUser($entityType, $this->user);
         } catch (Exception $e) {
             throw new InternalError("Could not create record service for `$entityType`.", previous: $e);
         }
@@ -73,6 +77,10 @@ class FindToolProcessor implements ToolProcessor
 
         if ($searchParams->getMaxSize() === null) {
             $searchParams = $searchParams->withMaxSize(FindToolDefinitionProvider::MAX_SIZE_LIMIT);
+        }
+
+        if ($searchParams->getMaxSize() > FindToolDefinitionProvider::MAX_SIZE_LIMIT) {
+            throw new RuntimeException("Max size exceeds limit.");
         }
 
         return $searchParams;

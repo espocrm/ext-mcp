@@ -29,26 +29,41 @@ class ToolProvider
      * @throws InternalError
      * @throws InvalidParamsError
      */
-    public function get(string $name): Tool
+    public function get(string $name): ToolEnvelope
     {
-        foreach ($this->getAll() as $tool) {
-            if ($tool->name !== $name) {
+        foreach ($this->getEnvelopeAll() as $item) {
+            if ($item->tool->name !== $name) {
                 continue;
             }
 
-            return $tool;
+            return $item;
         }
 
         throw new InvalidParamsError("Tool `$name` not found.");
     }
 
     /**
-     * @todo Cache. For user and endpoint.
-     *
      * @return Tool[]
      * @throws InternalError
      */
     public function getAll(): array
+    {
+        $tools = [];
+
+        foreach ($this->getEnvelopeAll() as $item) {
+            $tools[] = $item->tool;
+        }
+
+        return $tools;
+    }
+
+    /**
+     * @todo Cache. For user and endpoint.
+     *
+     * @return ToolEnvelope[]
+     * @throws InternalError
+     */
+    private function getEnvelopeAll(): array
     {
         $tools = [];
 
@@ -59,7 +74,10 @@ class ToolProvider
                 continue;
             }
 
-            $tools[] = $tool;
+            $tools[] = new ToolEnvelope(
+                tool: $tool,
+                featureId: $feature->getId(),
+            );
         }
 
         return $tools;
