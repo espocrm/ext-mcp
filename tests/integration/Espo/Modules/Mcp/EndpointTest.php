@@ -7,6 +7,7 @@ use Espo\Core\Acl\Table;
 use Espo\Core\Api\RequestWrapper;
 use Espo\Core\Authentication\Logins\ApiKey;
 use Espo\Core\Binding\BindingContainerBuilder;
+use Espo\Core\Field\Date;
 use Espo\Core\Field\DateTimeOptional;
 use Espo\Core\Field\EmailAddress;
 use Espo\Core\Field\EmailAddressGroup;
@@ -18,6 +19,7 @@ use Espo\Entities\Role;
 use Espo\Entities\Team;
 use Espo\Entities\User;
 use Espo\Modules\Crm\Entities\Account;
+use Espo\Modules\Crm\Entities\Call;
 use Espo\Modules\Crm\Entities\Lead;
 use Espo\Modules\Crm\Entities\Opportunity;
 use Espo\Modules\Crm\Entities\Task;
@@ -70,10 +72,13 @@ class EndpointTest extends BaseTestCase
                     Table::ACTION_READ => Table::LEVEL_TEAM,
                 ],
                 Opportunity::ENTITY_TYPE => [
-                    Table::ACTION_READ => Table::LEVEL_NO,
+                    Table::ACTION_READ => Table::LEVEL_ALL,
                 ],
                 Task::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_ALL,
+                ],
+                Call::ENTITY_TYPE => [
+                    Table::ACTION_READ => Table::LEVEL_NO,
                 ],
             ],
             Role::FIELD_FIELD_DATA => [
@@ -141,6 +146,47 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field('dateStart'),
                             new FindData\Field(Field::PARENT),
                         ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: Opportunity::ENTITY_TYPE,
+                        textFilter: true,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field(Opportunity::FIELD_STAGE),
+                            new FindData\Field(Opportunity::FIELD_CLOSE_DATE),
+                        ],
+                        primaryFilters: ['actual'],
+                        boolFilters: ['onlyMy'],
+                        filterFields: [
+                            new FindData\Field(Opportunity::FIELD_CLOSE_DATE),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        // No access.
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: Call::ENTITY_TYPE,
+                        textFilter: true,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                        ],
+                        primaryFilters: [],
+                        boolFilters: [],
+                        filterFields: [],
                     )
                 )
                 ->setEndpoint($endpoint)
@@ -226,14 +272,23 @@ class EndpointTest extends BaseTestCase
         $body = Json::decode($response->getBody());
 
         $this->assertEquals(1, $body->id);
-        $this->assertEquals('complete', $body->result?->resultType, );
+        $this->assertEquals('complete', $body->result?->resultType);
         $this->assertEquals('private', $body->result?->cacheScope);
 
         $tools = $body->result->tools;
 
         $this->assertIsArray($tools);
 
-        $this->assertEquals('Find.Lead', $tools[0]->name);
+        $findLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Find.Lead');
+        $this->assertNotNull($findLeadToolIndex);
+
+        $findLeadTool = $tools[$findLeadToolIndex];
+
+        $this->assertNull(
+            array_find_key($tools, fn ($it) => $it->name === 'Find.Call')
+        );
+
+        $this->assertEquals('Find.Lead', $findLeadTool->name);
         $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->inputSchema->{'$schema'});
         $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->outputSchema->{'$schema'});
 
@@ -371,12 +426,9 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals(1, $body->result->structuredContent->total);
         $this->assertEquals(Lead::STATUS_CONVERTED, $body->result->structuredContent->list[0]->status);
 
-        $this->createJsonSchemaValidator()->assert(
-            $this->getToolEnvelope($endpoint, 'Find.Lead')->tool->outputSchema,
-            $body->result->structuredContent
-        );
+        $this->processValidateJsonSchema($endpoint, 'Find.Lead', $body->result->structuredContent);
 
-        // Call `Find.Task`. Offset.
+        // Call `Find.Task`. Offset, order.
 
         $response = $apiAction->process(
             $this->createEntryRequest(
@@ -398,22 +450,90 @@ class EndpointTest extends BaseTestCase
 
         $body = Json::decode($response->getBody());
 
-        //print_r($body);
-
         $this->assertEquals('complete', $body->result?->resultType);
         $this->assertEquals(3, $body->result->structuredContent->total);
         $this->assertCount(2, $body->result->structuredContent->list);
         $this->assertEquals('Test 2', $body->result->structuredContent->list[0]->name);
         $this->assertEquals('Test 1', $body->result->structuredContent->list[1]->name);
 
-        try {
-            $this->createJsonSchemaValidator()->assert(
-                $this->getToolEnvelope($endpoint, 'Find.Task')->tool->outputSchema,
-                $body->result->structuredContent
-            );
-        } catch (InvalidParamsError $e) {
-            throw new RuntimeException("Validation error. " . var_export($e->getData(), true));
-        }
+        $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
+
+        // Call `Find.Task`. Where.
+
+        $lead = $em->getRDBRepositoryByClass(Lead::class)
+            ->where([Field::NAME => 'Test 1'])
+            ->findOne();
+
+        $this->assertNotNull($lead);
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Find.Task',
+                    'arguments' => (object) [
+                        'orderBy' => 'name',
+                        'order' => 'desc',
+                        'where' => [
+                            (object) [
+                                'type' => Type::EQUALS,
+                                'attribute' => 'parentType',
+                                'value' => Lead::ENTITY_TYPE,
+                            ],
+                            (object) [
+                                'type' => Type::EQUALS,
+                                'attribute' => 'parentId',
+                                'value' => $lead->getId(),
+                            ],
+                            (object) [
+                                'type' => Type::ON,
+                                'attribute' => 'dateStart',
+                                'value' => '2030-01-01',
+                                'dateTime' => true,
+                            ],
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(1, $body->result->structuredContent->total);
+
+        $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
+
+        // Call `Find.Opportunity`. Where.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Find.Opportunity',
+                    'arguments' => (object) [
+                        'where' => [
+                            (object) [
+                                'type' => Type::ON,
+                                'attribute' => Opportunity::FIELD_CLOSE_DATE,
+                                'value' => '2030-01-01',
+                            ],
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(1, $body->result->structuredContent->total);
+
+        $this->processValidateJsonSchema($endpoint, 'Find.Opportunity', $body->result->structuredContent);
     }
 
     private function createRecords(
@@ -421,6 +541,13 @@ class EndpointTest extends BaseTestCase
         User $user,
     ): void  {
         $em = $this->getEntityManager();
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Opportunity::class)->getNew()
+                ->setName('Test 1')
+                ->setCloseDate(Date::fromString('2030-01-01'))
+                ->setStage(Opportunity::STAGE_CLOSED_WON)
+        );
 
         $lead1 = $em->getRDBRepositoryByClass(Lead::class)->getNew()
             ->setTeams(LinkMultiple::create()->withAddedId($team->getId()))
@@ -536,5 +663,17 @@ class EndpointTest extends BaseTestCase
     private function createJsonSchemaValidator(): Validator
     {
         return $this->getInjectableFactory()->create(Validator::class);
+    }
+
+    private function processValidateJsonSchema(Endpoint $endpoint, string $name, $structuredContent): void
+    {
+        try {
+            $this->createJsonSchemaValidator()->assert(
+                $this->getToolEnvelope($endpoint, $name)->tool->outputSchema,
+                $structuredContent
+            );
+        } catch (InvalidParamsError $e) {
+            throw new RuntimeException("Validation error. " . var_export($e->getData(), true));
+        }
     }
 }
