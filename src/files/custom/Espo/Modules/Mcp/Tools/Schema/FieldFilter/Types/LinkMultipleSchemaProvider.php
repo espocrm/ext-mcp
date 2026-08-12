@@ -57,26 +57,25 @@ class LinkMultipleSchemaProvider implements SchemaProvider
         return [
             new ObjectType(
                 properties: [
-                    'attribute' => new ConstSchema(
-                        value: $field . 'Ids',
-                        description: "Record IDs attribute name. Field name plus an `Ids` prefix.",
-                    ),
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(
-                                value: Type::IS_LINKED_WITH_ANY,
-                                description: 'Is linked with at least one of provider record.',
+                                value: Type::IS_LINKED_WITH,
+                                description: 'Is linked with at least one of the provided records.',
                             ),
                             new ConstSchema(
                                 value: Type::IS_LINKED_WITH_ALL,
-                                description: 'Is linked with all provider records.',
+                                description: 'Is linked with all provided records.',
                             ),
                             new ConstSchema(
                                 value: Type::IS_NOT_LINKED_WITH,
-                                description: 'Is linked with all provider records.',
+                                description: 'Is linked with all provided records.',
                             ),
                         ],
+                    ),
+                    'attribute' => new ConstSchema(
+                        value: $field,
                     ),
                     'value' => new ArrayType(
                         items: new StringType(
@@ -99,7 +98,6 @@ class LinkMultipleSchemaProvider implements SchemaProvider
                     [
                         new ObjectType(
                             properties: [
-                                'attribute' => new ConstSchema(value: $field . 'Id'),
                                 'type' => new GroupSchema(
                                     keyword: GroupKeyword::anyOf,
                                     schemas: [
@@ -113,10 +111,13 @@ class LinkMultipleSchemaProvider implements SchemaProvider
                                         ),
                                     ],
                                 ),
+                                'attribute' => new ConstSchema(
+                                    value: $field,
+                                ),
                             ],
                             required: [
-                                'attribute',
                                 'type',
+                                'attribute',
                             ],
                             description: "'$label' field filter checking if the value is empty or not.",
                         )

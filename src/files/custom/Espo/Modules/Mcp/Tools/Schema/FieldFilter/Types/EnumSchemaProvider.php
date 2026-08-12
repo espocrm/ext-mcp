@@ -5,6 +5,7 @@ namespace Espo\Modules\Mcp\Tools\Schema\FieldFilter\Types;
 
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Language;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\Schema\FieldFilter\SchemaProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
@@ -43,15 +44,18 @@ class EnumSchemaProvider implements SchemaProvider
         $options = $this->getOptions($fieldDefs);
 
         if ($options) {
-            $value = GroupSchema::createAnyOf(
-                schemas: [
-                    ...array_map(function (string $it) use ($entityType, $field) {
-                        return new ConstSchema(
-                            value: $it,
-                            title: $this->enumOptionTranslator->translate($it, $field, $entityType),
-                        );
-                    }, $options)
-                ],
+            $value = new ArrayType(
+                items: GroupSchema::createAnyOf(
+                    schemas: [
+                        ...array_map(function (string $it) use ($entityType, $field) {
+                            return new ConstSchema(
+                                value: $it,
+                                title: $this->enumOptionTranslator->translate($it, $field, $entityType),
+                            );
+                        }, $options)
+                    ],
+                ),
+                uniqueItems: true,
                 description: 'Options.',
             );
         }

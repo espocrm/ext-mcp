@@ -11,6 +11,7 @@ use Espo\Core\Field\EmailAddress;
 use Espo\Core\Field\EmailAddressGroup;
 use Espo\Core\Field\LinkMultiple;
 use Espo\Core\Name\Field;
+use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Json;
 use Espo\Entities\Role;
 use Espo\Entities\Team;
@@ -18,6 +19,7 @@ use Espo\Entities\User;
 use Espo\Modules\Crm\Entities\Account;
 use Espo\Modules\Crm\Entities\Lead;
 use Espo\Modules\Crm\Entities\Opportunity;
+use Espo\Modules\Crm\Entities\Task;
 use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
@@ -39,6 +41,12 @@ class EndpointTest extends BaseTestCase
     public function testEndpoint(): void
     {
         $em = $this->getEntityManager();
+
+        $testUser = $em->getRDBRepositoryByClass(User::class)->getNew()
+            ->setUserName('test-0')
+            ->setLastName('Test User 0');
+
+        $em->saveEntity($testUser);
 
         $team = $em->getRDBRepositoryByClass(Team::class)->getNew();
         $em->saveEntity($team);
@@ -97,6 +105,34 @@ class EndpointTest extends BaseTestCase
                         boolFilters: ['onlyMy'],
                         filterFields: [
                             new FindData\Field('status'),
+                            new FindData\Field('name'),
+                            new FindData\Field('assignedUser'),
+                            new FindData\Field('teams'),
+                            new FindData\Field('emailAddress'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: Task::ENTITY_TYPE,
+                        textFilter: true,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field(Field::PARENT),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('dateEnd'),
+                        ],
+                        primaryFilters: ['actual'],
+                        boolFilters: ['onlyMy'],
+                        filterFields: [
+                            new FindData\Field('dateStart'),
+                            new FindData\Field(Field::PARENT),
                         ],
                     )
                 )
@@ -220,11 +256,14 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('array', $tools[0]->outputSchema->properties->list->type);
         $this->assertEquals('integer', $tools[0]->outputSchema->properties->total->type);
 
-        // Call `Find.Lead`.
+        //
 
         $this->createRecords(
             team: $team,
+            user: $testUser,
         );
+
+        // Call `Find.Lead`. Primary filter.
 
         $response = $apiAction->process(
             $this->createEntryRequest(
@@ -249,7 +288,7 @@ class EndpointTest extends BaseTestCase
         $this->assertObjectHasProperty('id', $body->result->structuredContent->list[0]);
         $this->assertObjectNotHasProperty('campaignId', $body->result->structuredContent->list[0]);
         $this->assertObjectNotHasProperty('description', $body->result->structuredContent->list[0]);
-        $this->assertEquals('test@test.com', $body->result->structuredContent->list[0]->emailAddress);
+        $this->assertEquals('test1@test.com', $body->result->structuredContent->list[0]->emailAddress);
         $this->assertEquals(Lead::STATUS_NEW, $body->result->structuredContent->list[0]->status);
 
         $this->createJsonSchemaValidator()->assert(
@@ -257,11 +296,76 @@ class EndpointTest extends BaseTestCase
             $body->result->structuredContent
         );
 
-        //print_r($body);
+        // Call `Find.Lead`. Where clause, text filter.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Find.Lead',
+                    'arguments' => (object) [
+                        'textFilter' => 'Test*',
+                        'offset' => 0,
+                        'maxSize' => 5,
+                        'where' => [
+                            (object) [
+                                'type' => Type::IN,
+                                'attribute' => 'status',
+                                'value' => [Lead::STATUS_CONVERTED],
+                            ],
+                            (object) [
+                                'type' => Type::IS_NOT_NULL,
+                                'attribute' => 'status',
+                            ],
+                            (object) [
+                                'type' => Type::EQUALS,
+                                'attribute' => 'name',
+                                'value' => 'Test 3',
+                            ],
+                            (object) [
+                                'type' => Type::EQUALS,
+                                'attribute' => 'assignedUserId',
+                                'value' => $testUser->getId(),
+                            ],
+                            (object) [
+                                'type' => Type::EQUALS,
+                                'attribute' => 'emailAddress',
+                                'value' => 'test3@test.com',
+                            ],
+                            (object) [
+                                'type' => Type::IS_LINKED_WITH,
+                                'attribute' => 'teams',
+                                'value' => [$team->getId()],
+                            ],
+                            (object) [
+                                'type' => Type::IS_LINKED_WITH_ANY,
+                                'attribute' => 'teams',
+                                'value' => [$team->getId()],
+                            ],
+                        ],
+                    ],
+                ],
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(1, $body->result->structuredContent->total);
+        $this->assertEquals(Lead::STATUS_CONVERTED, $body->result->structuredContent->list[0]->status);
+
+        $this->createJsonSchemaValidator()->assert(
+            $this->getToolEnvelope($endpoint, 'Find.Lead')->tool->outputSchema,
+            $body->result->structuredContent
+        );
     }
 
-    private function createRecords(Team $team): void
-    {
+    private function createRecords(
+        Team $team,
+        User $user,
+    ): void  {
         $em = $this->getEntityManager();
 
         // Visible to the user.
@@ -269,7 +373,7 @@ class EndpointTest extends BaseTestCase
             $em->getRDBRepositoryByClass(Lead::class)->getNew()
                 ->setTeams(LinkMultiple::create()->withAddedId($team->getId()))
                 ->setLastName('Test 1')
-                ->setEmailAddressGroup(EmailAddressGroup::create([EmailAddress::create('test@test.com')]))
+                ->setEmailAddressGroup(EmailAddressGroup::create([EmailAddress::create('test1@test.com')]))
                 ->setStatus(Lead::STATUS_NEW)
         );
 
@@ -286,6 +390,8 @@ class EndpointTest extends BaseTestCase
                 ->setTeams(LinkMultiple::create()->withAddedId($team->getId()))
                 ->setLastName('Test 3')
                 ->setStatus(Lead::STATUS_CONVERTED)
+                ->setEmailAddressGroup(EmailAddressGroup::create([EmailAddress::create('test3@test.com')]))
+                ->setAssignedUser($user)
         );
     }
 

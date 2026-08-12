@@ -51,16 +51,16 @@ class LinkSchemaProvider implements SchemaProvider
         return [
             new ObjectType(
                 properties: [
-                    'attribute' => new ConstSchema(
-                        value: $field . 'Id',
-                        description: "Attribute name for record ID. Field name plus an `Id` prefix.",
-                    ),
                     'type' => new GroupSchema(
                         keyword: GroupKeyword::anyOf,
                         schemas: [
                             new ConstSchema(value: Type::EQUALS),
                             new ConstSchema(value: Type::NOT_EQUALS),
                         ],
+                    ),
+                    'attribute' => new ConstSchema(
+                        value: $field . 'Id',
+                        description: "Attribute name for record ID. Field name plus an `Id` prefix.",
                     ),
                     'value' => new StringType(
                         description:
@@ -69,8 +69,8 @@ class LinkSchemaProvider implements SchemaProvider
                     ),
                 ],
                 required: [
-                    'attribute',
                     'type',
+                    'attribute',
                     'value',
                 ],
                 description: "'$label' field filter.",
