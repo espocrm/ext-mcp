@@ -120,30 +120,21 @@ class FindToolProcessor implements ToolProcessor
      */
     private function prepareList(Collection $recordCollection, RootSchema $outputSchema): array
     {
-        $attributes = $this->getOutputAttributes($outputSchema);
+        $recordSchema = $this->getRecordSchema($outputSchema);
 
         $output = [];
 
         foreach ($recordCollection->getCollection() as $entity) {
-            $item = $this->entityOutput->prepare($entity);
-
-            foreach (get_object_vars($item) as $k => $v) {
-                if (!in_array($k, $attributes)) {
-                    unset($item->$k);
-                }
-            }
-
-            $output[] = $item;
+            $output[] = $this->entityOutput->prepare($entity, $recordSchema);;
         }
 
         return $output;
     }
 
     /**
-     * @return string[]
      * @throws InternalError
      */
-    private function getOutputAttributes(RootSchema $outputSchema): array
+    private function getRecordSchema(RootSchema $outputSchema): ObjectType
     {
         $outputSchema = $outputSchema->getSchema();
 
@@ -163,6 +154,6 @@ class FindToolProcessor implements ToolProcessor
             throw new InternalError("Unexpected schema.");
         }
 
-        return array_keys($itemsSchema->getProperties());
+        return $itemsSchema;
     }
 }

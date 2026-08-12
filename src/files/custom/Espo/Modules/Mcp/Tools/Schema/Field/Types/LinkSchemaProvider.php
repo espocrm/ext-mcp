@@ -67,7 +67,7 @@ class LinkSchemaProvider implements SchemaProvider
                 "Tool to retrieve IDs: `Find.$foreignEntityType`."
         );
 
-        if (!$fieldDefs->getParam(FieldParam::REQUIRED) || !$params->isWriteAction()) {
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
             $idProperty = Util::wrapWithNull($idProperty);
         }
 
