@@ -23,6 +23,6 @@ class FindTextComposer implements TextComposer
 
         $type = $this->language->translateOption(FindData::TYPE, Feature::FIELD_TYPE, Feature::ENTITY_TYPE);
 
-        return $entityTypeLabel . ' · ' . $type;
+        return $entityTypeLabel;
     }
 }

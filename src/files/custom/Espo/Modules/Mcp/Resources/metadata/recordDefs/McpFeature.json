@@ -1,7 +1,4 @@
 {
-    "saverClassNameList": [
-        "Espo\\Modules\\Mcp\\Classes\\FieldSavers\\Feature\\NameSaver"
-    ],
     "massActions": {
         "update": {
             "allowed": true
