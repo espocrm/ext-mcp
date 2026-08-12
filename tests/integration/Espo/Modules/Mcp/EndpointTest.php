@@ -62,6 +62,14 @@ class EndpointTest extends BaseTestCase
                     Table::ACTION_READ => Table::LEVEL_NO,
                 ],
             ],
+            Role::FIELD_FIELD_DATA => [
+                Lead::ENTITY_TYPE => [
+                    'description' => [
+                        Table::ACTION_READ => Table::LEVEL_NO,
+                        Table::ACTION_EDIT => Table::LEVEL_NO,
+                    ]
+                ],
+            ],
         ]);
 
         $endpoint = $em->getRDBRepositoryByClass(Endpoint::class)->getNew()
@@ -83,6 +91,7 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field('accountName'),
                             new FindData\Field('emailAddress'),
                             new FindData\Field('status'),
+                            new FindData\Field('description'),
                         ],
                         primaryFilters: ['actual'],
                         boolFilters: ['onlyMy'],
@@ -239,6 +248,7 @@ class EndpointTest extends BaseTestCase
         $this->assertIsArray($body->result->structuredContent->list);
         $this->assertObjectHasProperty('id', $body->result->structuredContent->list[0]);
         $this->assertObjectNotHasProperty('campaignId', $body->result->structuredContent->list[0]);
+        $this->assertObjectNotHasProperty('description', $body->result->structuredContent->list[0]);
         $this->assertEquals('test@test.com', $body->result->structuredContent->list[0]->emailAddress);
         $this->assertEquals(Lead::STATUS_NEW, $body->result->structuredContent->list[0]->status);
 
