@@ -7,7 +7,7 @@
         "endpoint": "Endpoint",
         "type": "Type",
         "data": "Data",
-        "text": "Action"
+        "text": "Target"
     },
     "links": {
         "endpoint": "Endpoint"
