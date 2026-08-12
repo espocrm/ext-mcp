@@ -16,7 +16,9 @@ class Validator
      */
     public function assert(RootObjectSchema|RootSchema $schema, mixed $data): void
     {
-        $validator = (new OpisValidator());
+        $validator = (new OpisValidator())
+            ->setStopAtFirstError(false)
+            ->setMaxErrors(5);
 
         $result = $validator->validate($data, $schema->jsonSerialize());
 
@@ -24,16 +26,12 @@ class Validator
             return;
         }
 
-        $errorMessage = $result->error() !== null ?
-            (new ErrorFormatter())->formatErrorMessage($result->error()) :
+        $lines = $result->error() ?
+            (new ErrorFormatter())->format($result->error()) :
             null;
 
         $message = "JSON Schema validation failure.";
 
-        if ($errorMessage) {
-            $message .= ' ' . $errorMessage;
-        }
-
-        throw new InvalidParamsError($message);
+        throw InvalidParamsError::create($message, $lines);
     }
 }

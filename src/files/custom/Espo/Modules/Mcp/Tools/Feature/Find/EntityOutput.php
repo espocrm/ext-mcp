@@ -22,7 +22,7 @@ class EntityOutput
 
             $value = $valueMap->$attribute;
 
-            if ($entity->getEntityType() === AttributeType::DATETIME && is_string($value)) {
+            if ($entity->getAttributeType($attribute) === AttributeType::DATETIME && is_string($value)) {
                 $valueMap->$attribute = DateTime::fromString($value)
                     ->toDateTime()
                     ->format(DateTimeInterface::RFC3339);

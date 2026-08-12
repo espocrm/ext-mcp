@@ -7,6 +7,7 @@ use Espo\Core\Acl\Table;
 use Espo\Core\Api\RequestWrapper;
 use Espo\Core\Authentication\Logins\ApiKey;
 use Espo\Core\Binding\BindingContainerBuilder;
+use Espo\Core\Field\DateTimeOptional;
 use Espo\Core\Field\EmailAddress;
 use Espo\Core\Field\EmailAddressGroup;
 use Espo\Core\Field\LinkMultiple;
@@ -24,11 +25,13 @@ use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
 use Espo\Modules\Mcp\Tools\Mcp\Api\PostEntry;
+use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\JsonSchemaValidator\Validator;
 use Espo\Modules\Mcp\Tools\Mcp\Method;
 use Espo\Modules\Mcp\Tools\Mcp\Scope;
 use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolEnvelope;
 use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolProvider;
+use RuntimeException;
 use tests\integration\Core\BaseTestCase;
 
 class EndpointTest extends BaseTestCase
@@ -68,6 +71,9 @@ class EndpointTest extends BaseTestCase
                 ],
                 Opportunity::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_NO,
+                ],
+                Task::ENTITY_TYPE => [
+                    Table::ACTION_READ => Table::LEVEL_ALL,
                 ],
             ],
             Role::FIELD_FIELD_DATA => [
@@ -128,9 +134,6 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field(Field::PARENT),
                             new FindData\Field('dateStart'),
                             new FindData\Field('dateEnd'),
-                            new FindData\Field('source'),
-                            //new FindData\Field('emailAddress'),
-                            //new FindData\Field('phoneNumber'),
                         ],
                         primaryFilters: ['actual'],
                         boolFilters: ['onlyMy'],
@@ -223,7 +226,7 @@ class EndpointTest extends BaseTestCase
         $body = Json::decode($response->getBody());
 
         $this->assertEquals(1, $body->id);
-        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals('complete', $body->result?->resultType, );
         $this->assertEquals('private', $body->result?->cacheScope);
 
         $tools = $body->result->tools;
@@ -372,6 +375,45 @@ class EndpointTest extends BaseTestCase
             $this->getToolEnvelope($endpoint, 'Find.Lead')->tool->outputSchema,
             $body->result->structuredContent
         );
+
+        // Call `Find.Task`. Offset.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Find.Task',
+                    'arguments' => (object) [
+                        'textFilter' => 'Test*',
+                        'offset' => 1,
+                        'maxSize' => 2,
+                        'orderBy' => 'name',
+                        'order' => 'desc',
+                    ],
+                ],
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        //print_r($body);
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(3, $body->result->structuredContent->total);
+        $this->assertCount(2, $body->result->structuredContent->list);
+        $this->assertEquals('Test 2', $body->result->structuredContent->list[0]->name);
+        $this->assertEquals('Test 1', $body->result->structuredContent->list[1]->name);
+
+        try {
+            $this->createJsonSchemaValidator()->assert(
+                $this->getToolEnvelope($endpoint, 'Find.Task')->tool->outputSchema,
+                $body->result->structuredContent
+            );
+        } catch (InvalidParamsError $e) {
+            throw new RuntimeException("Validation error. " . var_export($e->getData(), true));
+        }
     }
 
     private function createRecords(
@@ -380,14 +422,14 @@ class EndpointTest extends BaseTestCase
     ): void  {
         $em = $this->getEntityManager();
 
+        $lead1 = $em->getRDBRepositoryByClass(Lead::class)->getNew()
+            ->setTeams(LinkMultiple::create()->withAddedId($team->getId()))
+            ->setLastName('Test 1')
+            ->setEmailAddressGroup(EmailAddressGroup::create([EmailAddress::create('test1@test.com')]))
+            ->setStatus(Lead::STATUS_NEW);
+
         // Visible to the user.
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Lead::class)->getNew()
-                ->setTeams(LinkMultiple::create()->withAddedId($team->getId()))
-                ->setLastName('Test 1')
-                ->setEmailAddressGroup(EmailAddressGroup::create([EmailAddress::create('test1@test.com')]))
-                ->setStatus(Lead::STATUS_NEW)
-        );
+        $em->saveEntity($lead1);
 
         // No team.
         $em->saveEntity(
@@ -404,6 +446,28 @@ class EndpointTest extends BaseTestCase
                 ->setStatus(Lead::STATUS_CONVERTED)
                 ->setEmailAddressGroup(EmailAddressGroup::create([EmailAddress::create('test3@test.com')]))
                 ->setAssignedUser($user)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Task::class)->getNew()
+                ->setName('Test 1')
+                ->setDateStart(DateTimeOptional::fromString('2030-01-01'))
+                ->setParent($lead1)
+                ->setStatus(Task::STATUS_STARTED)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Task::class)->getNew()
+                ->setName('Test 2')
+                ->setDateStart(DateTimeOptional::fromString('2030-01-02 10:00'))
+                ->setStatus(Task::STATUS_STARTED)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Task::class)->getNew()
+                ->setName('Test 3')
+                ->setDateStart(DateTimeOptional::fromString('2030-01-01'))
+                ->setStatus(Task::STATUS_COMPLETED)
         );
     }
 
