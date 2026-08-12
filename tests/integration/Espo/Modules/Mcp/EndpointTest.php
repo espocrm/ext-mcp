@@ -6,6 +6,7 @@ namespace integration\Espo\Modules\Mcp;
 use Espo\Core\Acl\Table;
 use Espo\Core\Api\RequestWrapper;
 use Espo\Core\Authentication\Logins\ApiKey;
+use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\Field\EmailAddress;
 use Espo\Core\Field\EmailAddressGroup;
 use Espo\Core\Field\LinkMultiple;
@@ -21,8 +22,11 @@ use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
 use Espo\Modules\Mcp\Tools\Mcp\Api\PostEntry;
+use Espo\Modules\Mcp\Tools\Mcp\JsonSchemaValidator\Validator;
 use Espo\Modules\Mcp\Tools\Mcp\Method;
 use Espo\Modules\Mcp\Tools\Mcp\Scope;
+use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolEnvelope;
+use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolProvider;
 use tests\integration\Core\BaseTestCase;
 
 class EndpointTest extends BaseTestCase
@@ -78,6 +82,7 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field(Field::NAME, 'Lead name.'),
                             new FindData\Field('accountName'),
                             new FindData\Field('emailAddress'),
+                            new FindData\Field('status'),
                         ],
                         primaryFilters: ['actual'],
                         boolFilters: ['onlyMy'],
@@ -183,7 +188,7 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('object', $tools[0]->inputSchema->type);
 
         $this->assertEquals('string', $tools[0]->inputSchema->properties->textFilter->type);
-        $this->assertCount(3, $tools[0]->inputSchema->properties->orderBy->anyOf);
+        $this->assertCount(4, $tools[0]->inputSchema->properties->orderBy->anyOf);
         $this->assertCount(2, $tools[0]->inputSchema->properties->primaryFilter->anyOf);
         $this->assertCount(1, $tools[0]->inputSchema->properties->boolFilterList->items->anyOf);
         $this->assertEquals('array', $tools[0]->inputSchema->properties->where->type);
@@ -235,8 +240,14 @@ class EndpointTest extends BaseTestCase
         $this->assertObjectHasProperty('id', $body->result->structuredContent->list[0]);
         $this->assertObjectNotHasProperty('campaignId', $body->result->structuredContent->list[0]);
         $this->assertEquals('test@test.com', $body->result->structuredContent->list[0]->emailAddress);
+        $this->assertEquals(Lead::STATUS_NEW, $body->result->structuredContent->list[0]->status);
 
-        print_r($body);
+        $this->createJsonSchemaValidator()->assert(
+            $this->getToolEnvelope($endpoint, 'Find.Lead')->tool->outputSchema,
+            $body->result->structuredContent
+        );
+
+        //print_r($body);
     }
 
     private function createRecords(Team $team): void
@@ -312,5 +323,26 @@ class EndpointTest extends BaseTestCase
                 'slug' => $slug,
             ],
         );
+    }
+
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function getToolEnvelope(Endpoint $endpoint, string $toolName): ToolEnvelope
+    {
+        $toolProvider = $this->getInjectableFactory()->createWithBinding(
+            ToolProvider::class,
+            BindingContainerBuilder::create()
+                ->bindInstance(Endpoint::class, $endpoint)
+                ->build()
+        );
+
+        return $toolProvider->get($toolName);
+    }
+
+
+    private function createJsonSchemaValidator(): Validator
+    {
+        return $this->getInjectableFactory()->create(Validator::class);
     }
 }
