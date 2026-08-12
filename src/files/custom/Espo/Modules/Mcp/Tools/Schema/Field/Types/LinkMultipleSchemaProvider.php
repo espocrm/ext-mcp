@@ -11,6 +11,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Util;
 use Espo\ORM\Defs;
 use Espo\ORM\Defs\Params\AttributeParam;
 use Espo\ORM\Defs\Params\FieldParam;
@@ -80,8 +81,10 @@ class LinkMultipleSchemaProvider implements SchemaProvider
 
         if (!$params->isWriteAction()) {
             $namesProperty = new ObjectType(
-                additionalProperties: new StringType(
-                    description: "Record name.",
+                additionalProperties: Util::wrapWithNull(
+                    new StringType(
+                        description: "Record name.",
+                    ),
                 ),
                 description:
                     "Names attribute of '$label' link-multiple field. Field name: `$params->field`. " .

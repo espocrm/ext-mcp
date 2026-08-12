@@ -100,6 +100,7 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field('emailAddress'),
                             new FindData\Field('status'),
                             new FindData\Field('description'),
+                            new FindData\Field('teams'),
                         ],
                         primaryFilters: ['actual'],
                         boolFilters: ['onlyMy'],
@@ -127,6 +128,9 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field(Field::PARENT),
                             new FindData\Field('dateStart'),
                             new FindData\Field('dateEnd'),
+                            new FindData\Field('source'),
+                            //new FindData\Field('emailAddress'),
+                            //new FindData\Field('phoneNumber'),
                         ],
                         primaryFilters: ['actual'],
                         boolFilters: ['onlyMy'],
@@ -274,6 +278,12 @@ class EndpointTest extends BaseTestCase
                     'name' => 'Find.Lead',
                     'arguments' => (object) [
                         'primaryFilter' => 'actual',
+                        'selectFields' => [
+                            'name',
+                            'status',
+                            'emailAddress',
+                            'teams',
+                        ],
                     ],
                 ],
             )
@@ -288,8 +298,10 @@ class EndpointTest extends BaseTestCase
         $this->assertObjectHasProperty('id', $body->result->structuredContent->list[0]);
         $this->assertObjectNotHasProperty('campaignId', $body->result->structuredContent->list[0]);
         $this->assertObjectNotHasProperty('description', $body->result->structuredContent->list[0]);
+        $this->assertObjectNotHasProperty('source', $body->result->structuredContent->list[0]);
         $this->assertEquals('test1@test.com', $body->result->structuredContent->list[0]->emailAddress);
         $this->assertEquals(Lead::STATUS_NEW, $body->result->structuredContent->list[0]->status);
+        $this->assertEquals([$team->getId()], $body->result->structuredContent->list[0]->teamsIds);
 
         $this->createJsonSchemaValidator()->assert(
             $this->getToolEnvelope($endpoint, 'Find.Lead')->tool->outputSchema,

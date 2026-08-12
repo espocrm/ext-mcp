@@ -67,7 +67,7 @@ class LinkSchemaProvider implements SchemaProvider
                 "Tool to retrieve IDs: `Find.$foreignEntityType`."
         );
 
-        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED) || !$params->isWriteAction()) {
             $idProperty = Util::wrapWithNull($idProperty);
         }
 
@@ -83,11 +83,7 @@ class LinkSchemaProvider implements SchemaProvider
                     "Contains the related record name.",
             );
 
-            if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
-                $nameProperty = Util::wrapWithNull($nameProperty);
-            }
-
-            $properties[$nameAttribute] = $nameProperty;
+            $properties[$nameAttribute] = Util::wrapWithNull($nameProperty);
         }
 
         return new Result(

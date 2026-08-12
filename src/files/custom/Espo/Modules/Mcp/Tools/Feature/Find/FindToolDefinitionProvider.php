@@ -107,7 +107,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
                 minimum: 0,
                 description: self::OFFSET_DESCRIPTION,
             ),
-            'select' => $this->getSelectSchema($data),
+            'selectFields' => $this->getSelectFieldsSchema($data),
             'order' => new GroupSchema(
                 keyword: GroupKeyword::anyOf,
                 schemas:[
@@ -258,7 +258,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         return array_map(fn ($it) => $it->name, $fields);
     }
 
-    private function getSelectSchema(FindData $data): ArrayType
+    private function getSelectFieldsSchema(FindData $data): ArrayType
     {
         return new ArrayType(
             items: GroupSchema::createAnyOf(

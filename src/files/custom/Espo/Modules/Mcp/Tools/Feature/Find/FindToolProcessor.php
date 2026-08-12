@@ -8,6 +8,7 @@ use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Record\Collection;
 use Espo\Core\Record\ServiceFactory;
 use Espo\Core\Select\SearchParams;
+use Espo\Core\Utils\FieldUtil;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
@@ -32,6 +33,7 @@ class FindToolProcessor implements ToolProcessor
         private ServiceFactory $serviceFactory,
         private EntityOutput $entityOutput,
         private User $user,
+        private FieldUtil $fieldUtil,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -41,7 +43,7 @@ class FindToolProcessor implements ToolProcessor
         }
 
         $entityType = $this->fetchEntityType($params);
-        $searchParams = $this->fetchSearchParams($params);
+        $searchParams = $this->prepareSearchParams($entityType, $params);
 
         try {
             $service = $this->serviceFactory->createForUser($entityType, $this->user);
@@ -78,9 +80,27 @@ class FindToolProcessor implements ToolProcessor
         return $entityType;
     }
 
-    private function fetchSearchParams(CallToolRequestParams $params): SearchParams
+    private function prepareSearchParams(string $entityType, CallToolRequestParams $params): SearchParams
     {
-        $searchParams = SearchParams::fromRaw($params->arguments ?? (object) []);
+        $raw = clone ($params->arguments ?? (object) []);
+
+        $selectFields = $raw->selectFields ?? null;
+
+        if (is_array($selectFields)) {
+            $selectAttributes = [];
+
+            foreach ($selectFields as $field) {
+                if (!is_string($field)) {
+                    throw new RuntimeException("Non-string value in `select`.");
+                }
+
+                array_push($selectAttributes, ...$this->fieldUtil->getAttributeList($entityType, $field));
+            }
+
+            $raw->select = array_values(array_unique($selectAttributes));
+        }
+
+        $searchParams = SearchParams::fromRaw($raw);
 
         if ($searchParams->getMaxSize() === null) {
             $searchParams = $searchParams->withMaxSize(FindToolDefinitionProvider::MAX_SIZE_LIMIT);

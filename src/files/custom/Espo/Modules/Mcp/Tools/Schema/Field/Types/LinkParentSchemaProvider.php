@@ -80,7 +80,7 @@ class LinkParentSchemaProvider implements SchemaProvider
             );
         }, $foreignEntityTypes);
 
-        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED) || !$params->isWriteAction()) {
             $typeSchemas[] = new ConstSchema(value: null);
         }
 
@@ -93,7 +93,7 @@ class LinkParentSchemaProvider implements SchemaProvider
                 "Specifies the foreign entity type.",
         );
 
-        if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
+        if (!$fieldDefs->getParam(FieldParam::REQUIRED) || !$params->isWriteAction()) {
             $idProperty = Util::wrapWithNull($idProperty);
         }
 
@@ -110,11 +110,7 @@ class LinkParentSchemaProvider implements SchemaProvider
                     "Contains the related record name.",
             );
 
-            if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {
-                $nameProperty = Util::wrapWithNull($nameProperty);
-            }
-
-            $properties[$nameAttribute] = $nameProperty;
+            $properties[$nameAttribute] = Util::wrapWithNull($nameProperty);
         }
 
         return new Result(
