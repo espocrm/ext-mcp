@@ -108,7 +108,7 @@ class FindToolProcessor implements ToolProcessor
             $item = $this->entityOutput->prepare($entity);
 
             foreach (get_object_vars($item) as $k => $v) {
-                if (!array_key_exists($k, $attributes)) {
+                if (!in_array($k, $attributes)) {
                     unset($item->$k);
                 }
             }

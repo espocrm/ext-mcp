@@ -47,8 +47,8 @@ class ToolsCallHandler implements Handler
 
         try {
             $params = CallToolRequestParams::fromRaw($paramsRaw);
-        } catch (InvalidArgumentException) {
-            throw new InvalidRequestError("Bad params.");
+        } catch (InvalidArgumentException $e) {
+            throw new InvalidRequestError("Bad search params.", previous: $e);
         }
 
         return $params;

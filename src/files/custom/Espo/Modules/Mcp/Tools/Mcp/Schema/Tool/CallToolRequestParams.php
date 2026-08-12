@@ -26,15 +26,15 @@ readonly class CallToolRequestParams
         $arguments = $raw->arguments ?? null;
 
         if (!is_string($name) || !$name) {
-            throw new InvalidArgumentException();
+            throw new InvalidArgumentException("No `name`.");
         }
 
         if ($requestState !== null && !is_string($requestState)) {
-            throw new InvalidArgumentException();
+            throw new InvalidArgumentException("Bad `requestState` type.");
         }
 
         if ($arguments !== null && !$arguments instanceof stdClass) {
-            throw new InvalidArgumentException();
+            throw new InvalidArgumentException("Bad `arguments` type.");
         }
 
         return new self(

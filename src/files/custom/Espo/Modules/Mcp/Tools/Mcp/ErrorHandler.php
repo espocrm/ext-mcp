@@ -42,6 +42,6 @@ class ErrorHandler
     {
         $code = $exception->getRpcCode();
 
-        $this->log->warning("MCP: {$exception->getMessage()}; $code", ['exception' => $exception]);
+        $this->log->notice("MCP: {$exception->getMessage()}; $code", ['exception' => $exception]);
     }
 }

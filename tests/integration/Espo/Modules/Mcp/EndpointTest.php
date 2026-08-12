@@ -6,6 +6,9 @@ namespace integration\Espo\Modules\Mcp;
 use Espo\Core\Acl\Table;
 use Espo\Core\Api\RequestWrapper;
 use Espo\Core\Authentication\Logins\ApiKey;
+use Espo\Core\Field\EmailAddress;
+use Espo\Core\Field\EmailAddressGroup;
+use Espo\Core\Field\LinkMultiple;
 use Espo\Core\Name\Field;
 use Espo\Core\Utils\Json;
 use Espo\Entities\Role;
@@ -202,6 +205,67 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('object', $tools[0]->outputSchema->type);
         $this->assertEquals('array', $tools[0]->outputSchema->properties->list->type);
         $this->assertEquals('integer', $tools[0]->outputSchema->properties->total->type);
+
+        // Call `Find.Lead`.
+
+        $this->createRecords(
+            team: $team,
+        );
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Find.Lead',
+                    'arguments' => (object) [
+                        'primaryFilter' => 'actual',
+                    ],
+                ],
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals(1, $body->id);
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(1, $body->result->structuredContent->total);
+        $this->assertIsArray($body->result->structuredContent->list);
+        $this->assertObjectHasProperty('id', $body->result->structuredContent->list[0]);
+        $this->assertObjectNotHasProperty('campaignId', $body->result->structuredContent->list[0]);
+        $this->assertEquals('test@test.com', $body->result->structuredContent->list[0]->emailAddress);
+
+        print_r($body);
+    }
+
+    private function createRecords(Team $team): void
+    {
+        $em = $this->getEntityManager();
+
+        // Visible to the user.
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Lead::class)->getNew()
+                ->setTeams(LinkMultiple::create()->withAddedId($team->getId()))
+                ->setLastName('Test 1')
+                ->setEmailAddressGroup(EmailAddressGroup::create([EmailAddress::create('test@test.com')]))
+                ->setStatus(Lead::STATUS_NEW)
+        );
+
+        // No team.
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Lead::class)->getNew()
+                ->setLastName('Test 2')
+                ->setStatus(Lead::STATUS_NEW)
+        );
+
+        // Visible to the user, not actual.
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Lead::class)->getNew()
+                ->setTeams(LinkMultiple::create()->withAddedId($team->getId()))
+                ->setLastName('Test 3')
+                ->setStatus(Lead::STATUS_CONVERTED)
+        );
     }
 
     /**
@@ -213,6 +277,7 @@ class EndpointTest extends BaseTestCase
         ?string $jsonrpc = '2.0',
         ?string $id = null,
         ?string $protocolVersion = '2026-07-28',
+        mixed $params = null,
     ): RequestWrapper {
 
         $body = [
@@ -229,6 +294,10 @@ class EndpointTest extends BaseTestCase
 
         if ($jsonrpc !== null) {
             $body['jsonrpc'] = $jsonrpc;
+        }
+
+        if ($params !== null) {
+            $body['params'] = $params;
         }
 
         return $this->createRequest(
