@@ -5,6 +5,9 @@ namespace Espo\Modules\Mcp\Tools\Feature\Find;
 
 use DateTimeInterface;
 use Espo\Core\Field\DateTime;
+use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupKeyword;
+use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NullType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
@@ -47,7 +50,7 @@ class EntityOutput
     private function prepareItem(?Schema $schema, string $k, stdClass $valueMap): void
     {
         if (!$schema) {
-            unset($valueMap->$k);
+            $this->unsetKey($valueMap, $k);
 
             return;
         }
@@ -58,13 +61,42 @@ class EntityOutput
 
         $value = $valueMap->$k;
 
-        // Prevent schema validation failure by the client if the field is required but is null.
-        if (
-            $value === null &&
-            $schema instanceof Type &&
-            !$schema instanceof NullType
-        ) {
-            unset($valueMap->$k);
+        if ($value === null) {
+            $this->processNull($schema, $k, $valueMap);
         }
+    }
+
+    /**
+     * Prevent schema validation failure by the client if the field is required but is null.
+     */
+    private function processNull(Schema $schema, string $key, stdClass $valueMap): void
+    {
+        if ($schema instanceof Type && !$schema instanceof NullType) {
+            $this->unsetKey($valueMap, $key);
+
+            return;
+        }
+
+        if (
+            $schema instanceof GroupSchema &&
+            $schema->getKeyword() === GroupKeyword::anyOf &&
+            array_find_key($schema->getSchemas(), fn ($it) => $it instanceof NullType) === null
+        ) {
+            $this->unsetKey($valueMap, $key);
+
+            return;
+        }
+
+        if (
+            $schema instanceof EnumSchema &&
+            !in_array(null, $schema->getValues(), true)
+        ) {
+            $this->unsetKey($valueMap, $key);
+        }
+    }
+
+    private function unsetKey(stdClass $valueMap, string $key): void
+    {
+        unset($valueMap->$key);
     }
 }

@@ -48,6 +48,7 @@ use Espo\Modules\Mcp\Tools\Schema\Field\Types\TextSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\UrlSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\VarcharSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\WysiwygSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Util;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionsProvider;
 use Espo\Modules\Mcp\Tools\Schema\Util\EnumOptionTranslator;
 use Espo\ORM\Defs;
@@ -951,8 +952,10 @@ class TypesTest extends TestCase
                             "Tool to retrieve IDs: `Find.Another`."
                     ),
                     'testNames' => new ObjectType(
-                        additionalProperties: new StringType(
-                            description: "Record name.",
+                        additionalProperties: Util::wrapWithNull(
+                            new StringType(
+                                description: "Record name.",
+                            )
                         ),
                         description:
                             "Names attribute of 'Field' link-multiple field. Field name: `test`. " .
@@ -1128,11 +1131,16 @@ class TypesTest extends TestCase
                             "Field name: `parent`. " .
                             "Specifies the foreign entity type.",
                     ),
-                    'parentName' => new StringType(
-                        title: 'Parent (Name)',
-                        description:
-                            "A Name attribute of 'Parent' link-parent field. Field name: `parent`. " .
-                            "Contains the related record name.",
+                    'parentName' => new UnionTypeSchema(
+                        schemas: [
+                            new StringType(
+                                title: 'Parent (Name)',
+                                description:
+                                    "A Name attribute of 'Parent' link-parent field. Field name: `parent`. " .
+                                    "Contains the related record name.",
+                            ),
+                            new NullType(),
+                        ]
                     )
                 ],
                 required: [
@@ -1283,11 +1291,16 @@ class TypesTest extends TestCase
                             "Specifies the 'A Label' record ID. Foreign type: `A`. " .
                             "Tool to retrieve IDs: `Find.A`."
                     ),
-                    'fieldName' => new StringType(
-                        title: "Field (Name)",
-                        description:
-                            "A Name attribute of 'Field' link field. Field name: `field`. " .
-                            "Contains the related record name.",
+                    'fieldName' => new UnionTypeSchema(
+                        schemas: [
+                            new StringType(
+                                title: "Field (Name)",
+                                description:
+                                    "A Name attribute of 'Field' link field. Field name: `field`. " .
+                                    "Contains the related record name.",
+                            ),
+                            new NullType(),
+                        ]
                     )
                 ],
                 required: [

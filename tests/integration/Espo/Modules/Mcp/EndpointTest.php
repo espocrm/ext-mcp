@@ -7,6 +7,7 @@ use Espo\Core\Acl\Table;
 use Espo\Core\Api\RequestWrapper;
 use Espo\Core\Authentication\Logins\ApiKey;
 use Espo\Core\Binding\BindingContainerBuilder;
+use Espo\Core\Field\Currency;
 use Espo\Core\Field\Date;
 use Espo\Core\Field\DateTimeOptional;
 use Espo\Core\Field\EmailAddress;
@@ -162,6 +163,7 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field(Field::NAME),
                             new FindData\Field(Opportunity::FIELD_STAGE),
                             new FindData\Field(Opportunity::FIELD_CLOSE_DATE),
+                            new FindData\Field(Opportunity::FIELD_AMOUNT),
                         ],
                         primaryFilters: ['actual'],
                         boolFilters: ['onlyMy'],
@@ -172,6 +174,8 @@ class EndpointTest extends BaseTestCase
                 )
                 ->setEndpoint($endpoint)
         );
+
+        //
 
         // No access.
         $em->saveEntity(
@@ -516,6 +520,7 @@ class EndpointTest extends BaseTestCase
                 params: (object) [
                     'name' => 'Find.Opportunity',
                     'arguments' => (object) [
+                        'orderBy' => 'name',
                         'where' => [
                             (object) [
                                 'type' => Type::ON,
@@ -531,7 +536,7 @@ class EndpointTest extends BaseTestCase
         $body = Json::decode($response->getBody());
 
         $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals(1, $body->result->structuredContent->total);
+        $this->assertEquals(2, $body->result->structuredContent->total);
 
         $this->processValidateJsonSchema($endpoint, 'Find.Opportunity', $body->result->structuredContent);
     }
@@ -542,20 +547,29 @@ class EndpointTest extends BaseTestCase
     ): void  {
         $em = $this->getEntityManager();
 
+        // Normal Opportunity.
         $em->saveEntity(
             $em->getRDBRepositoryByClass(Opportunity::class)->getNew()
                 ->setName('Test 1')
                 ->setCloseDate(Date::fromString('2030-01-01'))
+                ->setAmount(Currency::create(100, 'USD'))
                 ->setStage(Opportunity::STAGE_CLOSED_WON)
         );
 
+        // Normal without amount.
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Opportunity::class)->getNew()
+                ->setName('Test 2')
+                ->setCloseDate(Date::fromString('2030-01-01'))
+                ->setStage(Opportunity::STAGE_CLOSED_WON)
+        );
+
+        // Visible to the user.
         $lead1 = $em->getRDBRepositoryByClass(Lead::class)->getNew()
             ->setTeams(LinkMultiple::create()->withAddedId($team->getId()))
             ->setLastName('Test 1')
             ->setEmailAddressGroup(EmailAddressGroup::create([EmailAddress::create('test1@test.com')]))
             ->setStatus(Lead::STATUS_NEW);
-
-        // Visible to the user.
         $em->saveEntity($lead1);
 
         // No team.

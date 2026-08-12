@@ -125,7 +125,7 @@ class FindToolProcessor implements ToolProcessor
         $output = [];
 
         foreach ($recordCollection->getCollection() as $entity) {
-            $output[] = $this->entityOutput->prepare($entity, $recordSchema);;
+            $output[] = $this->entityOutput->prepare($entity, $recordSchema);
         }
 
         return $output;
