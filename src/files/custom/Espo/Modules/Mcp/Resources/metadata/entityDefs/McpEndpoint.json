@@ -27,17 +27,13 @@
             },
             "audited": true
         },
-        "actions": {
-            "type": "array",
-            "validatorClassNameList": [
-                "Espo\\Modules\\Mcp\\Classes\\FieldValidators\\Endpoint\\Actions\\Valid"
-            ],
-            "view": "modules/mcp/views/endpoint/fields/actions",
-            "allowCustomOptions": false,
-            "displayAsList": true
-        },
         "description": {
             "type": "text"
+        },
+        "publicDescription": {
+            "type": "text",
+            "maxLength": 512,
+            "tooltip": true
         },
         "url": {
             "type": "url",

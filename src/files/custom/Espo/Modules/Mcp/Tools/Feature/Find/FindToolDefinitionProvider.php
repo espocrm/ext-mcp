@@ -210,6 +210,16 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
     private function getOrderBySchema(FindData $data): Schema
     {
+        $description = self::ORDER_BY_DESCRIPTION;
+
+        $default = $this->metadata->get("entityDefs.$data->entityType.collection.orderBy");
+
+        if ($default) {
+            $defaultLabel = $this->defaultLanguage->translateLabel($default, 'fields', $data->entityType);
+
+            $description .= " If omitted, then sorted by '$defaultLabel'.";
+        }
+
         return new GroupSchema(
             keyword: GroupKeyword::anyOf,
             schemas: array_map(function ($field) use ($data) {
@@ -218,7 +228,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
                     title: $this->defaultLanguage->translateLabel($field, 'fields', $data->entityType),
                 );
             }, $this->getOrderByFields($data)),
-            description: self::ORDER_BY_DESCRIPTION,
+            description: $description,
         );
     }
 

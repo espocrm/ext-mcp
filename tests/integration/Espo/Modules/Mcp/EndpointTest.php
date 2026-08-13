@@ -94,7 +94,8 @@ class EndpointTest extends BaseTestCase
 
         $endpoint = $em->getRDBRepositoryByClass(Endpoint::class)->getNew()
             ->setName('Test')
-            ->setSlug('test');
+            ->setSlug('test')
+            ->setPublicDescription('Test.');
         $em->saveEntity($endpoint);
 
         $em->getRelation($endpoint, Endpoint::LINK_USERS)->relate($apiUser);
@@ -263,6 +264,10 @@ class EndpointTest extends BaseTestCase
             ],
         ], $body->result?->capabilities);
 
+        $this->assertEquals('EspoCRM/test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->name);
+        $this->assertEquals('Test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->title);
+        $this->assertEquals('Test.', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->description);
+
         // Tools list.
 
         $response = $apiAction->process(
@@ -295,6 +300,8 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('Find.Lead', $findLeadTool->name);
         $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->inputSchema->{'$schema'});
         $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->outputSchema->{'$schema'});
+
+        $this->assertTrue(str_contains($findLeadTool->inputSchema->properties->orderBy->description, 'Created At'));
 
         $this->assertEquals('object', $tools[0]->inputSchema->type);
 

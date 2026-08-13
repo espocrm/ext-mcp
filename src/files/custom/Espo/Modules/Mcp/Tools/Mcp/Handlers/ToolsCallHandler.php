@@ -9,7 +9,7 @@ use Espo\Core\Api\ResponseComposer;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidRequestError;
 use Espo\Modules\Mcp\Tools\Mcp\Handler;
 use Espo\Modules\Mcp\Tools\Mcp\RequestIdFetcher;
-use Espo\Modules\Mcp\Tools\Mcp\Schema\GenericResponse;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\GenericResponseComposer;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\ToolsCall\ToolsCallGeneralProcessor;
 use InvalidArgumentException;
@@ -20,13 +20,14 @@ class ToolsCallHandler implements Handler
     public function __construct(
         private RequestIdFetcher $requestIdFetcher,
         private ToolsCallGeneralProcessor $generalProcessor,
+        private GenericResponseComposer $genericResponseComposer,
     ) {}
 
     public function handle(Request $request): Response
     {
         $params = $this->fetchParams($request);
 
-        $response = new GenericResponse(
+        $response = $this->genericResponseComposer->compose(
             id: $this->requestIdFetcher->fetch($request),
             result: $this->generalProcessor->process($params),
         );

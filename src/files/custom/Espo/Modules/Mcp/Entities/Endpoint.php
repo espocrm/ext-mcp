@@ -15,6 +15,7 @@ class Endpoint extends Entity
     public const string FIELD_STATUS = 'status';
     public const string FIELD_SLUG = 'slug';
     public const string FIELD_URL = 'url';
+    public const string FIELD_PUBLIC_DESCRIPTION = 'publicDescription';
 
     public const string LINK_USERS = 'users';
     private const string LINK_FEATURES = 'features';
@@ -36,10 +37,26 @@ class Endpoint extends Entity
         return $this->set(self::FIELD_SLUG, $slug);
     }
 
+    public function getPublicDescription(): ?string
+    {
+        return $this->get(self::FIELD_PUBLIC_DESCRIPTION);
+    }
+
+    public function setPublicDescription(?string $description): self
+    {
+        return $this->set(self::FIELD_PUBLIC_DESCRIPTION, $description);
+    }
+
+    public function getName(): string
+    {
+        return $this->get(Field::NAME) ?? '';
+    }
+
     public function setName(string $name): self
     {
         return $this->set(Field::NAME, $name);
     }
+
 
     /**
      * @return EntityCollection<Feature>

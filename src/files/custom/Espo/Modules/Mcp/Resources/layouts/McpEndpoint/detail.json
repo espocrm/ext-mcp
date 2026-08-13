@@ -21,6 +21,11 @@
                 {
                     "name": "description"
                 }
+            ],
+            [
+                {
+                    "name": "publicDescription"
+                }
             ]
         ]
     }

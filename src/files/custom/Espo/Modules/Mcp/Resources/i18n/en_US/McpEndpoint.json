@@ -5,7 +5,8 @@
     "fields": {
         "status": "Status",
         "slug": "Slug",
-        "url": "Endpoint URL"
+        "url": "Endpoint URL",
+        "publicDescription": "Public Description"
     },
     "links": {
         "features": "Features",
@@ -18,6 +19,7 @@
         }
     },
     "tooltips": {
+        "publicDescription": "Description exposed to MCP clients.",
         "actions": "Actions available for this endpoint.",
         "slug": "Defines the endpoint URL path. Should start with a lower case latter and contain only letters and digits. Examples: `sales`, `support`."
     }
