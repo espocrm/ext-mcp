@@ -644,6 +644,10 @@ class EndpointTest extends BaseTestCase
             $body['params'] = $params;
         }
 
+        $body['_meta'] = [
+            'io.modelcontextprotocol/protocolVersion' => $protocolVersion,
+        ];
+
         return $this->createRequest(
             method: 'POST',
             headers: [

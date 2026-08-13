@@ -29,7 +29,7 @@ class Url implements Loader
 
         $siteUrl = $this->applicationConfig->getSiteUrl();
 
-        $url = "$siteUrl/api/v1/mcp/$slug";
+        $url = "$siteUrl/api/v1/Mcp/$slug";
 
         $entity->set(Endpoint::FIELD_URL, $url);
     }

@@ -7,9 +7,13 @@ use Espo\Core\Api\Request;
 use Espo\Core\Api\Response;
 use Espo\Core\Api\ResponseComposer;
 use Espo\Core\Utils\Log;
+use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 
 class ErrorHandler
 {
+    private const string LOG_LEVEL_WARNING = 'warning';
+    private const string LOG_LEVEL_INFO = 'info';
+
     public function __construct(
         private Log $log,
     ) {}
@@ -42,6 +46,12 @@ class ErrorHandler
     {
         $code = $exception->getRpcCode();
 
-        $this->log->notice("MCP: {$exception->getMessage()}; $code", ['exception' => $exception]);
+        $level = self::LOG_LEVEL_INFO;
+
+        if ($exception instanceof InternalError) {
+            $level = self::LOG_LEVEL_WARNING;
+        }
+
+        $this->log->log($level, "MCP. {$exception->getMessage()}; $code", ['exception' => $exception]);
     }
 }

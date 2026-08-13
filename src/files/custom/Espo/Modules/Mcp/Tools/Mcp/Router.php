@@ -72,7 +72,7 @@ class Router
      */
     private function prepareHandler(string $method): Handler
     {
-        $handlerClass = $this->handlers[$method] ?? throw new MethodNotFoundError();
+        $handlerClass = $this->handlers[$method] ?? throw new MethodNotFoundError("Method `$method` is not supported.");
 
         $binding = $this->bindingProvider->get();
 
