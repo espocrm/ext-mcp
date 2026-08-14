@@ -15,6 +15,7 @@ use Espo\Core\Field\EmailAddressGroup;
 use Espo\Core\Field\LinkMultiple;
 use Espo\Core\Name\Field;
 use Espo\Core\Select\Where\Item\Type;
+use Espo\Core\Utils\Config\ConfigWriter;
 use Espo\Core\Utils\Json;
 use Espo\Entities\Role;
 use Espo\Entities\Team;
@@ -47,6 +48,12 @@ class EndpointTest extends BaseTestCase
      */
     public function testEndpoint(): void
     {
+        $configWriter = $this->getInjectableFactory()->create(ConfigWriter::class);
+        $configWriter->setMultiple([
+            'siteUrl' => 'http://localhost'
+        ]);
+        $configWriter->save();
+
         $em = $this->getEntityManager();
 
         $testUser = $em->getRDBRepositoryByClass(User::class)->getNew()
@@ -285,7 +292,7 @@ class EndpointTest extends BaseTestCase
             ],
         ], $body->result?->capabilities);
 
-        $this->assertEquals('EspoCRM/test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->name);
+        $this->assertEquals('EspoCRM.test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->name);
         $this->assertEquals('Test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->title);
         $this->assertEquals('Test.', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->description);
 
@@ -608,6 +615,9 @@ class EndpointTest extends BaseTestCase
         $this->assertObjectHasProperty('status', $body->result->structuredContent->record);
         $this->assertObjectNotHasProperty('description', $body->result->structuredContent->record);
 
+        $this->assertCount(1, $body->result->content);
+        $this->assertEquals('resource_link', $body->result->content[0]->type);
+        $this->assertEquals("http://localhost#Lead/view/{$lead1->getId()}", $body->result->content[0]->uri);
         // Call Read.Lead. Select fields.
 
         $response = $apiAction->process(
@@ -792,7 +802,6 @@ class EndpointTest extends BaseTestCase
 
         return $toolProvider->get($toolName);
     }
-
 
     private function createJsonSchemaValidator(): Validator
     {

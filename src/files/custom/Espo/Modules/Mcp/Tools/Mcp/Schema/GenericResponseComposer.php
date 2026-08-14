@@ -21,7 +21,7 @@ class GenericResponseComposer
     {
         $meta = new ResultMetaObject(
             serverInfo: new Implementation(
-                name: self::NAME . '/' . $this->endpoint->getSlug(),
+                name: self::NAME . '.' . $this->endpoint->getSlug(),
                 version: self::VERSION,
                 title: $this->endpoint->getName(),
                 description: $this->endpoint->getPublicDescription(),

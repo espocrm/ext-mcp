@@ -17,7 +17,7 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 
 class ToolProvider
 {
-    private const int NAME_MAX_LENGTH = 64;
+    private const int NAME_MAX_LENGTH = 128;
 
     public function __construct(
         private Endpoint $endpoint,

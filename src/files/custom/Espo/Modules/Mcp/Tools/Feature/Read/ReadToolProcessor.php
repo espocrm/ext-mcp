@@ -5,8 +5,10 @@ namespace Espo\Modules\Mcp\Tools\Feature\Read;
 
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
+use Espo\Core\Name\Field;
 use Espo\Core\Record\ReadResult;
 use Espo\Core\Record\ServiceFactory;
+use Espo\Core\Utils\Config\ApplicationConfig;
 use Espo\Core\Utils\FieldUtil;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
@@ -14,6 +16,7 @@ use Espo\Modules\Mcp\Tools\Feature\Find\EntityOutput;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
 use Espo\Modules\Mcp\Tools\Mcp\ToolsCall\ToolProcessor;
@@ -32,6 +35,7 @@ class ReadToolProcessor implements ToolProcessor
         private EntityOutput $entityOutput,
         private User $user,
         private FieldUtil $fieldUtil,
+        private ApplicationConfig $applicationConfig,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -80,6 +84,9 @@ class ReadToolProcessor implements ToolProcessor
         return new CallToolResult(
             structuredContent: (object) [
                 'record' => $this->prepareRecordOutput($params, $readResult, $outputSchema),
+            ],
+            content: [
+                $this->prepareResourceLinkRecordUrl($readResult),
             ],
         );
     }
@@ -167,5 +174,28 @@ class ReadToolProcessor implements ToolProcessor
         }
 
         return array_values(array_unique($selectAttributes));
+    }
+
+    private function prepareResourceLinkRecordUrl(ReadResult $readResult): ResourceLink
+    {
+        $entity = $readResult->getEntity();
+
+        $entityType = $entity->getEntityType();
+        $id = $entity->getId();
+
+        $title = $entity->get(Field::NAME);
+
+        if (!is_string($title)) {
+            $title = $id;
+        }
+
+        $url = $this->applicationConfig->getSiteUrl() . "#$entityType/view/$id";
+
+        return new ResourceLink(
+            name: "$entityType/$id",
+            uri: $url,
+            title: $title,
+            description: "Link to the record in the CRM.",
+        );
     }
 }

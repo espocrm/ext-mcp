@@ -3,21 +3,24 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Tool;
 
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Value\ResultType;
 use JsonSerializable;
 use stdClass;
 
 /**
- * @todo Support `content`.
+ * @todo Support more content types.
  */
 readonly class CallToolResult implements JsonSerializable
 {
     /**
      * @param stdClass|stdClass[]|(scalar|null)[]|scalar|null $structuredContent
+     * @param (ResourceLink)[] $content
      */
     public function __construct(
         public ResultType $resultType = ResultType::Complete,
         public mixed $structuredContent = null,
+        public array $content = [],
         public ?bool $isError = null,
     ) {}
 
@@ -25,7 +28,7 @@ readonly class CallToolResult implements JsonSerializable
     {
         $object = (object) [
             'resultType' => $this->resultType->value,
-            'content' => [],
+            'content' => array_map(fn ($it) => $it->jsonSerialize(), $this->content),
         ];
 
         if ($this->isError !== null) {
