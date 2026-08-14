@@ -23,7 +23,7 @@ use RuntimeException;
 use stdClass;
 
 /**
- * @todo Test. Test errors.
+ * @todo Test. Test errors. Test select-fields.
  *
  * @implements ToolProcessor<ReadData>
  */

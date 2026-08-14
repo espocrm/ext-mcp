@@ -27,6 +27,7 @@ use Espo\Modules\Crm\Entities\Task;
 use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
+use Espo\Modules\Mcp\Tools\Feature\Read\ReadData;
 use Espo\Modules\Mcp\Tools\Mcp\Api\PostEntry;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\JsonSchemaValidator\Validator;
@@ -176,8 +177,6 @@ class EndpointTest extends BaseTestCase
                 ->setEndpoint($endpoint)
         );
 
-        //
-
         // No access.
         $em->saveEntity(
             $em->getRDBRepositoryByClass(Feature::class)->getNew()
@@ -196,6 +195,28 @@ class EndpointTest extends BaseTestCase
                 )
                 ->setEndpoint($endpoint)
         );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(ReadData::TYPE)
+                ->setData(
+                    new ReadData(
+                        entityType: Lead::ENTITY_TYPE,
+                        selectFields: [
+                            new FindData\Field(Field::NAME, 'Lead name.'),
+                            new FindData\Field('accountName'),
+                            new FindData\Field('emailAddress'),
+                            new FindData\Field('status'),
+                            new FindData\Field('description'),
+                            new FindData\Field('teams'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        //
+        //
 
         $request = $this->createEntryRequest(
             method: Method::SERVER_DISCOVER,
@@ -288,28 +309,26 @@ class EndpointTest extends BaseTestCase
 
         $this->assertIsArray($tools);
 
+        //
+
         $findLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Find.Lead');
         $this->assertNotNull($findLeadToolIndex);
-
-        $findLeadTool = $tools[$findLeadToolIndex];
-
-        $this->assertNull(
-            array_find_key($tools, fn ($it) => $it->name === 'Find.Call')
-        );
+        $findLeadTool = $tools[$findLeadToolIndex] ?? null;
+        $this->assertNotNull($findLeadTool);
 
         $this->assertEquals('Find.Lead', $findLeadTool->name);
-        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->inputSchema->{'$schema'});
-        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $tools[0]->outputSchema->{'$schema'});
+        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $findLeadTool->inputSchema->{'$schema'});
+        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $findLeadTool->outputSchema->{'$schema'});
 
         $this->assertTrue(str_contains($findLeadTool->inputSchema->properties->orderBy->description, 'Created At'));
 
-        $this->assertEquals('object', $tools[0]->inputSchema->type);
+        $this->assertEquals('object', $findLeadTool->inputSchema->type);
 
-        $this->assertEquals('string', $tools[0]->inputSchema->properties->textFilter->type);
-        $this->assertCount(4, $tools[0]->inputSchema->properties->orderBy->anyOf);
-        $this->assertCount(2, $tools[0]->inputSchema->properties->primaryFilter->anyOf);
-        $this->assertCount(1, $tools[0]->inputSchema->properties->boolFilterList->items->anyOf);
-        $this->assertEquals('array', $tools[0]->inputSchema->properties->where->type);
+        $this->assertEquals('string', $findLeadTool->inputSchema->properties->textFilter->type);
+        $this->assertCount(4, $findLeadTool->inputSchema->properties->orderBy->anyOf);
+        $this->assertCount(2, $findLeadTool->inputSchema->properties->primaryFilter->anyOf);
+        $this->assertCount(1, $findLeadTool->inputSchema->properties->boolFilterList->items->anyOf);
+        $this->assertEquals('array', $findLeadTool->inputSchema->properties->where->type);
 
         $this->assertEquals((object) [
             'anyOf' => [
@@ -323,11 +342,21 @@ class EndpointTest extends BaseTestCase
                 ],
             ],
             'description' => 'Sorting direction.',
-        ], $tools[0]->inputSchema->properties->order);
+        ], $findLeadTool->inputSchema->properties->order);
 
-        $this->assertEquals('object', $tools[0]->outputSchema->type);
-        $this->assertEquals('array', $tools[0]->outputSchema->properties->list->type);
-        $this->assertEquals('integer', $tools[0]->outputSchema->properties->total->type);
+        $this->assertEquals('object', $findLeadTool->outputSchema->type);
+        $this->assertEquals('array', $findLeadTool->outputSchema->properties->list->type);
+        $this->assertEquals('integer', $findLeadTool->outputSchema->properties->total->type);
+
+        //
+
+        $readLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Read.Lead');
+        $this->assertNotNull($readLeadToolIndex);
+        $readLeadTool = $tools[$readLeadToolIndex] ?? null;
+        $this->assertNotNull($readLeadTool);
+
+        $this->assertEquals('string', $readLeadTool->inputSchema->properties->id->type);
+        $this->assertEquals('array', $readLeadTool->inputSchema->properties->selectFields->type);
 
         //
 

@@ -35,7 +35,7 @@ readonly class ReadData implements Data
     {
         return (object) [
             'entityType' => $this->entityType,
-            'fields' => array_map(fn ($it) => (object) get_object_vars($it), $this->selectFields),
+            'selectFields' => array_map(fn ($it) => (object) get_object_vars($it), $this->selectFields),
         ];
     }
 

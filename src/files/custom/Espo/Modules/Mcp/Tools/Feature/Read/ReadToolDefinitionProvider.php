@@ -33,7 +33,7 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
 
     private const string ID_DESCRIPTION = "Record ID.";
 
-    private const string SELECT_DESCRIPTION = "What fields to fetch." .
+    private const string SELECT_DESCRIPTION = "What fields to fetch. " .
         "If omitted, all fields from the output schema are fetched.";
 
     public function __construct(
