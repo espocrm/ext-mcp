@@ -158,5 +158,81 @@
                 }
             ]
         }
+    },
+    "Read": {
+        "tool": {
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadToolProcessor"
+        },
+        "record": {
+            "client": {
+                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-read",
+                "dynamicLogic": {
+                    "fields": {
+                        "entityType": {
+                            "readOnly": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "or",
+                                        "value": [
+                                            {
+                                                "type": "isNotEmpty",
+                                                "attribute": "selectFields"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        "selectFields": {
+                            "visible": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "entityType"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadDataValidator",
+            "fields": {
+                "entityType": {
+                    "type": "enum",
+                    "required": true,
+                    "view": "modules/mcp/views/feature-record/fields/entity-type"
+                },
+                "selectFields": {
+                    "type": "jsonArray",
+                    "required": true,
+                    "view": "modules/mcp/views/feature-record/fields/fields",
+                    "tooltip": "McpFeature.findSelectFields"
+                }
+            },
+            "defaults": {},
+            "layout": [
+                {
+                    "rows": [
+                        [
+                            {
+                                "name": "entityType",
+                                "labelTranslation": "McpFeature.dataFields.entityType"
+                            },
+                            false
+                        ],
+                        [
+                            {
+                                "name": "selectFields",
+                                "labelTranslation": "McpFeature.dataFields.selectFields"
+                            }
+                        ]
+                    ]
+                }
+            ]
+        }
     }
 }

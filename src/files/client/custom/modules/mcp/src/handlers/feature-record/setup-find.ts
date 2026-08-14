@@ -2,10 +2,10 @@
 
 import Metadata from 'metadata';
 import {inject} from 'di';
-import FieldManager from 'field-manager';
 import ArrayFieldView from 'views/fields/array';
 import Language from 'language';
 import SetupHandler from 'modules/mcp/handlers/feature-record/setup';
+import SchemaUtil from 'modules/mcp/helpers/schema-util';
 
 export default class SetupFindHandler extends SetupHandler<{
     entityType: string | null,
@@ -13,9 +13,6 @@ export default class SetupFindHandler extends SetupHandler<{
 
     @inject(Metadata)
     private metadata: Metadata
-
-    @inject(FieldManager)
-    private fieldManager: FieldManager
 
     @inject(Language)
     private language: Language
@@ -88,7 +85,6 @@ export default class SetupFindHandler extends SetupHandler<{
         fieldView.reRender();
     }
 
-
     private controlBoolFilters() {
         let filters: string[] = [];
 
@@ -126,29 +122,21 @@ export default class SetupFindHandler extends SetupHandler<{
     }
 
     private controlSelectFields() {
-        this.controlFields('select', 'selectFields');
+        this.controlFieldsCommon('select', 'selectFields');
     }
 
     private controlFilterFields() {
         // @todo Support override in entityDefs, to be able to enable custom fields.
-        this.controlFields('filter', 'filterFields');
+        this.controlFieldsCommon('filter', 'filterFields');
     }
 
-    private controlFields(type: 'filter' | 'select', field: string) {
+    private controlFieldsCommon(type: 'filter' | 'select', field: string) {
         let fields: string[] = [];
 
         const entityType = this.model.attributes.entityType ?? null;
 
         if (entityType) {
-            const fieldTypes = this.metadata.get(`app.mcpSchema.fieldTypes`, {}) as
-                Record<string, {filter?: boolean, select?: boolean}>;
-
-            const types = Object.keys(fieldTypes).filter(it => fieldTypes[it][type]);
-
-            fields = this.fieldManager.getEntityTypeFieldList(entityType, {
-                onlyAvailable: true,
-                typeList: types,
-            });
+            fields = new SchemaUtil().getFeatureFields({entityType, type});
         }
 
         this.view.setFieldOptionList(field, fields);

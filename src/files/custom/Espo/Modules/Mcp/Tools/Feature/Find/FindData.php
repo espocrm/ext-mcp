@@ -4,6 +4,7 @@
 namespace Espo\Modules\Mcp\Tools\Feature\Find;
 
 use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\DataUtil;
 use Espo\Modules\Mcp\Tools\Feature\Find\FindData\Field;
 use InvalidArgumentException;
 use stdClass;
@@ -34,7 +35,7 @@ readonly class FindData implements Data
 
     public function getKey(): string
     {
-        return $this->entityType . '.' . self::TYPE;
+        return self::TYPE . '.' . $this->entityType;
     }
 
     /**
@@ -57,11 +58,11 @@ readonly class FindData implements Data
             throw new InvalidArgumentException("No 'textFilter.");
         }
 
-        self::assertArrayOfFields($selectFields, 'selectFields', true);
-        self::assertArrayOfFields($filterFields, 'filterFields');
+        DataUtil::assertArrayOfFields($selectFields, 'selectFields', true);
+        DataUtil::assertArrayOfFields($filterFields, 'filterFields');
 
-        self::assertArrayOfStrings($primaryFilters, 'primaryFilters');
-        self::assertArrayOfStrings($boolFilters, 'boolFilters');
+        DataUtil::assertArrayOfStrings($primaryFilters, 'primaryFilters');
+        DataUtil::assertArrayOfStrings($boolFilters, 'boolFilters');
 
         return new FindData(
             entityType: $entityType,
@@ -93,55 +94,5 @@ readonly class FindData implements Data
             'boolFilters' => $this->boolFilters,
             'filterFields' => array_map(fn ($it) => (object) get_object_vars($it), $this->filterFields),
         ];
-    }
-
-    /**
-     * @phpstan-assert (object{name: string, description?: string|null} & stdClass)[] $value
-     */
-    private static function assertArrayOfFields(mixed $value, string $name, bool $hasDescription = false): void
-    {
-        if (!is_array($value)) {
-            throw new InvalidArgumentException("No '$name'.");
-        }
-
-        foreach ($value as $it) {
-            if (!$it instanceof stdClass) {
-                throw new InvalidArgumentException("Bad '$name'.");
-            }
-
-            if (!property_exists($it, 'name')) {
-                throw new InvalidArgumentException("Bad '$name'.");
-            }
-
-            if (!is_string($it->name)) {
-                throw new InvalidArgumentException("Bad '$name'.");
-            }
-
-            if ($hasDescription) {
-                if (
-                    property_exists($it, 'description') &&
-                    !is_string($it->description) &&
-                    !is_null($it->description)
-                ) {
-                    throw new InvalidArgumentException("Bad '$name'.");
-                }
-            }
-        }
-    }
-
-    /**
-     * @phpstan-assert string[] $value
-     */
-    private static function assertArrayOfStrings(mixed $value, string $name): void
-    {
-        if (!is_array($value)) {
-            throw new InvalidArgumentException("No '$name'.");
-        }
-
-        foreach ($value as $it) {
-            if (!is_string($it)) {
-                throw new InvalidArgumentException("Bad '$name'.");
-            }
-        }
     }
 }

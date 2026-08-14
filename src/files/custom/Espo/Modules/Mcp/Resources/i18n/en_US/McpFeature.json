@@ -18,7 +18,8 @@
             "Inactive": "Inactive"
         },
         "type": {
-            "Find": "Find"
+            "Find": "Find",
+            "Read": "Read"
         }
     },
     "dataFields": {
@@ -33,6 +34,6 @@
         "featureAlreadyExists": "The same feature already exists in the endpoint."
     },
     "tooltips": {
-        "findSelectFields": "Specify which fields to allow to fetch and optional description (for LLM) for each field."
+        "findSelectFields": "Specify which fields to allow to fetch and an optional description (for LLM) for each field."
     }
 }

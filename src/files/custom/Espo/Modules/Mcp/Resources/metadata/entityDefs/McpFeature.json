@@ -27,13 +27,14 @@
         },
         "type": {
             "type": "enum",
-            "options": [
-                "",
-                "Find"
-            ],
             "required": true,
             "maxLength": 64,
-            "readOnlyAfterCreate": true
+            "readOnlyAfterCreate": true,
+            "isSorted": true,
+            "view": "modules/mcp/views/feature/fields/type",
+            "validatorClassNameList": [
+                "Espo\\Modules\\Mcp\\Classes\\FieldValidators\\Feature\\Type\\Valid"
+            ]
         },
         "endpoint": {
             "type": "link",

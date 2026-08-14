@@ -1,16 +1,16 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\Feature\Find;
+namespace Espo\Modules\Mcp\Tools\Feature\Read;
 
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\TextComposer;
 
 /**
- * @implements TextComposer<FindData>
+ * @implements TextComposer<ReadData>
  */
-class FindTextComposer implements TextComposer
+class ReadTextComposer implements TextComposer
 {
     public function __construct(
         private Language $language,

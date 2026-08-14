@@ -57,7 +57,6 @@ class Endpoint extends Entity
         return $this->set(Field::NAME, $name);
     }
 
-
     /**
      * @return EntityCollection<Feature>
      */
