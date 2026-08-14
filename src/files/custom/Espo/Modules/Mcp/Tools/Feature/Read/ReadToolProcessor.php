@@ -23,8 +23,6 @@ use RuntimeException;
 use stdClass;
 
 /**
- * @todo Test. Test errors. Test select-fields.
- *
  * @implements ToolProcessor<ReadData>
  */
 class ReadToolProcessor implements ToolProcessor
@@ -117,8 +115,10 @@ class ReadToolProcessor implements ToolProcessor
         $valueMap = $this->entityOutput->prepare($readResult->getEntity(), $recordSchema);
 
         if ($selectAttributes !== null) {
-            foreach ($selectAttributes as $attribute) {
-                unset($valueMap->$attribute);
+            foreach (array_keys(get_object_vars($valueMap)) as $attribute) {
+                if (!in_array($attribute, $selectAttributes)) {
+                    unset($valueMap->$attribute);
+                }
             }
         }
 

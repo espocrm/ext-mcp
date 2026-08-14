@@ -498,13 +498,21 @@ class EndpointTest extends BaseTestCase
 
         $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
 
-        // Call `Find.Task`. Where.
+        //
 
-        $lead = $em->getRDBRepositoryByClass(Lead::class)
+        $lead1 = $em->getRDBRepositoryByClass(Lead::class)
             ->where([Field::NAME => 'Test 1'])
             ->findOne();
 
-        $this->assertNotNull($lead);
+        $this->assertNotNull($lead1);
+
+        $lead2 = $em->getRDBRepositoryByClass(Lead::class)
+            ->where([Field::NAME => 'Test 2'])
+            ->findOne();
+
+        $this->assertNotNull($lead2);
+
+        // Call `Find.Task`. Where.
 
         $response = $apiAction->process(
             $this->createEntryRequest(
@@ -525,7 +533,7 @@ class EndpointTest extends BaseTestCase
                             (object) [
                                 'type' => Type::EQUALS,
                                 'attribute' => 'parentId',
-                                'value' => $lead->getId(),
+                                'value' => $lead1->getId(),
                             ],
                             (object) [
                                 'type' => Type::ON,
@@ -575,6 +583,78 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals(2, $body->result->structuredContent->total);
 
         $this->processValidateJsonSchema($endpoint, 'Find.Opportunity', $body->result->structuredContent);
+
+        // Call Read.Lead.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Read.Lead',
+                    'arguments' => (object) [
+                        'id' => $lead1->getId(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals($lead1->getId(), $body->result->structuredContent->record->id);
+        $this->assertObjectHasProperty('name', $body->result->structuredContent->record);
+        $this->assertObjectHasProperty('status', $body->result->structuredContent->record);
+        $this->assertObjectNotHasProperty('description', $body->result->structuredContent->record);
+
+        // Call Read.Lead. Select fields.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Read.Lead',
+                    'arguments' => (object) [
+                        'id' => $lead1->getId(),
+                        'selectFields' => [
+                            'status',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals($lead1->getId(), $body->result->structuredContent->record->id);
+        $this->assertObjectNotHasProperty('name', $body->result->structuredContent->record);
+        $this->assertObjectHasProperty('status', $body->result->structuredContent->record);
+
+        // Call Read.Lead. Not found error.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Read.Lead',
+                    'arguments' => (object) [
+                        'id' => $lead2->getId(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertObjectNotHasProperty('record', $body->result->structuredContent);
+        $this->assertEquals(403, $body->result->structuredContent->error->code);
     }
 
     private function createRecords(
