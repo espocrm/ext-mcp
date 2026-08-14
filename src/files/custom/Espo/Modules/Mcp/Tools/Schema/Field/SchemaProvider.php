@@ -8,7 +8,7 @@ use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 
 /**
  * @todo When using for a writing action, check readOnly. Skip. Check readOnlyAfterCreate.
- * @todo Check edit field access when using for writing action. SKip.
+ * @todo Check edit field access when using for writing action. Skip.
  */
 interface SchemaProvider
 {

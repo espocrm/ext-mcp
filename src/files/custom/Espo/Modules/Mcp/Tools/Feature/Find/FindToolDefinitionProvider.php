@@ -37,7 +37,8 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 {
     public const int MAX_SIZE_LIMIT = 100;
 
-    private const string DESCRIPTION = "Searches '{scopeName}' records. Supports filtering, sorting, and pagination.";
+    private const string DESCRIPTION = "Searches '{scopeName}' records. Supports filtering, sorting, and pagination. " .
+        "Entity type: `{entityType}`.";
 
     private const string MAX_SIZE_DESCRIPTION = 'Maximum number of records to fetch.';
 
@@ -97,7 +98,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
      */
     private function prepareInputSchema(FindData $data): ObjectType
     {
-        $inputSchemaProperties = [
+        $properties = [
             'maxSize' => new IntegerType(
                 minimum: 1,
                 maximum: self::MAX_SIZE_LIMIT,
@@ -126,23 +127,23 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         ];
 
         if ($data->textFilter) {
-            $inputSchemaProperties['textFilter'] = $this->getTextFilterSchema($data);
+            $properties['textFilter'] = $this->getTextFilterSchema($data);
         }
 
         if ($data->boolFilters) {
-            $inputSchemaProperties['boolFilterList'] = $this->getBoolFilterListSchema($data);
+            $properties['boolFilterList'] = $this->getBoolFilterListSchema($data);
         }
 
         if ($data->primaryFilters) {
-            $inputSchemaProperties['primaryFilter'] = $this->getPrimaryFilterSchema($data);
+            $properties['primaryFilter'] = $this->getPrimaryFilterSchema($data);
         }
 
         if ($data->filterFields) {
-            $inputSchemaProperties['where'] = $this->getWhereSchema($data);
+            $properties['where'] = $this->getWhereSchema($data);
         }
 
         return new ObjectType(
-            properties: $inputSchemaProperties,
+            properties: $properties,
             additionalProperties: false,
         );
     }
@@ -301,6 +302,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     {
         return strtr(self::DESCRIPTION, [
             'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
+            'entityType' => $data->entityType,
         ]);
     }
 
