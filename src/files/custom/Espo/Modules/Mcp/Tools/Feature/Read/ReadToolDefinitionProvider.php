@@ -135,8 +135,32 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
         }
 
         return new ObjectType(
-            properties: $properties,
-            description: "Record.",
+            properties: [
+                'record' => new ObjectType(
+                    properties: $properties,
+                    description: "Record.",
+                ),
+                'error' => new ObjectType(
+                    properties: [
+                        'message' => new StringType(
+                            description: "Error message.",
+                        ),
+                        'code' => GroupSchema::createAnyOf(
+                            schemas: [
+                                new ConstSchema(
+                                    value: 404,
+                                    description: "Record not found.",
+                                ),
+                                new ConstSchema(
+                                    value: 403,
+                                    description: "No access to record.",
+                                ),
+                            ],
+                            description: 'Error code.',
+                        ),
+                    ],
+                ),
+            ],
         );
     }
 

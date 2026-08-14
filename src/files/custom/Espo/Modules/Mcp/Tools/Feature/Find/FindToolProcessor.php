@@ -25,7 +25,6 @@ use stdClass;
 
 /**
  * @implements ToolProcessor<FindData>
- * @noinspection PhpUnused
  */
 class FindToolProcessor implements ToolProcessor
 {
