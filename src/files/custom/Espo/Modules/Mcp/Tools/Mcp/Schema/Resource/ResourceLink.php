@@ -3,6 +3,7 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Resource;
 
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Common\Annotations;
 use JsonSerializable;
 use stdClass;
 
@@ -11,6 +12,7 @@ readonly class ResourceLink implements JsonSerializable
     /**
      * @param string $name Intended for programmatic or logical use.
      * @param ?int $size Size in bytes.
+     * @param ?Annotations $annotations
      */
     public function __construct(
         public string $name,
@@ -19,6 +21,7 @@ readonly class ResourceLink implements JsonSerializable
         public ?string $description = null,
         public ?string $mimeType = null,
         public ?int $size = null,
+        public ?Annotations $annotations = null,
     ) {}
 
     public function jsonSerialize(): stdClass
@@ -43,6 +46,10 @@ readonly class ResourceLink implements JsonSerializable
 
         if ($this->size !== null) {
             $object->size = $this->size;
+        }
+
+        if ($this->annotations !== null) {
+            $object->annotations = $this->annotations->jsonSerialize();
         }
 
         return $object;
