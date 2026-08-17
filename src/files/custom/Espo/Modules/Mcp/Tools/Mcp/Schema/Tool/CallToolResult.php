@@ -3,6 +3,7 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Tool;
 
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequest;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Value\ResultType;
 use JsonSerializable;
@@ -15,12 +16,14 @@ readonly class CallToolResult implements JsonSerializable
 {
     /**
      * @param stdClass|stdClass[]|(scalar|null)[]|scalar|null $structuredContent
-     * @param (ResourceLink)[] $content
+     * @param ResourceLink[] $content
+     * @param ?array<string, ElicitRequest> $inputRequests
      */
     public function __construct(
         public ResultType $resultType = ResultType::Complete,
         public mixed $structuredContent = null,
         public array $content = [],
+        public ?array $inputRequests = null,
         public ?bool $isError = null,
     ) {}
 
@@ -37,6 +40,10 @@ readonly class CallToolResult implements JsonSerializable
 
         if ($this->structuredContent !== null) {
             $object->structuredContent = $this->structuredContent;
+        }
+
+        if ($this->inputRequests) {
+            $object->inputRequests = (object) array_map(fn ($it) => $it->jsonSerialize(), $this->inputRequests);
         }
 
         return $object;
