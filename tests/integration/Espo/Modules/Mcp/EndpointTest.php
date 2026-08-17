@@ -222,6 +222,26 @@ class EndpointTest extends BaseTestCase
                 ->setEndpoint($endpoint)
         );
 
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(ReadData::TYPE)
+                ->setData(
+                    new ReadData(
+                        entityType: Opportunity::ENTITY_TYPE,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field('account'),
+                            new FindData\Field('stage'),
+                            new FindData\Field('assignedUser'),
+                            new FindData\Field('description'),
+                            new FindData\Field('amount'),
+                            new FindData\Field('amountConverted'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
         //
         //
 
@@ -618,6 +638,9 @@ class EndpointTest extends BaseTestCase
         $this->assertCount(1, $body->result->content);
         $this->assertEquals('resource_link', $body->result->content[0]->type);
         $this->assertEquals("http://localhost#Lead/view/{$lead1->getId()}", $body->result->content[0]->uri);
+
+        $this->processValidateJsonSchema($endpoint, 'Read.Lead', $body->result->structuredContent);
+
         // Call Read.Lead. Select fields.
 
         $response = $apiAction->process(
@@ -665,13 +688,47 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('complete', $body->result?->resultType);
         $this->assertObjectNotHasProperty('record', $body->result->structuredContent);
         $this->assertEquals(403, $body->result->structuredContent->error->code);
+
+        // Call Read.Opportunity.
+
+        $opportunity1 = $em->getRDBRepositoryByClass(Opportunity::class)
+            ->where([Field::NAME => 'Test 1'])
+            ->findOne();
+
+        assert($opportunity1 !== null);
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Read.Opportunity',
+                    'arguments' => (object) [
+                        'id' => $opportunity1->getId(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertIsObject($body->result->structuredContent->record);
+
+        $this->processValidateJsonSchema($endpoint, 'Read.Opportunity', $body->result->structuredContent);
     }
 
     private function createRecords(
         Team $team,
         User $user,
     ): void  {
+
         $em = $this->getEntityManager();
+
+        $account1 = $em->getRDBRepositoryByClass(Account::class)->getNew()
+            ->setName('Test 1');
+
+        $em->saveEntity($account1);
 
         // Normal Opportunity.
         $em->saveEntity(
@@ -680,6 +737,7 @@ class EndpointTest extends BaseTestCase
                 ->setCloseDate(Date::fromString('2030-01-01'))
                 ->setAmount(Currency::create(100, 'USD'))
                 ->setStage(Opportunity::STAGE_CLOSED_WON)
+                ->setAccount($account1)
         );
 
         // Normal without amount.
