@@ -1,34 +1,40 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\JsonSchema\Type;
+namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation;
 
+use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
-class ArrayType implements Type
+class UntitledMultiSelectEnumSchema implements Schema
 {
     use CommonTrait;
 
     /**
+     * @param string[] $items
      * @param ?int<0, max> $minItems
      * @param ?int<0, max> $maxItems
+     * @param string[] $default
      */
     public function __construct(
-        private Schema $items,
+        private array $items,
         private ?int $minItems = null,
         private ?int $maxItems = null,
-        private ?bool $uniqueItems = null,
         private ?string $title = null,
         private ?string $description = null,
+        private ?array $default = null,
     ) {}
 
     public function jsonSerialize(): stdClass
     {
         $object = (object) [
             'type' => 'array',
-            'items' => $this->items->jsonSerialize(),
+            'items' => (object) [
+                'type' => 'string',
+                'enum' => $this->items,
+            ],
         ];
 
         if ($this->minItems !== null) {
@@ -39,10 +45,6 @@ class ArrayType implements Type
             $object->maxItems = $this->maxItems;
         }
 
-        if ($this->uniqueItems !== null) {
-            $object->uniqueItems = $this->uniqueItems;
-        }
-
         if ($this->title !== null) {
             $object->title = $this->title;
         }
@@ -51,26 +53,10 @@ class ArrayType implements Type
             $object->description = $this->description;
         }
 
+        if ($this->default !== null) {
+            $object->default = $this->default;
+        }
+
         return $object;
-    }
-
-    public function getItems(): Schema
-    {
-        return $this->items;
-    }
-
-    public function getMinItems(): ?int
-    {
-        return $this->minItems;
-    }
-
-    public function getMaxItems(): ?int
-    {
-        return $this->maxItems;
-    }
-
-    public function getUniqueItems(): ?bool
-    {
-        return $this->uniqueItems;
     }
 }

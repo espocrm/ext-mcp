@@ -11,6 +11,7 @@ readonly class CallToolRequestParams
     public function __construct(
         public string $name,
         public ?string $requestState = null,
+        // @todo
         public mixed $inputResponses = null,
         public ?stdClass $arguments = null,
     ) {}

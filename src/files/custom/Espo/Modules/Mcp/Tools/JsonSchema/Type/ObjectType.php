@@ -7,12 +7,15 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
+/**
+ * @template TSchema of Schema = Schema
+ */
 class ObjectType implements Type
 {
     use CommonTrait;
 
     /**
-     * @param array<string, Schema> $properties
+     * @param array<string, TSchema> $properties
      * @param string[] $required,
      */
     public function __construct(
@@ -59,7 +62,7 @@ class ObjectType implements Type
     }
 
     /**
-     * @return array<string, Schema>
+     * @return array<string, TSchema>
      */
     public function getProperties(): array
     {

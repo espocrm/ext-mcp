@@ -9,6 +9,7 @@ use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\FieldValidation\Exceptions\ValidationError;
 use Espo\Core\Name\Field;
 use Espo\Core\Record\CreateResult;
+use Espo\Core\Record\Exceptions\DuplicateConflict;
 use Espo\Core\Record\ServiceFactory;
 use Espo\Core\Utils\Config\ApplicationConfig;
 use Espo\Entities\User;
@@ -79,14 +80,17 @@ class CreateToolProcessor implements ToolProcessor
                 ],
                 isError: true,
             );
-        } catch (Conflict) {
-            // @todo Process duplicate handling.
+        } catch (Conflict $e) {
+            /** @noinspection PhpStatementHasEmptyBodyInspection */
+            if ($e instanceof DuplicateConflict) {
+                // @todo.
+            }
 
             return new CallToolResult(
                 structuredContent: (object) [
                     'error' => (object) [
                         'code' => 409,
-                        'message' => 'Conflict occurred.',
+                        'message' => "Conflict occurred.",
                     ],
                 ],
                 isError: true,

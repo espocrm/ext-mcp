@@ -1,31 +1,31 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\JsonSchema;
+namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation;
 
+use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
-/**
- * @template T of scalar|stdClass|stdClass[]|scalar[]|null = scalar|stdClass|stdClass[]|scalar[]|null
- */
-class ConstSchema implements Schema
+class UntitledSingleSelectEnumSchema implements Schema
 {
     use CommonTrait;
 
     /**
-     * @param T $value
+     * @param string[] $items
      */
     public function __construct(
-        private mixed $value,
+        private array $items,
         private ?string $title = null,
         private ?string $description = null,
+        private ?string $default = null,
     ) {}
 
     public function jsonSerialize(): stdClass
     {
         $object = (object) [
-            'const' => $this->value,
+            'type' => 'string',
+            'enum' => $this->items,
         ];
 
         if ($this->title !== null) {
@@ -36,14 +36,10 @@ class ConstSchema implements Schema
             $object->description = $this->description;
         }
 
-        return $object;
-    }
+        if ($this->default !== null) {
+            $object->default = $this->default;
+        }
 
-    /**
-     * @return T
-     */
-    public function getValue(): mixed
-    {
-        return $this->value;
+        return $object;
     }
 }

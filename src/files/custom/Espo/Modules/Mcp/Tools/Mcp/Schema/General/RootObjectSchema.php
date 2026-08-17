@@ -3,12 +3,19 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp\Schema\General;
 
+use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use JsonSerializable;
 use stdClass;
 
+/**
+ * @template TSchema of Schema = Schema
+ */
 class RootObjectSchema implements JsonSerializable
 {
+    /**
+     * @param ObjectType<Schema> $schema
+     */
     public function __construct(
         public ObjectType $schema,
     ) {}

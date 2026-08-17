@@ -1,31 +1,26 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\JsonSchema;
+namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation;
 
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\Type;
 use Espo\Modules\Mcp\Tools\Schema\Field\Traits\CommonTrait;
 use stdClass;
 
-/**
- * @template T of scalar|stdClass|stdClass[]|scalar[]|null = scalar|stdClass|stdClass[]|scalar[]|null
- */
-class ConstSchema implements Schema
+class BooleanSchema implements Type
 {
     use CommonTrait;
 
-    /**
-     * @param T $value
-     */
     public function __construct(
-        private mixed $value,
         private ?string $title = null,
         private ?string $description = null,
+        private ?bool $default = null,
     ) {}
 
     public function jsonSerialize(): stdClass
     {
         $object = (object) [
-            'const' => $this->value,
+            'type' => 'boolean',
         ];
 
         if ($this->title !== null) {
@@ -36,14 +31,15 @@ class ConstSchema implements Schema
             $object->description = $this->description;
         }
 
+        if ($this->default !== null) {
+            $object->default = $this->default;
+        }
+
         return $object;
     }
 
-    /**
-     * @return T
-     */
-    public function getValue(): mixed
+    public function getDefault(): ?bool
     {
-        return $this->value;
+        return $this->default;
     }
 }
