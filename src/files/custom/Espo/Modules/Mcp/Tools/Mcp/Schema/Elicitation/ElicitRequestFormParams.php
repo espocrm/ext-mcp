@@ -12,11 +12,13 @@ use stdClass;
  * @phpstan-type SingleEnumSchema TitledSingleSelectEnumSchema|UntitledSingleSelectEnumSchema
  * @phpstan-type MultiSingleEnumSchema TitledMultiSelectEnumSchema|UntitledMultiSelectEnumSchema
  * @phpstan-type EnumSchema SingleEnumSchema|MultiSingleEnumSchema
+ *
+ * @template TSchema of PrimitiveSchema|EnumSchema = PrimitiveSchema|EnumSchema
  */
 readonly class ElicitRequestFormParams implements JsonSerializable
 {
     /**
-     * @param RootObjectSchema<PrimitiveSchema|EnumSchema> $requestedSchema
+     * @param RootObjectSchema<TSchema> $requestedSchema
      */
     public function __construct(
         public string $message,

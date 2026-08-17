@@ -8,13 +8,20 @@ use Espo\Core\Exceptions\Conflict;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\FieldValidation\Exceptions\ValidationError;
 use Espo\Core\Name\Field;
+use Espo\Core\Record\CreateParams;
 use Espo\Core\Record\CreateResult;
 use Espo\Core\Record\Exceptions\DuplicateConflict;
 use Espo\Core\Record\ServiceFactory;
 use Espo\Core\Utils\Config\ApplicationConfig;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitAction;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequest;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequestFormParams;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\StringSchema;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
@@ -27,6 +34,8 @@ use Exception;
  */
 class CreateToolProcessor implements ToolProcessor
 {
+    private const string KEY_CONFIRM_DUPLICATE = 'confirmDuplicate';
+
     public function __construct(
         private ServiceFactory $serviceFactory,
         private User $user,
@@ -45,8 +54,10 @@ class CreateToolProcessor implements ToolProcessor
 
         $input = $params->arguments ?? (object) [];
 
+        $createParams = $this->prepareCreateParams($params);
+
         try {
-            $createResult = $service->create($input);
+            $createResult = $service->create($input, $createParams);
         } catch (BadRequest $e) {
             $message = 'Bad request.';
 
@@ -81,9 +92,21 @@ class CreateToolProcessor implements ToolProcessor
                 isError: true,
             );
         } catch (Conflict $e) {
-            /** @noinspection PhpStatementHasEmptyBodyInspection */
             if ($e instanceof DuplicateConflict) {
-                // @todo.
+                // @todo Add links to duplicate records.
+
+                return new CallToolResult(
+                    inputRequests: [
+                        self::KEY_CONFIRM_DUPLICATE => new ElicitRequest(
+                            params: new ElicitRequestFormParams(
+                                message: "The record being created might be a duplicate. Create anyway?",
+                                requestedSchema: new RootObjectSchema(
+                                    schema: new ObjectType(),
+                                ),
+                            ),
+                        ),
+                    ],
+                );
             }
 
             return new CallToolResult(
@@ -130,5 +153,18 @@ class CreateToolProcessor implements ToolProcessor
             title: $title,
             description: "Link to the record in the CRM.",
         );
+    }
+
+    private function prepareCreateParams(CallToolRequestParams $params): CreateParams
+    {
+        $skipDuplicateCheck = false;
+
+        $confirmDuplicate = $params->inputResponses[self::KEY_CONFIRM_DUPLICATE] ?? null;
+
+        if ($confirmDuplicate && $confirmDuplicate->action === ElicitAction::Accept) {
+            $skipDuplicateCheck = true;
+        }
+
+        return (new CreateParams())->withSkipDuplicateCheck($skipDuplicateCheck);
     }
 }

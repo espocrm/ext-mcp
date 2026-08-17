@@ -14,7 +14,7 @@ use stdClass;
 class RootObjectSchema implements JsonSerializable
 {
     /**
-     * @param ObjectType<Schema> $schema
+     * @param ObjectType<TSchema> $schema
      */
     public function __construct(
         public ObjectType $schema,
