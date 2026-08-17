@@ -4,6 +4,14 @@ import {inject} from 'di';
 import FieldManager from 'field-manager';
 import Metadata from 'metadata';
 
+interface ItemDefs {
+    filter?: boolean;
+    select?: boolean;
+    read?: boolean;
+    create?: boolean;
+    edit?: boolean;
+}
+
 export default class SchemaUtil {
 
     @inject(Metadata)
@@ -14,14 +22,13 @@ export default class SchemaUtil {
 
     getFeatureFields(options: {
         entityType: string,
-        type: 'filter' | 'select' | 'read',
+        type: 'filter' | 'select' | 'read' | 'create' | 'edit',
     }): string[] {
 
         const entityType = options.entityType;
         const type = options.type;
 
-        const fieldTypes = this.metadata.get(`app.mcpSchema.fieldTypes`, {}) as
-            Record<string, {filter?: boolean, select?: boolean, read?: boolean}>;
+        const fieldTypes = this.metadata.get(`app.mcpSchema.fieldTypes`, {}) as Record<string, ItemDefs>;
 
         const types = Object.keys(fieldTypes).filter(it => fieldTypes[it][type]);
 

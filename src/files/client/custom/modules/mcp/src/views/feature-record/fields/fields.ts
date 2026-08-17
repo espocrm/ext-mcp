@@ -52,6 +52,12 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
         </div>
     `
 
+    protected markRequired: boolean = false
+
+    protected skipReadOnly: boolean = true
+
+    protected skipReadOnlyAfterCreate: boolean = true
+
     private itemCollection: Collection<Model<ItemSchema>> | null = null
 
     private itemViews: ItemView[]
@@ -217,9 +223,30 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
         let fields = (this.recordHelper?.getFieldOptionList(this.name) ?? [])
             .filter(it => !currentFields.includes(it));
 
+        if (this.skipReadOnly) {
+            fields = fields.filter(field => {
+                return !this.getMetadata().get(`entityDefs.${targetEntityType}.fields.${field}.readOnly`);
+            });
+        }
+
+        if (this.skipReadOnlyAfterCreate) {
+            fields = fields.filter(field => {
+                return !this.getMetadata().get(`entityDefs.${targetEntityType}.fields.${field}.readOnlyAfterCreate`);
+            });
+        }
+
         const translatedOptions = this.getFieldTranslations(targetEntityType, fields);
 
         fields = fields.sort((a, b) => {
+            if (this.markRequired) {
+                const aRequired = this.isFieldRequired(targetEntityType, a);
+                const bRequired = this.isFieldRequired(targetEntityType, b);
+
+                if (aRequired !== bRequired) {
+                    return aRequired ? -1 : 1;
+                }
+            }
+
             const labelA = translatedOptions[a] ?? a;
             const labelB = translatedOptions[b] ?? b;
 
@@ -283,10 +310,20 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
         const translations: Record<string, string> = {};
 
         fields.forEach(field => {
-            translations[field] = this.getLanguage().translate(field, 'fields', entityType);
+            let label = this.getLanguage().translate(field, 'fields', entityType);
+
+            if (this.markRequired && this.isFieldRequired(entityType, field)) {
+                label += ' *';
+            }
+
+            translations[field] = label
         });
 
         return translations;
+    }
+
+    private isFieldRequired(entityType: string, field: string): boolean {
+        return !!this.getMetadata().get(`entityDefs.${entityType}.fields.${field}.required`);
     }
 
     fetch(): Record<string, any> {

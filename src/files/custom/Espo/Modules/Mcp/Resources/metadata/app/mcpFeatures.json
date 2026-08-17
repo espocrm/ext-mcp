@@ -234,5 +234,80 @@
                 }
             ]
         }
+    },
+    "Create": {
+        "tool": {
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateToolProcessor"
+        },
+        "record": {
+            "client": {
+                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-create",
+                "dynamicLogic": {
+                    "fields": {
+                        "entityType": {
+                            "readOnly": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "or",
+                                        "value": [
+                                            {
+                                                "type": "isNotEmpty",
+                                                "attribute": "writeFields"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        "writeFields": {
+                            "visible": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "entityType"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateDataValidator",
+            "fields": {
+                "entityType": {
+                    "type": "enum",
+                    "required": true,
+                    "view": "modules/mcp/views/feature-record/fields/entity-type"
+                },
+                "writeFields": {
+                    "type": "jsonArray",
+                    "view": "modules/mcp/views/feature-record/fields/create-write-fields",
+                    "tooltip": "McpFeature.createWriteFields"
+                }
+            },
+            "defaults": {},
+            "layout": [
+                {
+                    "rows": [
+                        [
+                            {
+                                "name": "entityType",
+                                "labelTranslation": "McpFeature.dataFields.entityType"
+                            },
+                            false
+                        ],
+                        [
+                            {
+                                "name": "writeFields",
+                                "labelTranslation": "McpFeature.dataFields.writeFields"
+                            }
+                        ]
+                    ]
+                }
+            ]
+        }
     }
 }

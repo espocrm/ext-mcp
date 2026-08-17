@@ -1,7 +1,7 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\Feature\Read;
+namespace Espo\Modules\Mcp\Tools\Feature\Create;
 
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\DataUtil;
@@ -9,16 +9,16 @@ use Espo\Modules\Mcp\Tools\Feature\Find\FindData\Field;
 use InvalidArgumentException;
 use stdClass;
 
-readonly class ReadData implements Data
+class CreateData implements Data
 {
-    public const string TYPE = 'Read';
+    public const string TYPE = 'Create';
 
     /**
-     * @param Field[] $selectFields
+     * @param Field[] $writeFields
      */
     public function __construct(
         public string $entityType,
-        public array $selectFields,
+        public array $writeFields,
     ) {}
 
     public function composeName(): string
@@ -35,29 +35,29 @@ readonly class ReadData implements Data
     {
         return (object) [
             'entityType' => $this->entityType,
-            'selectFields' => array_map(fn ($it) => (object) get_object_vars($it), $this->selectFields),
+            'writeFields' => array_map(fn ($it) => (object) get_object_vars($it), $this->writeFields),
         ];
     }
 
     public static function fromRaw(stdClass $raw): self
     {
         $entityType = $raw->entityType ?? null;
-        $selectFields = $raw->selectFields ?? null;
+        $writeFields = $raw->writeFields ?? null;
 
         if (!is_string($entityType)) {
             throw new InvalidArgumentException("No 'entityType'.");
         }
 
-        DataUtil::assertArrayOfFields($selectFields, 'selectFields', true);
+        DataUtil::assertArrayOfFields($writeFields, 'writeFields', true);
 
         return new self(
             entityType: $entityType,
-            selectFields: array_map(function ($it) {
+            writeFields: array_map(function ($it) {
                 return new Field(
                     name: $it->name,
                     description: $it->description ?? null,
                 );
-            }, $selectFields),
+            }, $writeFields),
         );
     }
 }

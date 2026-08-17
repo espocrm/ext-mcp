@@ -51,6 +51,7 @@ class ReadToolProcessor implements ToolProcessor
         if (!is_string($id) || $id === '') {
             throw new InternalError("No `id' provided.");
         }
+
         try {
             $service = $this->serviceFactory->createForUser($entityType, $this->user);
         } catch (Exception $e) {

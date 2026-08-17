@@ -1,19 +1,17 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\Feature\Read;
+namespace Espo\Modules\Mcp\Tools\Feature\Create;
 
 use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
-use Espo\Modules\Mcp\Tools\Feature\Find\FindData\Field;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
@@ -22,95 +20,92 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params as FieldSchemaProviderParams;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProviderFactory as FieldSchemaProviderFactory;
+use Espo\ORM\Defs;
+use Espo\ORM\Defs\Params\FieldParam;
 use Espo\ORM\Name\Attribute;
 
 /**
- * @implements ToolDefinitionProvider<ReadData>
+ * @implements ToolDefinitionProvider<CreateData>
  */
-class ReadToolDefinitionProvider implements ToolDefinitionProvider
+class CreateToolDefinitionProvider implements ToolDefinitionProvider
 {
-    private const string DESCRIPTION = "Fetches '{scopeName}' record by ID. Entity type: `{entityType}`.";
-
-    private const string ID_DESCRIPTION = "Record ID.";
-
-    private const string SELECT_DESCRIPTION = "What fields to fetch. " .
-        "If omitted, all fields from the output schema are fetched.";
+    private const string DESCRIPTION = "Creates '{scopeName}' record. Entity type: `{entityType}`.";
 
     public function __construct(
         private Language $defaultLanguage,
         private FieldSchemaProviderFactory $fieldSchemaProviderFactory,
         private Acl $acl,
+        private Defs $ormDefs,
     ) {}
 
     public function get(Data $data): Tool
     {
-        if (!$this->acl->tryCheck($data->entityType, Acl\Table::ACTION_READ)) {
-            throw new NoUserAccess("No access to '$data->entityType'.");
+        if (!$this->acl->tryCheck($data->entityType, Acl\Table::ACTION_CREATE)) {
+            throw new NoUserAccess("No 'create' access to '$data->entityType'.");
         }
 
         return new Tool(
-            name: 'Read.' . $data->entityType,
+            name: 'Create.' . $data->entityType,
             inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),
         );
     }
 
-    private function prepareInputSchema(ReadData $data): ObjectType
+    /**
+     * @throws UnsupportedFeatureValue
+     */
+    private function prepareInputSchema(CreateData $data): ObjectType
     {
-        $properties = [
-            'id' => new StringType(
-                description: self::ID_DESCRIPTION,
-            ),
-            'selectFields' => $this->getSelectFieldsSchema($data),
-        ];
+        $properties = [];
+        $suppress = [];
+
+        $writeFields = array_map(fn ($it) => $it->name, $data->writeFields);
+
+        $entityDefs = $this->ormDefs->getEntity($data->entityType);
+
+        foreach ($writeFields as $field) {
+            if (
+                !$this->acl->checkField($data->entityType, $field, Acl\Table::ACTION_EDIT) ||
+                in_array($field, $suppress)
+            ) {
+                continue;
+            }
+
+            if ($entityDefs->tryGetField($field)?->getParam(FieldParam::READ_ONLY)) {
+                continue;
+            }
+
+            $provider = $this->fieldSchemaProviderFactory->create($data->entityType, $field);
+
+            $params = new FieldSchemaProviderParams(
+                entityType: $data->entityType,
+                field: $field,
+                action: Action::Create,
+            );
+
+            $result = $provider->get($params);
+
+            $properties = array_merge($properties, $result->properties);
+            $suppress = array_merge($suppress, $result->suppress);
+        }
 
         return new ObjectType(
             properties: $properties,
             additionalProperties: false,
+            description: "Record values.",
         );
-    }
-
-    private function getSelectFieldsSchema(ReadData $data): Schema
-    {
-        return new ArrayType(
-            items: GroupSchema::createAnyOf(
-                schemas: array_map(function ($field) use ($data) {
-                    return new ConstSchema(
-                        value: $field->name,
-                        title: $this->defaultLanguage->translateLabel($field->name, 'fields', $data->entityType),
-                        description: $field->description,
-                    );
-                }, $this->filterFields($data->selectFields, $data->entityType))
-            ),
-            description: self::SELECT_DESCRIPTION,
-        );
-    }
-
-    /**
-     * @param Field[] $fields
-     * @return Field[]
-     */
-    private function filterFields(array $fields, string $entityType): array
-    {
-        $fields = array_filter($fields, function ($field) use ($entityType) {
-            return $this->acl->checkField($entityType, $field->name);
-        });
-
-        return array_values($fields);
     }
 
     /**
      * @throws UnsupportedFeatureValue
      */
-    private function prepareOutputSchema(ReadData $data): Schema
+    private function prepareOutputSchema(CreateData $data): Schema
     {
         $properties = [];
         $suppress = [];
 
-        $selectFields = array_map(fn ($it) => $it->name, $data->selectFields);
-
-        $fields = [Attribute::ID, ...$selectFields];
+        $fields = [Attribute::ID];
 
         foreach ($fields as $field) {
             if (
@@ -138,7 +133,7 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
             properties: [
                 'record' => new ObjectType(
                     properties: $properties,
-                    description: "Record.",
+                    description: "Record. To fetch other fields, use the `Read.$data->entityType` tool.",
                 ),
                 'error' => new ObjectType(
                     properties: [
@@ -148,12 +143,16 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
                         'code' => GroupSchema::createAnyOf(
                             schemas: [
                                 new ConstSchema(
-                                    value: 404,
-                                    description: "Record not found.",
+                                    value: 400,
+                                    description: "Bad request.",
                                 ),
                                 new ConstSchema(
                                     value: 403,
-                                    description: "No access to the record.",
+                                    description: "No 'read' or 'edit' access to the record.",
+                                ),
+                                new ConstSchema(
+                                    value: 409,
+                                    description: "Conflict.",
                                 ),
                             ],
                             description: 'Error code.',
@@ -164,7 +163,7 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
         );
     }
 
-    private function getDescription(ReadData $data): string
+    private function getDescription(CreateData $data): string
     {
         return strtr(self::DESCRIPTION, [
             'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),

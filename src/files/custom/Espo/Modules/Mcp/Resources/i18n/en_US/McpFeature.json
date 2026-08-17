@@ -19,7 +19,10 @@
         },
         "type": {
             "Find": "Find",
-            "Read": "Read"
+            "Read": "Read",
+            "Create": "Create",
+            "Update": "Update",
+            "Delete": "Delete"
         }
     },
     "dataFields": {
@@ -28,12 +31,14 @@
         "primaryFilters": "Primary Filters",
         "boolFilters": "Bool Filters",
         "filterFields": "Filter Fields",
-        "textFilter": "Text Filter"
+        "textFilter": "Text Filter",
+        "writeFields": "Write Fields"
     },
     "messages": {
         "featureAlreadyExists": "The same feature already exists in the endpoint."
     },
     "tooltips": {
+        "createWriteFields": "Specify which fields the client is allowed to write and an optional description (for LLM) for each field.\n\nEnsure that all required fields (marked with `*`) are included unless unless they have default values or are computed programmatically.",
         "findSelectFields": "Specify which fields to allow to fetch and an optional description (for LLM) for each field."
     }
 }
