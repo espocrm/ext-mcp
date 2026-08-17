@@ -58,7 +58,7 @@ class FindToolProcessor implements ToolProcessor
         }
 
         $output = (object) [
-            'list' => $this->prepareList($recordCollection, $outputSchema),
+            'records' => $this->prepareList($recordCollection, $outputSchema),
             'total' => $recordCollection->getTotal(),
         ];
 
@@ -129,7 +129,7 @@ class FindToolProcessor implements ToolProcessor
             throw new InternalError("Unexpected schema.");
         }
 
-        $listSchema = $outputSchema->getProperties()['list'] ?? null;
+        $listSchema = $outputSchema->getProperties()['records'] ?? null;
 
         if (!$listSchema instanceof ArrayType) {
             throw new InternalError("Unexpected schema.");

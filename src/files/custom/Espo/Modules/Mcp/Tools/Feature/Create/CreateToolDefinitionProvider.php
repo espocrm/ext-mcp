@@ -91,9 +91,14 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
         }
 
         return new ObjectType(
-            properties: $properties,
+            properties: [
+                'record' => new ObjectType(
+                    properties: $properties,
+                    additionalProperties: false,
+                    description: "Record values.",
+                ),
+            ],
             additionalProperties: false,
-            description: "Record values.",
         );
     }
 

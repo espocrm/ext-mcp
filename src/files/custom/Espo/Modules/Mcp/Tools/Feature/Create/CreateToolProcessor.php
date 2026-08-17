@@ -20,7 +20,6 @@ use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitAction;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequest;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequestFormParams;
-use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\StringSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
@@ -28,6 +27,8 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
 use Espo\Modules\Mcp\Tools\Mcp\ToolsCall\ToolProcessor;
 use Exception;
+use RuntimeException;
+use stdClass;
 
 /**
  * @implements ToolProcessor<CreateData>
@@ -52,8 +53,7 @@ class CreateToolProcessor implements ToolProcessor
             throw new InternalError("Could not create record service for `$entityType`.", previous: $e);
         }
 
-        $input = $params->arguments ?? (object) [];
-
+        $input = $this->fetchInput($params);
         $createParams = $this->prepareCreateParams($params);
 
         try {
@@ -166,5 +166,17 @@ class CreateToolProcessor implements ToolProcessor
         }
 
         return (new CreateParams())->withSkipDuplicateCheck($skipDuplicateCheck);
+    }
+
+
+    private function fetchInput(CallToolRequestParams $params): stdClass
+    {
+        $input = $params->arguments->record ?? (object) [];
+
+        if (!$input instanceof stdClass) {
+            throw new RuntimeException("Bad input.");
+        }
+
+        return $input;
     }
 }

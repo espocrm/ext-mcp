@@ -419,7 +419,7 @@ class EndpointTest extends BaseTestCase
         ], $findLeadTool->inputSchema->properties->order);
 
         $this->assertEquals('object', $findLeadTool->outputSchema->type);
-        $this->assertEquals('array', $findLeadTool->outputSchema->properties->list->type);
+        $this->assertEquals('array', $findLeadTool->outputSchema->properties->records->type);
         $this->assertEquals('integer', $findLeadTool->outputSchema->properties->total->type);
 
         //
@@ -466,14 +466,14 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals(1, $body->id);
         $this->assertEquals('complete', $body->result?->resultType);
         $this->assertEquals(1, $body->result->structuredContent->total);
-        $this->assertIsArray($body->result->structuredContent->list);
-        $this->assertObjectHasProperty('id', $body->result->structuredContent->list[0]);
-        $this->assertObjectNotHasProperty('campaignId', $body->result->structuredContent->list[0]);
-        $this->assertObjectNotHasProperty('description', $body->result->structuredContent->list[0]);
-        $this->assertObjectNotHasProperty('source', $body->result->structuredContent->list[0]);
-        $this->assertEquals('test1@test.com', $body->result->structuredContent->list[0]->emailAddress);
-        $this->assertEquals(Lead::STATUS_NEW, $body->result->structuredContent->list[0]->status);
-        $this->assertEquals([$team->getId()], $body->result->structuredContent->list[0]->teamsIds);
+        $this->assertIsArray($body->result->structuredContent->records);
+        $this->assertObjectHasProperty('id', $body->result->structuredContent->records[0]);
+        $this->assertObjectNotHasProperty('campaignId', $body->result->structuredContent->records[0]);
+        $this->assertObjectNotHasProperty('description', $body->result->structuredContent->records[0]);
+        $this->assertObjectNotHasProperty('source', $body->result->structuredContent->records[0]);
+        $this->assertEquals('test1@test.com', $body->result->structuredContent->records[0]->emailAddress);
+        $this->assertEquals(Lead::STATUS_NEW, $body->result->structuredContent->records[0]->status);
+        $this->assertEquals([$team->getId()], $body->result->structuredContent->records[0]->teamsIds);
 
         $this->createJsonSchemaValidator()->assert(
             $this->getToolEnvelope($endpoint, 'Find.Lead')->tool->outputSchema,
@@ -538,7 +538,7 @@ class EndpointTest extends BaseTestCase
 
         $this->assertEquals('complete', $body->result?->resultType);
         $this->assertEquals(1, $body->result->structuredContent->total);
-        $this->assertEquals(Lead::STATUS_CONVERTED, $body->result->structuredContent->list[0]->status);
+        $this->assertEquals(Lead::STATUS_CONVERTED, $body->result->structuredContent->records[0]->status);
 
         $this->processValidateJsonSchema($endpoint, 'Find.Lead', $body->result->structuredContent);
 
@@ -566,9 +566,9 @@ class EndpointTest extends BaseTestCase
 
         $this->assertEquals('complete', $body->result?->resultType);
         $this->assertEquals(3, $body->result->structuredContent->total);
-        $this->assertCount(2, $body->result->structuredContent->list);
-        $this->assertEquals('Test 2', $body->result->structuredContent->list[0]->name);
-        $this->assertEquals('Test 1', $body->result->structuredContent->list[1]->name);
+        $this->assertCount(2, $body->result->structuredContent->records);
+        $this->assertEquals('Test 2', $body->result->structuredContent->records[0]->name);
+        $this->assertEquals('Test 1', $body->result->structuredContent->records[1]->name);
 
         $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
 

@@ -339,7 +339,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     {
         return new ObjectType(
             properties: [
-                'list' => $this->prepareOutputListSchema($data),
+                'records' => $this->prepareOutputListSchema($data),
                 'total' => new IntegerType(
                     description: <<<'EOT'
                         Total number of records in the search result.
