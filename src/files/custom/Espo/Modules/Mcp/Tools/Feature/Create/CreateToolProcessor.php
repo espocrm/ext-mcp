@@ -20,7 +20,6 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
 use Espo\Modules\Mcp\Tools\Mcp\ToolsCall\ToolProcessor;
 use Exception;
-use RuntimeException;
 
 /**
  * @implements ToolProcessor<CreateData>
@@ -35,7 +34,7 @@ class CreateToolProcessor implements ToolProcessor
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
     {
-        $entityType = $this->fetchEntityType($params);
+        $entityType = $data->entityType;
 
         try {
             $service = $this->serviceFactory->createForUser($entityType, $this->user);
@@ -104,19 +103,6 @@ class CreateToolProcessor implements ToolProcessor
                 $this->prepareResourceLinkRecordUrl($createResult),
             ],
         );
-    }
-
-    private function fetchEntityType(CallToolRequestParams $params): string
-    {
-        $name = $params->name;
-
-        if (!str_contains($name, '.')) {
-            throw new RuntimeException("Bad tool name.");
-        }
-
-        [, $entityType] = explode('.', $name);
-
-        return $entityType;
     }
 
     private function prepareResourceLinkRecordUrl(CreateResult $createResult): ResourceLink

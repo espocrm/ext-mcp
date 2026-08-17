@@ -44,7 +44,7 @@ class ReadToolProcessor implements ToolProcessor
             throw new InternalError("No output schema.");
         }
 
-        $entityType = $this->fetchEntityType($params);
+        $entityType = $data->entityType;
 
         $id = $params->arguments->id ?? null;
 
@@ -90,19 +90,6 @@ class ReadToolProcessor implements ToolProcessor
                 $this->prepareResourceLinkRecordUrl($readResult),
             ],
         );
-    }
-
-    private function fetchEntityType(CallToolRequestParams $params): string
-    {
-        $name = $params->name;
-
-        if (!str_contains($name, '.')) {
-            throw new RuntimeException("Bad tool name.");
-        }
-
-        [, $entityType] = explode('.', $name);
-
-        return $entityType;
     }
 
     /**

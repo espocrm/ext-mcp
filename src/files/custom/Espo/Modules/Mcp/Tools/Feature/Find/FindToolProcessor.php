@@ -41,7 +41,8 @@ class FindToolProcessor implements ToolProcessor
             throw new InternalError("No output schema.");
         }
 
-        $entityType = $this->fetchEntityType($params);
+        $entityType = $data->entityType;
+
         $searchParams = $this->prepareSearchParams($entityType, $params);
 
         try {
@@ -64,19 +65,6 @@ class FindToolProcessor implements ToolProcessor
         return new CallToolResult(
             structuredContent: $output,
         );
-    }
-
-    private function fetchEntityType(CallToolRequestParams $params): string
-    {
-        $name = $params->name;
-
-        if (!str_contains($name, '.')) {
-            throw new RuntimeException("Bad tool name.");
-        }
-
-        [, $entityType] = explode('.', $name);
-
-        return $entityType;
     }
 
     private function prepareSearchParams(string $entityType, CallToolRequestParams $params): SearchParams
