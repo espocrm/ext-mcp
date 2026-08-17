@@ -9,6 +9,7 @@ use Espo\Core\Authentication\Logins\ApiKey;
 use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\Field\Currency;
 use Espo\Core\Field\Date;
+use Espo\Core\Field\DateTime;
 use Espo\Core\Field\DateTimeOptional;
 use Espo\Core\Field\EmailAddress;
 use Espo\Core\Field\EmailAddressGroup;
@@ -23,6 +24,7 @@ use Espo\Entities\User;
 use Espo\Modules\Crm\Entities\Account;
 use Espo\Modules\Crm\Entities\Call;
 use Espo\Modules\Crm\Entities\Lead;
+use Espo\Modules\Crm\Entities\Meeting;
 use Espo\Modules\Crm\Entities\Opportunity;
 use Espo\Modules\Crm\Entities\Task;
 use Espo\Modules\Mcp\Entities\Endpoint;
@@ -63,7 +65,10 @@ class EndpointTest extends BaseTestCase
         $em->saveEntity($testUser);
 
         $team = $em->getRDBRepositoryByClass(Team::class)->getNew();
+        $team->setName('Team 1');
         $em->saveEntity($team);
+
+        // No access to Meeting.
 
         $apiUser = $this->createUser([
             User::FIELD_USER_NAME => 'api',
@@ -86,8 +91,11 @@ class EndpointTest extends BaseTestCase
                 Task::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_ALL,
                 ],
-                Call::ENTITY_TYPE => [
+                Meeting::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_NO,
+                ],
+                Call::ENTITY_TYPE => [
+                    Table::ACTION_READ => Table::LEVEL_YES,
                 ],
             ],
             Role::FIELD_FIELD_DATA => [
@@ -236,6 +244,45 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field('description'),
                             new FindData\Field('amount'),
                             new FindData\Field('amountConverted'),
+                            new FindData\Field('teams'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(ReadData::TYPE)
+                ->setData(
+                    new ReadData(
+                        entityType: Meeting::ENTITY_TYPE,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field('parent'),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('dateEnd'),
+                            new FindData\Field('duration'),
+                            new FindData\Field('description'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(ReadData::TYPE)
+                ->setData(
+                    new ReadData(
+                        entityType: Call::ENTITY_TYPE,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field('parent'),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('dateEnd'),
+                            new FindData\Field('duration'),
+                            new FindData\Field('description'),
                         ],
                     )
                 )
@@ -715,7 +762,59 @@ class EndpointTest extends BaseTestCase
 
         $this->assertIsObject($body->result->structuredContent->record);
 
+        $this->assertEquals([$team->getId()], $body->result->structuredContent->record->teamsIds);
+        $this->assertEquals($team->getName(), $body->result->structuredContent->record->teamsNames->{$team->getId()});
         $this->processValidateJsonSchema($endpoint, 'Read.Opportunity', $body->result->structuredContent);
+
+        // Call Read.Meeting. No tool becase no access.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Read.Meeting',
+                    'arguments' => (object) [
+                        'id' => 'any',
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals(-32602, $body->error->code);
+
+        // Call Read.Call.
+
+        $call1 = $em->getRDBRepositoryByClass(Call::class)
+            ->where([Field::NAME => 'Test 1'])
+            ->findOne();
+
+        assert($call1 !== null);
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Read.Call',
+                    'arguments' => (object) [
+                        'id' => $call1->getId(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertIsObject($body->result->structuredContent->record);
+
+        $this->assertEquals(1800, $body->result->structuredContent->record->duration);
+
+        $this->processValidateJsonSchema($endpoint, 'Read.Call', $body->result->structuredContent);
     }
 
     private function createRecords(
@@ -737,6 +836,7 @@ class EndpointTest extends BaseTestCase
                 ->setCloseDate(Date::fromString('2030-01-01'))
                 ->setAmount(Currency::create(100, 'USD'))
                 ->setStage(Opportunity::STAGE_CLOSED_WON)
+                ->setTeams(LinkMultiple::create()->withAddedId($team->getId()))
                 ->setAccount($account1)
         );
 
@@ -794,10 +894,20 @@ class EndpointTest extends BaseTestCase
                 ->setDateStart(DateTimeOptional::fromString('2030-01-01'))
                 ->setStatus(Task::STATUS_COMPLETED)
         );
+
+        //
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Call::class)->getNew()
+                ->setName('Test 1')
+                ->setDateStart(DateTime::fromString('2030-01-01 10:00'))
+                ->setDateEnd(DateTime::fromString('2030-01-01 10:30'))
+        );
     }
 
     /**
      * @noinspection PhpUnhandledExceptionInspection
+     * @noinspection PhpSameParameterValueInspection
      */
     private function createEntryRequest(
         ?string $method,
