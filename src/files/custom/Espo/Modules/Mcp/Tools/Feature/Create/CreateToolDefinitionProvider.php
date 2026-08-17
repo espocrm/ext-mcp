@@ -12,6 +12,7 @@ use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
+use Espo\Modules\Mcp\Tools\JsonSchema\Type\BooleanType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
@@ -30,6 +31,9 @@ use Espo\ORM\Name\Attribute;
 class CreateToolDefinitionProvider implements ToolDefinitionProvider
 {
     private const string DESCRIPTION = "Creates '{scopeName}' record. Entity type: `{entityType}`.";
+
+    private const string DESCRIPTION_SKIP_DUPLICATE_CHECK =
+        "To bypass check for duplicates. The record will be created even if a duplicate found.";
 
     public function __construct(
         private Language $defaultLanguage,
@@ -96,6 +100,10 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
                     properties: $properties,
                     additionalProperties: false,
                     description: "Record values.",
+                ),
+                'skipDuplicateCheck' => new BooleanType(
+                    description: self::DESCRIPTION_SKIP_DUPLICATE_CHECK,
+                    default: false,
                 ),
             ],
             additionalProperties: false,

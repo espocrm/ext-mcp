@@ -159,6 +159,10 @@ class CreateToolProcessor implements ToolProcessor
     {
         $skipDuplicateCheck = false;
 
+        if ($params->arguments->skipDuplicateCheck ?? false) {
+            $skipDuplicateCheck = true;
+        }
+
         $confirmDuplicate = $params->inputResponses[self::KEY_CONFIRM_DUPLICATE] ?? null;
 
         if ($confirmDuplicate && $confirmDuplicate->action === ElicitAction::Accept) {
