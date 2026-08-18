@@ -26,6 +26,7 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
 use Espo\Modules\Mcp\Tools\Mcp\ToolsCall\ToolProcessor;
+use Espo\ORM\Entity;
 use Exception;
 use RuntimeException;
 use stdClass;
@@ -93,9 +94,8 @@ class CreateToolProcessor implements ToolProcessor
             );
         } catch (Conflict $e) {
             if ($e instanceof DuplicateConflict) {
-                // @todo Add links to duplicate records.
-
                 return new CallToolResult(
+                    content: $this->prepareDuplicateLinks($e),
                     inputRequests: [
                         self::KEY_CONFIRM_DUPLICATE => new ElicitRequest(
                             params: new ElicitRequestFormParams(
@@ -127,15 +127,13 @@ class CreateToolProcessor implements ToolProcessor
                 ],
             ],
             content: [
-                $this->prepareResourceLinkRecordUrl($createResult),
+                $this->prepareResourceLinkRecordUrl($createResult->getEntity()),
             ],
         );
     }
 
-    private function prepareResourceLinkRecordUrl(CreateResult $createResult): ResourceLink
+    private function prepareResourceLinkRecordUrl(Entity $entity, ?string $description = null): ResourceLink
     {
-        $entity = $createResult->getEntity();
-
         $entityType = $entity->getEntityType();
         $id = $entity->getId();
 
@@ -151,7 +149,7 @@ class CreateToolProcessor implements ToolProcessor
             name: "$entityType/$id",
             uri: $url,
             title: $title,
-            description: "Link to the record in the CRM.",
+            description: $description ?? "Link to the record in the CRM.",
         );
     }
 
@@ -182,5 +180,18 @@ class CreateToolProcessor implements ToolProcessor
         }
 
         return $input;
+    }
+
+    /**
+     * @return ResourceLink[]
+     */
+    private function prepareDuplicateLinks(DuplicateConflict $e): array
+    {
+        return array_map(function ($entity) {
+            return $this->prepareResourceLinkRecordUrl(
+                entity: $entity,
+                description: "Link to the duplicate record in the CRM.",
+            );
+        }, iterator_to_array($e->getDuplicates()));
     }
 }
