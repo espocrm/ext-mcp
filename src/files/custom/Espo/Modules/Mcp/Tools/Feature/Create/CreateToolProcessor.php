@@ -63,13 +63,14 @@ class CreateToolProcessor implements ToolProcessor
             $message = 'Bad request.';
 
             if ($e instanceof ValidationError) {
-                // @todo Test.
                 $message = "Validation error.";
 
                 if ($e->hasFailure()) {
                     $failure = $e->getFailure();
 
-                    $message .= " Field: `{$failure->getField()}`. Type: `{$failure->getType()}`.";
+                    $message .=
+                        " Problem field: `{$failure->getField()}`." .
+                        " Failed validation name: `{$failure->getType()}`.";
                 }
             }
 

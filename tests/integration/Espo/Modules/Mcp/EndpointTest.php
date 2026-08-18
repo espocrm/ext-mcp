@@ -29,6 +29,7 @@ use Espo\Modules\Crm\Entities\Opportunity;
 use Espo\Modules\Crm\Entities\Task;
 use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Entities\Feature;
+use Espo\Modules\Mcp\Tools\Feature\Create\CreateData;
 use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
 use Espo\Modules\Mcp\Tools\Feature\Read\ReadData;
 use Espo\Modules\Mcp\Tools\Mcp\Api\PostEntry;
@@ -289,6 +290,26 @@ class EndpointTest extends BaseTestCase
                 ->setEndpoint($endpoint)
         );
 
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(CreateData::TYPE)
+                ->setData(
+                    new CreateData(
+                        entityType: Lead::ENTITY_TYPE,
+                        writeFields: [
+                            new FindData\Field('firstName'),
+                            new FindData\Field('lastName'),
+                            new FindData\Field('emailAddress'),
+                            new FindData\Field('phoneNumber'),
+                            new FindData\Field('status'),
+                            new FindData\Field('description'),
+                            new FindData\Field('teams'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
         //
         //
 
@@ -431,6 +452,17 @@ class EndpointTest extends BaseTestCase
 
         $this->assertEquals('string', $readLeadTool->inputSchema->properties->id->type);
         $this->assertEquals('array', $readLeadTool->inputSchema->properties->selectFields->type);
+
+        //
+
+        $createLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Create.Lead');
+        $this->assertNotNull($createLeadToolIndex);
+        $createLeadTool = $tools[$createLeadToolIndex] ?? null;
+        $this->assertNotNull($createLeadTool);
+
+        $this->assertObjectHasProperty('emailAddress', $createLeadTool->inputSchema->properties->record->properties);
+        // No field-level access.
+        $this->assertObjectNotHasProperty('description', $createLeadTool->inputSchema->properties->record->properties);
 
         //
 
@@ -766,7 +798,7 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals($team->getName(), $body->result->structuredContent->record->teamsNames->{$team->getId()});
         $this->processValidateJsonSchema($endpoint, 'Read.Opportunity', $body->result->structuredContent);
 
-        // Call Read.Meeting. No tool becase no access.
+        // Call Read.Meeting. No tool because no access.
 
         $response = $apiAction->process(
             $this->createEntryRequest(
@@ -815,6 +847,110 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals(1800, $body->result->structuredContent->record->duration);
 
         $this->processValidateJsonSchema($endpoint, 'Read.Call', $body->result->structuredContent);
+
+        // Call Create.Lead.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Create.Lead',
+                    'arguments' => (object) [
+                        'record' => (object) [
+                            'firstName' => 'Hello',
+                            'lastName' => 'A 1',
+                            'emailAddress' => 'hello@a1.test',
+                            'phoneNumber' => '+15453535543',
+                            'teamsIds' => [$team->getId()],
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertIsString($body->result->structuredContent->record?->id);
+
+        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
+
+        // Call Create.Lead. Duplicate detection.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Create.Lead',
+                    'arguments' => (object) [
+                        'record' => (object) [
+                            'emailAddress' => 'hello@a1.test',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectNotHasProperty('structuredContent', $body->result);
+
+        $this->assertEquals('elicitation/create', $body->result->inputRequests->confirmDuplicate->method);
+        $this->assertCount(1, $body->result->content);
+
+        // Call Create.Lead. Duplicate skip confirmed.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Create.Lead',
+                    'arguments' => (object) [
+                        'record' => (object) [
+                            'emailAddress' => 'hello@a1.test',
+                        ],
+                    ],
+                    'inputResponses' => (object) [
+                        'confirmDuplicate' => (object) [
+                            'action' => 'accept',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        // Call Create.Lead. Validation error.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Create.Lead',
+                    'arguments' => (object) [
+                        'record' => (object) [
+                            'phoneNumber' => '000',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertTrue($body->result->isError);
+        $this->assertEquals(400, $body->result->structuredContent->error->code);
+        $this->assertTrue(str_contains($body->result->structuredContent->error->message, 'Validation'));
     }
 
     private function createRecords(
