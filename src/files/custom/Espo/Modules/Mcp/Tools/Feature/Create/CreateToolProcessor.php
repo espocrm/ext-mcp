@@ -9,7 +9,6 @@ use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\FieldValidation\Exceptions\ValidationError;
 use Espo\Core\Name\Field;
 use Espo\Core\Record\CreateParams;
-use Espo\Core\Record\CreateResult;
 use Espo\Core\Record\Exceptions\DuplicateConflict;
 use Espo\Core\Record\ServiceFactory;
 use Espo\Core\Utils\Config\ApplicationConfig;
