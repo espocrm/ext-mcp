@@ -3,6 +3,7 @@
 
 namespace integration\Espo\Modules\Mcp;
 
+use Espo\Core\Acl\Permission;
 use Espo\Core\Acl\Table;
 use Espo\Core\Api\RequestWrapper;
 use Espo\Core\Authentication\Logins\ApiKey;
@@ -50,8 +51,8 @@ class EndpointTest extends BaseTestCase
     {
         $this->configureApp();
 
-        $testUser = $this->createTestUser();
         $team = $this->createTeam();
+        $testUser = $this->createTestUser(team: $team);
         $apiUser = $this->createApiUser(team: $team);
 
         $endpoint = $this->createEndpoint($apiUser);
@@ -490,6 +491,8 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field('name'),
                             new FindData\Field('amount'),
                             new FindData\Field('description'),
+                            new FindData\Field(Opportunity::FIELD_CLOSE_DATE),
+                            new FindData\Field(Field::ASSIGNED_USER),
                         ],
                     )
                 )
@@ -1117,7 +1120,7 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Create.Lead',
                     'arguments' => (object)[
                         'record' => (object)[
@@ -1145,10 +1148,10 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Create.Lead',
-                    'arguments' => (object)[
-                        'record' => (object)[
+                    'arguments' => (object) [
+                        'record' => (object) [
                             'emailAddress' => 'hello@a1.test',
                         ],
                     ],
@@ -1215,6 +1218,37 @@ class EndpointTest extends BaseTestCase
         $this->assertTrue(str_contains($body->result->structuredContent->error->message, 'Validation'));
 
         //
+
+        // Call Create.Opportunity.
+
+        $testUser = $this->getEntityManager()
+            ->getRDBRepositoryByClass(User::class)
+            ->where([User::FIELD_USER_NAME => 'test-0'])
+            ->findOne();
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Create.Opportunity',
+                    'arguments' => (object) [
+                        'record' => (object) [
+                            'name' => 'Test',
+                            'amount' => 100.00,
+                            'amountCurrency' => 'USD',
+                            Opportunity::FIELD_CLOSE_DATE => '2030-01-01',
+                            'assignedUserId' => $testUser->getId(),
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
     }
 
     private function createEndpoint(User $apiUser): Endpoint
@@ -1267,6 +1301,9 @@ class EndpointTest extends BaseTestCase
                     Table::ACTION_CREATE => Table::LEVEL_YES,
                     Table::ACTION_READ => Table::LEVEL_YES,
                 ],
+                User::ENTITY_TYPE => [
+                    Table::ACTION_READ => Table::LEVEL_TEAM,
+                ]
             ],
             Role::FIELD_FIELD_DATA => [
                 Lead::ENTITY_TYPE => [
@@ -1276,6 +1313,7 @@ class EndpointTest extends BaseTestCase
                     ]
                 ],
             ],
+            Permission::ASSIGNMENT . 'Permission' => Table::LEVEL_ALL,
         ]);
     }
 
@@ -1290,7 +1328,6 @@ class EndpointTest extends BaseTestCase
         $configWriter->save();
     }
 
-
     private function createTeam(): Team
     {
         $em = $this->getEntityManager();
@@ -1302,13 +1339,14 @@ class EndpointTest extends BaseTestCase
         return $team;
     }
 
-    private function createTestUser(): User
+    private function createTestUser(Team $team): User
     {
         $em = $this->getEntityManager();
 
         $testUser = $em->getRDBRepositoryByClass(User::class)->getNew()
             ->setUserName('test-0')
-            ->setLastName('Test User 0');
+            ->setLastName('Test User 0')
+            ->setTeams(LinkMultiple::create()->withAddedId($team->getId()));
         $em->saveEntity($testUser);
 
         return $testUser;

@@ -82,12 +82,18 @@ class CreateToolProcessor implements ToolProcessor
                 ],
                 isError: true,
             );
-        } catch (Forbidden) {
+        } catch (Forbidden $e) {
+            $message = 'No access.';
+
+            if ($e->getMessage()) {
+                $message .= ' ' . $e->getMessage();
+            }
+
             return new CallToolResult(
                 structuredContent: (object) [
                     'error' => (object) [
                         'code' => 403,
-                        'message' => 'No read access to the record.',
+                        'message' => $message
                     ],
                 ],
                 isError: true,
