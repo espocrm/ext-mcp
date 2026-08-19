@@ -9,7 +9,7 @@ interface ItemDefs {
     select?: boolean;
     read?: boolean;
     create?: boolean;
-    edit?: boolean;
+    update?: boolean;
 }
 
 export default class SchemaUtil {
@@ -22,7 +22,7 @@ export default class SchemaUtil {
 
     getFeatureFields(options: {
         entityType: string,
-        type: 'filter' | 'select' | 'read' | 'create' | 'edit',
+        type: 'filter' | 'select' | 'read' | 'create' | 'update',
     }): string[] {
 
         const entityType = options.entityType;

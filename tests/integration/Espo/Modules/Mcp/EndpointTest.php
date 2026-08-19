@@ -39,6 +39,7 @@ use Espo\Modules\Mcp\Tools\Mcp\Method;
 use Espo\Modules\Mcp\Tools\Mcp\Scope;
 use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolEnvelope;
 use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolProvider;
+use Espo\ORM\EntityManager;
 use RuntimeException;
 use tests\integration\Core\BaseTestCase;
 
@@ -84,18 +85,23 @@ class EndpointTest extends BaseTestCase
                     Table::ACTION_READ => Table::LEVEL_ALL,
                 ],
                 Lead::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_YES,
                     Table::ACTION_READ => Table::LEVEL_TEAM,
                 ],
                 Opportunity::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_YES,
                     Table::ACTION_READ => Table::LEVEL_ALL,
                 ],
                 Task::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_YES,
                     Table::ACTION_READ => Table::LEVEL_ALL,
                 ],
                 Meeting::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_NO,
                     Table::ACTION_READ => Table::LEVEL_NO,
                 ],
                 Call::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_YES,
                     Table::ACTION_READ => Table::LEVEL_YES,
                 ],
             ],
@@ -117,198 +123,7 @@ class EndpointTest extends BaseTestCase
 
         $em->getRelation($endpoint, Endpoint::LINK_USERS)->relate($apiUser);
 
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Feature::class)->getNew()
-                ->setType(FindData::TYPE)
-                ->setData(
-                    new FindData(
-                        entityType: Lead::ENTITY_TYPE,
-                        textFilter: true,
-                        selectFields: [
-                            new FindData\Field(Field::NAME, 'Lead name.'),
-                            new FindData\Field('accountName'),
-                            new FindData\Field('emailAddress'),
-                            new FindData\Field('status'),
-                            new FindData\Field('description'),
-                            new FindData\Field('teams'),
-                        ],
-                        primaryFilters: ['actual'],
-                        boolFilters: ['onlyMy'],
-                        filterFields: [
-                            new FindData\Field('status'),
-                            new FindData\Field('name'),
-                            new FindData\Field('assignedUser'),
-                            new FindData\Field('teams'),
-                            new FindData\Field('emailAddress'),
-                        ],
-                    )
-                )
-                ->setEndpoint($endpoint)
-        );
-
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Feature::class)->getNew()
-                ->setType(FindData::TYPE)
-                ->setData(
-                    new FindData(
-                        entityType: Task::ENTITY_TYPE,
-                        textFilter: true,
-                        selectFields: [
-                            new FindData\Field(Field::NAME),
-                            new FindData\Field(Field::PARENT),
-                            new FindData\Field('dateStart'),
-                            new FindData\Field('dateEnd'),
-                        ],
-                        primaryFilters: ['actual'],
-                        boolFilters: ['onlyMy'],
-                        filterFields: [
-                            new FindData\Field('dateStart'),
-                            new FindData\Field(Field::PARENT),
-                        ],
-                    )
-                )
-                ->setEndpoint($endpoint)
-        );
-
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Feature::class)->getNew()
-                ->setType(FindData::TYPE)
-                ->setData(
-                    new FindData(
-                        entityType: Opportunity::ENTITY_TYPE,
-                        textFilter: true,
-                        selectFields: [
-                            new FindData\Field(Field::NAME),
-                            new FindData\Field(Opportunity::FIELD_STAGE),
-                            new FindData\Field(Opportunity::FIELD_CLOSE_DATE),
-                            new FindData\Field(Opportunity::FIELD_AMOUNT),
-                        ],
-                        primaryFilters: ['actual'],
-                        boolFilters: ['onlyMy'],
-                        filterFields: [
-                            new FindData\Field(Opportunity::FIELD_CLOSE_DATE),
-                        ],
-                    )
-                )
-                ->setEndpoint($endpoint)
-        );
-
-        // No access.
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Feature::class)->getNew()
-                ->setType(FindData::TYPE)
-                ->setData(
-                    new FindData(
-                        entityType: Call::ENTITY_TYPE,
-                        textFilter: true,
-                        selectFields: [
-                            new FindData\Field(Field::NAME),
-                        ],
-                        primaryFilters: [],
-                        boolFilters: [],
-                        filterFields: [],
-                    )
-                )
-                ->setEndpoint($endpoint)
-        );
-
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Feature::class)->getNew()
-                ->setType(ReadData::TYPE)
-                ->setData(
-                    new ReadData(
-                        entityType: Lead::ENTITY_TYPE,
-                        selectFields: [
-                            new FindData\Field(Field::NAME, 'Lead name.'),
-                            new FindData\Field('accountName'),
-                            new FindData\Field('emailAddress'),
-                            new FindData\Field('status'),
-                            new FindData\Field('description'),
-                            new FindData\Field('teams'),
-                        ],
-                    )
-                )
-                ->setEndpoint($endpoint)
-        );
-
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Feature::class)->getNew()
-                ->setType(ReadData::TYPE)
-                ->setData(
-                    new ReadData(
-                        entityType: Opportunity::ENTITY_TYPE,
-                        selectFields: [
-                            new FindData\Field(Field::NAME),
-                            new FindData\Field('account'),
-                            new FindData\Field('stage'),
-                            new FindData\Field('assignedUser'),
-                            new FindData\Field('description'),
-                            new FindData\Field('amount'),
-                            new FindData\Field('amountConverted'),
-                            new FindData\Field('teams'),
-                        ],
-                    )
-                )
-                ->setEndpoint($endpoint)
-        );
-
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Feature::class)->getNew()
-                ->setType(ReadData::TYPE)
-                ->setData(
-                    new ReadData(
-                        entityType: Meeting::ENTITY_TYPE,
-                        selectFields: [
-                            new FindData\Field(Field::NAME),
-                            new FindData\Field('parent'),
-                            new FindData\Field('dateStart'),
-                            new FindData\Field('dateEnd'),
-                            new FindData\Field('duration'),
-                            new FindData\Field('description'),
-                        ],
-                    )
-                )
-                ->setEndpoint($endpoint)
-        );
-
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Feature::class)->getNew()
-                ->setType(ReadData::TYPE)
-                ->setData(
-                    new ReadData(
-                        entityType: Call::ENTITY_TYPE,
-                        selectFields: [
-                            new FindData\Field(Field::NAME),
-                            new FindData\Field('parent'),
-                            new FindData\Field('dateStart'),
-                            new FindData\Field('dateEnd'),
-                            new FindData\Field('duration'),
-                            new FindData\Field('description'),
-                        ],
-                    )
-                )
-                ->setEndpoint($endpoint)
-        );
-
-        $em->saveEntity(
-            $em->getRDBRepositoryByClass(Feature::class)->getNew()
-                ->setType(CreateData::TYPE)
-                ->setData(
-                    new CreateData(
-                        entityType: Lead::ENTITY_TYPE,
-                        writeFields: [
-                            new FindData\Field('firstName'),
-                            new FindData\Field('lastName'),
-                            new FindData\Field('emailAddress'),
-                            new FindData\Field('phoneNumber'),
-                            new FindData\Field('status'),
-                            new FindData\Field('description'),
-                            new FindData\Field('teams'),
-                        ],
-                    )
-                )
-                ->setEndpoint($endpoint)
-        );
+        $this->createFeatures($endpoint);
 
         //
         //
@@ -326,143 +141,8 @@ class EndpointTest extends BaseTestCase
 
         $apiAction = $this->getInjectableFactory()->create(PostEntry::class);
 
-        // Unsupported JSON-RPC.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::SERVER_DISCOVER,
-                slug: 'test',
-                jsonrpc: '1.0',
-            )
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals(-32600, $body->error->code);
-        $this->assertEquals(200, $response->getStatusCode());
-
-        // Unsupported protocol version.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::SERVER_DISCOVER,
-                slug: 'test',
-                id: 1,
-                protocolVersion: '1970-01-01',
-            )
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals(1, $body->id);
-        $this->assertEquals(-32022, $body->error->code);
-        $this->assertEquals(400, $response->getStatusCode());
-
-        // Discover.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::SERVER_DISCOVER,
-                slug: 'test',
-                id: 'A1',
-            )
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals('A1', $body->id);
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals(['2026-07-28'], $body->result?->supportedVersions);
-        $this->assertEquals('private', $body->result?->cacheScope);
-        $this->assertEquals((object) [
-            'tools' => (object) [
-                'listChanged' => false,
-            ],
-        ], $body->result?->capabilities);
-
-        $this->assertEquals('EspoCRM.test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->name);
-        $this->assertEquals('Test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->title);
-        $this->assertEquals('Test.', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->description);
-
-        // Tools list.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_LIST,
-                slug: 'test',
-                id: 1,
-            )
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals(1, $body->id);
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals('private', $body->result?->cacheScope);
-
-        $tools = $body->result->tools;
-
-        $this->assertIsArray($tools);
-
-        //
-
-        $findLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Find.Lead');
-        $this->assertNotNull($findLeadToolIndex);
-        $findLeadTool = $tools[$findLeadToolIndex] ?? null;
-        $this->assertNotNull($findLeadTool);
-
-        $this->assertEquals('Find.Lead', $findLeadTool->name);
-        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $findLeadTool->inputSchema->{'$schema'});
-        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $findLeadTool->outputSchema->{'$schema'});
-
-        $this->assertTrue(str_contains($findLeadTool->inputSchema->properties->orderBy->description, 'Created At'));
-
-        $this->assertEquals('object', $findLeadTool->inputSchema->type);
-
-        $this->assertEquals('string', $findLeadTool->inputSchema->properties->textFilter->type);
-        $this->assertCount(4, $findLeadTool->inputSchema->properties->orderBy->anyOf);
-        $this->assertCount(2, $findLeadTool->inputSchema->properties->primaryFilter->anyOf);
-        $this->assertCount(1, $findLeadTool->inputSchema->properties->boolFilterList->items->anyOf);
-        $this->assertEquals('array', $findLeadTool->inputSchema->properties->where->type);
-
-        $this->assertEquals((object) [
-            'anyOf' => [
-                (object) [
-                    'const' => 'asc',
-                    'description' => 'Ascending order.',
-                ],
-                (object) [
-                    'const' => 'desc',
-                    'description' => 'Descending order.',
-                ],
-            ],
-            'description' => 'Sorting direction.',
-        ], $findLeadTool->inputSchema->properties->order);
-
-        $this->assertEquals('object', $findLeadTool->outputSchema->type);
-        $this->assertEquals('array', $findLeadTool->outputSchema->properties->records->type);
-        $this->assertEquals('integer', $findLeadTool->outputSchema->properties->total->type);
-
-        //
-
-        $readLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Read.Lead');
-        $this->assertNotNull($readLeadToolIndex);
-        $readLeadTool = $tools[$readLeadToolIndex] ?? null;
-        $this->assertNotNull($readLeadTool);
-
-        $this->assertEquals('string', $readLeadTool->inputSchema->properties->id->type);
-        $this->assertEquals('array', $readLeadTool->inputSchema->properties->selectFields->type);
-
-        //
-
-        $createLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Create.Lead');
-        $this->assertNotNull($createLeadToolIndex);
-        $createLeadTool = $tools[$createLeadToolIndex] ?? null;
-        $this->assertNotNull($createLeadTool);
-
-        $this->assertObjectHasProperty('emailAddress', $createLeadTool->inputSchema->properties->record->properties);
-        // No field-level access.
-        $this->assertObjectNotHasProperty('description', $createLeadTool->inputSchema->properties->record->properties);
+        $this->processTestDiscover($apiAction);
+        $this->processTestToolsList($apiAction);
 
         //
 
@@ -951,6 +631,8 @@ class EndpointTest extends BaseTestCase
         $this->assertTrue($body->result->isError);
         $this->assertEquals(400, $body->result->structuredContent->error->code);
         $this->assertTrue(str_contains($body->result->structuredContent->error->message, 'Validation'));
+
+        //
     }
 
     private function createRecords(
@@ -1122,5 +804,430 @@ class EndpointTest extends BaseTestCase
         } catch (InvalidParamsError $e) {
             throw new RuntimeException("Validation error. " . var_export($e->getData(), true));
         }
+    }
+
+    private function createFeatures(Endpoint $endpoint): void
+    {
+        $em = $this->getEntityManager();
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: Lead::ENTITY_TYPE,
+                        textFilter: true,
+                        selectFields: [
+                            new FindData\Field(Field::NAME, 'Lead name.'),
+                            new FindData\Field('accountName'),
+                            new FindData\Field('emailAddress'),
+                            new FindData\Field('status'),
+                            new FindData\Field('description'),
+                            new FindData\Field('teams'),
+                        ],
+                        primaryFilters: ['actual'],
+                        boolFilters: ['onlyMy'],
+                        filterFields: [
+                            new FindData\Field('status'),
+                            new FindData\Field('name'),
+                            new FindData\Field('assignedUser'),
+                            new FindData\Field('teams'),
+                            new FindData\Field('emailAddress'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: Task::ENTITY_TYPE,
+                        textFilter: true,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field(Field::PARENT),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('dateEnd'),
+                        ],
+                        primaryFilters: ['actual'],
+                        boolFilters: ['onlyMy'],
+                        filterFields: [
+                            new FindData\Field('dateStart'),
+                            new FindData\Field(Field::PARENT),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: Opportunity::ENTITY_TYPE,
+                        textFilter: true,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field(Opportunity::FIELD_STAGE),
+                            new FindData\Field(Opportunity::FIELD_CLOSE_DATE),
+                            new FindData\Field(Opportunity::FIELD_AMOUNT),
+                        ],
+                        primaryFilters: ['actual'],
+                        boolFilters: ['onlyMy'],
+                        filterFields: [
+                            new FindData\Field(Opportunity::FIELD_CLOSE_DATE),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        // No access.
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: Call::ENTITY_TYPE,
+                        textFilter: true,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                        ],
+                        primaryFilters: [],
+                        boolFilters: [],
+                        filterFields: [],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(ReadData::TYPE)
+                ->setData(
+                    new ReadData(
+                        entityType: Lead::ENTITY_TYPE,
+                        selectFields: [
+                            new FindData\Field(Field::NAME, 'Lead name.'),
+                            new FindData\Field('accountName'),
+                            new FindData\Field('emailAddress'),
+                            new FindData\Field('status'),
+                            new FindData\Field('description'),
+                            new FindData\Field('teams'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(ReadData::TYPE)
+                ->setData(
+                    new ReadData(
+                        entityType: Opportunity::ENTITY_TYPE,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field('account'),
+                            new FindData\Field('stage'),
+                            new FindData\Field('assignedUser'),
+                            new FindData\Field('description'),
+                            new FindData\Field('amount'),
+                            new FindData\Field('amountConverted'),
+                            new FindData\Field('teams'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(ReadData::TYPE)
+                ->setData(
+                    new ReadData(
+                        entityType: Meeting::ENTITY_TYPE,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field('parent'),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('dateEnd'),
+                            new FindData\Field('duration'),
+                            new FindData\Field('description'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(ReadData::TYPE)
+                ->setData(
+                    new ReadData(
+                        entityType: Call::ENTITY_TYPE,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                            new FindData\Field('parent'),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('dateEnd'),
+                            new FindData\Field('duration'),
+                            new FindData\Field('description'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(CreateData::TYPE)
+                ->setData(
+                    new CreateData(
+                        entityType: Lead::ENTITY_TYPE,
+                        writeFields: [
+                            new FindData\Field('firstName'),
+                            new FindData\Field('lastName'),
+                            new FindData\Field('emailAddress'),
+                            new FindData\Field('phoneNumber'),
+                            new FindData\Field('status'),
+                            new FindData\Field('description'),
+                            new FindData\Field('teams'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(CreateData::TYPE)
+                ->setData(
+                    new CreateData(
+                        entityType: Opportunity::ENTITY_TYPE,
+                        writeFields: [
+                            new FindData\Field('name'),
+                            new FindData\Field('amount'),
+                            new FindData\Field('description'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(CreateData::TYPE)
+                ->setData(
+                    new CreateData(
+                        entityType: Task::ENTITY_TYPE,
+                        writeFields: [
+                            new FindData\Field('name'),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('dateEnd'),
+                            new FindData\Field('status'),
+                            new FindData\Field('description'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(CreateData::TYPE)
+                ->setData(
+                    new CreateData(
+                        entityType: Meeting::ENTITY_TYPE,
+                        writeFields: [
+                            new FindData\Field('name'),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('dateEnd'),
+                            new FindData\Field('status'),
+                            new FindData\Field('description'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(CreateData::TYPE)
+                ->setData(
+                    new CreateData(
+                        entityType: Call::ENTITY_TYPE,
+                        writeFields: [
+                            new FindData\Field('name'),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('dateEnd'),
+                            new FindData\Field('status'),
+                            new FindData\Field('description'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+    }
+
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function processTestDiscover(PostEntry $apiAction): void
+    {
+        // Unsupported JSON-RPC.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::SERVER_DISCOVER,
+                slug: 'test',
+                jsonrpc: '1.0',
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals(-32600, $body->error->code);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        // Unsupported protocol version.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::SERVER_DISCOVER,
+                slug: 'test',
+                id: 1,
+                protocolVersion: '1970-01-01',
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals(1, $body->id);
+        $this->assertEquals(-32022, $body->error->code);
+        $this->assertEquals(400, $response->getStatusCode());
+
+        //
+
+        // Discover.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::SERVER_DISCOVER,
+                slug: 'test',
+                id: 'A1',
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('A1', $body->id);
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(['2026-07-28'], $body->result?->supportedVersions);
+        $this->assertEquals('private', $body->result?->cacheScope);
+        $this->assertEquals((object)[
+            'tools' => (object)[
+                'listChanged' => false,
+            ],
+        ], $body->result?->capabilities);
+
+        $this->assertEquals('EspoCRM.test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->name);
+        $this->assertEquals('Test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->title);
+        $this->assertEquals('Test.', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->description);
+    }
+
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function processTestToolsList(PostEntry $apiAction): void
+    {
+        // Tools list.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_LIST,
+                slug: 'test',
+                id: 1,
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals(1, $body->id);
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals('private', $body->result?->cacheScope);
+
+        $tools = $body->result->tools;
+
+        $this->assertIsArray($tools);
+
+        //
+
+        $findLeadToolIndex = array_find_key($tools, fn($it) => $it->name === 'Find.Lead');
+        $this->assertNotNull($findLeadToolIndex);
+        $findLeadTool = $tools[$findLeadToolIndex] ?? null;
+        $this->assertNotNull($findLeadTool);
+
+        $this->assertEquals('Find.Lead', $findLeadTool->name);
+        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $findLeadTool->inputSchema->{'$schema'});
+        $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $findLeadTool->outputSchema->{'$schema'});
+
+        $this->assertTrue(str_contains($findLeadTool->inputSchema->properties->orderBy->description, 'Created At'));
+
+        $this->assertEquals('object', $findLeadTool->inputSchema->type);
+
+        $this->assertEquals('string', $findLeadTool->inputSchema->properties->textFilter->type);
+        $this->assertCount(4, $findLeadTool->inputSchema->properties->orderBy->anyOf);
+        $this->assertCount(2, $findLeadTool->inputSchema->properties->primaryFilter->anyOf);
+        $this->assertCount(1, $findLeadTool->inputSchema->properties->boolFilterList->items->anyOf);
+        $this->assertEquals('array', $findLeadTool->inputSchema->properties->where->type);
+
+        $this->assertEquals((object)[
+            'anyOf' => [
+                (object) [
+                    'const' => 'asc',
+                    'description' => 'Ascending order.',
+                ],
+                (object) [
+                    'const' => 'desc',
+                    'description' => 'Descending order.',
+                ],
+            ],
+            'description' => 'Sorting direction.',
+        ], $findLeadTool->inputSchema->properties->order);
+
+        $this->assertEquals('object', $findLeadTool->outputSchema->type);
+        $this->assertEquals('array', $findLeadTool->outputSchema->properties->records->type);
+        $this->assertEquals('integer', $findLeadTool->outputSchema->properties->total->type);
+
+        //
+
+        $readLeadToolIndex = array_find_key($tools, fn($it) => $it->name === 'Read.Lead');
+        $this->assertNotNull($readLeadToolIndex);
+        $readLeadTool = $tools[$readLeadToolIndex] ?? null;
+        $this->assertNotNull($readLeadTool);
+
+        $this->assertEquals('string', $readLeadTool->inputSchema->properties->id->type);
+        $this->assertEquals('array', $readLeadTool->inputSchema->properties->selectFields->type);
+
+        //
+
+        $createLeadToolIndex = array_find_key($tools, fn($it) => $it->name === 'Create.Lead');
+        $this->assertNotNull($createLeadToolIndex);
+        $createLeadTool = $tools[$createLeadToolIndex] ?? null;
+        $this->assertNotNull($createLeadTool);
+
+        $this->assertObjectHasProperty('emailAddress', $createLeadTool->inputSchema->properties->record->properties);
+        // No field-level access.
+        $this->assertObjectNotHasProperty('description', $createLeadTool->inputSchema->properties->record->properties);
+
+        //
+
+        $createLeadToolIndex = array_find_key($tools, fn($it) => $it->name === 'Create.Meeting');
+        $this->assertNull($createLeadToolIndex);
     }
 }

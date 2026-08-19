@@ -38,6 +38,7 @@
         "featureAlreadyExists": "The same feature already exists in the endpoint."
     },
     "tooltips": {
+        "updateWriteFields": "Specify which fields the client is allowed to write and an optional description (for LLM) for each field.",
         "createWriteFields": "Specify which fields the client is allowed to write and an optional description (for LLM) for each field.\n\nEnsure that all required fields (marked with `*`) are included unless unless they have default values or are computed programmatically.",
         "findSelectFields": "Specify which fields to allow to fetch and an optional description (for LLM) for each field."
     }

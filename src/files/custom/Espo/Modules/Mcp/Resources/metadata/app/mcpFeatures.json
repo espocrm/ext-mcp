@@ -309,5 +309,80 @@
                 }
             ]
         }
+    },
+    "Update": {
+        "tool": {
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateToolProcessor"
+        },
+        "record": {
+            "client": {
+                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-update",
+                "dynamicLogic": {
+                    "fields": {
+                        "entityType": {
+                            "readOnly": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "or",
+                                        "value": [
+                                            {
+                                                "type": "isNotEmpty",
+                                                "attribute": "writeFields"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        "writeFields": {
+                            "visible": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "entityType"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateDataValidator",
+            "fields": {
+                "entityType": {
+                    "type": "enum",
+                    "required": true,
+                    "view": "modules/mcp/views/feature-record/fields/entity-type"
+                },
+                "writeFields": {
+                    "type": "jsonArray",
+                    "view": "modules/mcp/views/feature-record/fields/update-write-fields",
+                    "tooltip": "McpFeature.updateWriteFields"
+                }
+            },
+            "defaults": {},
+            "layout": [
+                {
+                    "rows": [
+                        [
+                            {
+                                "name": "entityType",
+                                "labelTranslation": "McpFeature.dataFields.entityType"
+                            },
+                            false
+                        ],
+                        [
+                            {
+                                "name": "writeFields",
+                                "labelTranslation": "McpFeature.dataFields.writeFields"
+                            }
+                        ]
+                    ]
+                }
+            ]
+        }
     }
 }
