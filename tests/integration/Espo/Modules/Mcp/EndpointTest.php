@@ -1255,6 +1255,8 @@ class EndpointTest extends BaseTestCase
 
         $this->assertObjectHasProperty('structuredContent', $body->result);
 
+        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
+
         // Call Create.Task.
 
         $response = $apiAction->process(
@@ -1278,6 +1280,8 @@ class EndpointTest extends BaseTestCase
         $body = Json::decode($response->getBody());
 
         $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
 
         // Call Create.Call.
 
@@ -1309,6 +1313,8 @@ class EndpointTest extends BaseTestCase
         $body = Json::decode($response->getBody());
 
         $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
     }
 
     private function createEndpoint(User $apiUser): Endpoint
