@@ -39,7 +39,6 @@ use Espo\Modules\Mcp\Tools\Mcp\Method;
 use Espo\Modules\Mcp\Tools\Mcp\Scope;
 use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolEnvelope;
 use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolProvider;
-use Espo\ORM\EntityManager;
 use RuntimeException;
 use tests\integration\Core\BaseTestCase;
 
@@ -47,85 +46,27 @@ class EndpointTest extends BaseTestCase
 {
     private const string TEST_API_KEY = 'test-key';
 
-    /**
-     * @noinspection PhpUnhandledExceptionInspection
-     */
     public function testEndpoint(): void
     {
-        $configWriter = $this->getInjectableFactory()->create(ConfigWriter::class);
-        $configWriter->setMultiple([
-            'siteUrl' => 'http://localhost'
-        ]);
-        $configWriter->save();
+        $this->configureApp();
 
-        $em = $this->getEntityManager();
+        $testUser = $this->createTestUser();
+        $team = $this->createTeam();
+        $apiUser = $this->createApiUser(team: $team);
 
-        $testUser = $em->getRDBRepositoryByClass(User::class)->getNew()
-            ->setUserName('test-0')
-            ->setLastName('Test User 0');
-
-        $em->saveEntity($testUser);
-
-        $team = $em->getRDBRepositoryByClass(Team::class)->getNew();
-        $team->setName('Team 1');
-        $em->saveEntity($team);
-
-        // No access to Meeting.
-
-        $apiUser = $this->createUser([
-            User::FIELD_USER_NAME => 'api',
-            User::LINK_TEAMS . 'Ids' => [$team->getId()],
-            User::FIELD_TYPE => User::TYPE_API,
-            User::FIELD_AUTH_METHOD => User::AUTH_METHOD_API_KEY,
-            User::FIELD_API_KEY => self::TEST_API_KEY,
-        ], [
-            Role::FIELD_DATA => [
-                Scope::MCP => true,
-                Account::ENTITY_TYPE => [
-                    Table::ACTION_READ => Table::LEVEL_ALL,
-                ],
-                Lead::ENTITY_TYPE => [
-                    Table::ACTION_CREATE => Table::LEVEL_YES,
-                    Table::ACTION_READ => Table::LEVEL_TEAM,
-                ],
-                Opportunity::ENTITY_TYPE => [
-                    Table::ACTION_CREATE => Table::LEVEL_YES,
-                    Table::ACTION_READ => Table::LEVEL_ALL,
-                ],
-                Task::ENTITY_TYPE => [
-                    Table::ACTION_CREATE => Table::LEVEL_YES,
-                    Table::ACTION_READ => Table::LEVEL_ALL,
-                ],
-                Meeting::ENTITY_TYPE => [
-                    Table::ACTION_CREATE => Table::LEVEL_NO,
-                    Table::ACTION_READ => Table::LEVEL_NO,
-                ],
-                Call::ENTITY_TYPE => [
-                    Table::ACTION_CREATE => Table::LEVEL_YES,
-                    Table::ACTION_READ => Table::LEVEL_YES,
-                ],
-            ],
-            Role::FIELD_FIELD_DATA => [
-                Lead::ENTITY_TYPE => [
-                    'description' => [
-                        Table::ACTION_READ => Table::LEVEL_NO,
-                        Table::ACTION_EDIT => Table::LEVEL_NO,
-                    ]
-                ],
-            ],
-        ]);
-
-        $endpoint = $em->getRDBRepositoryByClass(Endpoint::class)->getNew()
-            ->setName('Test')
-            ->setSlug('test')
-            ->setPublicDescription('Test.');
-        $em->saveEntity($endpoint);
-
-        $em->getRelation($endpoint, Endpoint::LINK_USERS)->relate($apiUser);
-
-        $this->createFeatures($endpoint);
+        $endpoint = $this->createEndpoint($apiUser);
 
         //
+
+        $this->createFeatures(
+            endpoint: $endpoint,
+        );
+
+        $this->createRecords(
+            team: $team,
+            user: $testUser,
+        );
+
         //
 
         $request = $this->createEntryRequest(
@@ -141,498 +82,34 @@ class EndpointTest extends BaseTestCase
 
         $apiAction = $this->getInjectableFactory()->create(PostEntry::class);
 
-        $this->processTestDiscover($apiAction);
-        $this->processTestToolsList($apiAction);
-
         //
 
-        $this->createRecords(
+        $this->processTestDiscover(
+            apiAction: $apiAction,
+        );
+
+        $this->processTestToolsList(
+            apiAction: $apiAction
+        );
+
+        $this->processTestFind(
+             apiAction: $apiAction,
+             team: $team,
+             endpoint: $endpoint,
+             testUser: $testUser,
+        );
+
+        $this->processTestRead(
+            apiAction: $apiAction,
+            endpoint: $endpoint,
             team: $team,
-            user: $testUser,
         );
 
-        // Call `Find.Lead`. Primary filter.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Find.Lead',
-                    'arguments' => (object) [
-                        'primaryFilter' => 'actual',
-                        'selectFields' => [
-                            'name',
-                            'status',
-                            'emailAddress',
-                            'teams',
-                        ],
-                    ],
-                ],
-            )
+        $this->processTestCreate(
+            apiAction: $apiAction,
+            endpoint: $endpoint,
+            team: $team,
         );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals(1, $body->id);
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals(1, $body->result->structuredContent->total);
-        $this->assertIsArray($body->result->structuredContent->records);
-        $this->assertObjectHasProperty('id', $body->result->structuredContent->records[0]);
-        $this->assertObjectNotHasProperty('campaignId', $body->result->structuredContent->records[0]);
-        $this->assertObjectNotHasProperty('description', $body->result->structuredContent->records[0]);
-        $this->assertObjectNotHasProperty('source', $body->result->structuredContent->records[0]);
-        $this->assertEquals('test1@test.com', $body->result->structuredContent->records[0]->emailAddress);
-        $this->assertEquals(Lead::STATUS_NEW, $body->result->structuredContent->records[0]->status);
-        $this->assertEquals([$team->getId()], $body->result->structuredContent->records[0]->teamsIds);
-
-        $this->createJsonSchemaValidator()->assert(
-            $this->getToolEnvelope($endpoint, 'Find.Lead')->tool->outputSchema,
-            $body->result->structuredContent
-        );
-
-        // Call `Find.Lead`. Where clause, text filter.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Find.Lead',
-                    'arguments' => (object) [
-                        'textFilter' => 'Test*',
-                        'offset' => 0,
-                        'maxSize' => 5,
-                        'where' => [
-                            (object) [
-                                'type' => Type::IN,
-                                'attribute' => 'status',
-                                'value' => [Lead::STATUS_CONVERTED],
-                            ],
-                            (object) [
-                                'type' => Type::IS_NOT_NULL,
-                                'attribute' => 'status',
-                            ],
-                            (object) [
-                                'type' => Type::EQUALS,
-                                'attribute' => 'name',
-                                'value' => 'Test 3',
-                            ],
-                            (object) [
-                                'type' => Type::EQUALS,
-                                'attribute' => 'assignedUserId',
-                                'value' => $testUser->getId(),
-                            ],
-                            (object) [
-                                'type' => Type::EQUALS,
-                                'attribute' => 'emailAddress',
-                                'value' => 'test3@test.com',
-                            ],
-                            (object) [
-                                'type' => Type::IS_LINKED_WITH,
-                                'attribute' => 'teams',
-                                'value' => [$team->getId()],
-                            ],
-                            (object) [
-                                'type' => Type::IS_LINKED_WITH_ANY,
-                                'attribute' => 'teams',
-                                'value' => [$team->getId()],
-                            ],
-                        ],
-                    ],
-                ],
-            )
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals(1, $body->result->structuredContent->total);
-        $this->assertEquals(Lead::STATUS_CONVERTED, $body->result->structuredContent->records[0]->status);
-
-        $this->processValidateJsonSchema($endpoint, 'Find.Lead', $body->result->structuredContent);
-
-        // Call `Find.Task`. Offset, order.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Find.Task',
-                    'arguments' => (object) [
-                        'textFilter' => 'Test*',
-                        'offset' => 1,
-                        'maxSize' => 2,
-                        'orderBy' => 'name',
-                        'order' => 'desc',
-                    ],
-                ],
-            )
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals(3, $body->result->structuredContent->total);
-        $this->assertCount(2, $body->result->structuredContent->records);
-        $this->assertEquals('Test 2', $body->result->structuredContent->records[0]->name);
-        $this->assertEquals('Test 1', $body->result->structuredContent->records[1]->name);
-
-        $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
-
-        //
-
-        $lead1 = $em->getRDBRepositoryByClass(Lead::class)
-            ->where([Field::NAME => 'Test 1'])
-            ->findOne();
-
-        $this->assertNotNull($lead1);
-
-        $lead2 = $em->getRDBRepositoryByClass(Lead::class)
-            ->where([Field::NAME => 'Test 2'])
-            ->findOne();
-
-        $this->assertNotNull($lead2);
-
-        // Call `Find.Task`. Where.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Find.Task',
-                    'arguments' => (object) [
-                        'orderBy' => 'name',
-                        'order' => 'desc',
-                        'where' => [
-                            (object) [
-                                'type' => Type::EQUALS,
-                                'attribute' => 'parentType',
-                                'value' => Lead::ENTITY_TYPE,
-                            ],
-                            (object) [
-                                'type' => Type::EQUALS,
-                                'attribute' => 'parentId',
-                                'value' => $lead1->getId(),
-                            ],
-                            (object) [
-                                'type' => Type::ON,
-                                'attribute' => 'dateStart',
-                                'value' => '2030-01-01',
-                                'dateTime' => true,
-                            ],
-                        ],
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals(1, $body->result->structuredContent->total);
-
-        $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
-
-        // Call `Find.Opportunity`. Where.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Find.Opportunity',
-                    'arguments' => (object) [
-                        'orderBy' => 'name',
-                        'where' => [
-                            (object) [
-                                'type' => Type::ON,
-                                'attribute' => Opportunity::FIELD_CLOSE_DATE,
-                                'value' => '2030-01-01',
-                            ],
-                        ],
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals(2, $body->result->structuredContent->total);
-
-        $this->processValidateJsonSchema($endpoint, 'Find.Opportunity', $body->result->structuredContent);
-
-        // Call Read.Lead.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Read.Lead',
-                    'arguments' => (object) [
-                        'id' => $lead1->getId(),
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals($lead1->getId(), $body->result->structuredContent->record->id);
-        $this->assertObjectHasProperty('name', $body->result->structuredContent->record);
-        $this->assertObjectHasProperty('status', $body->result->structuredContent->record);
-        $this->assertObjectNotHasProperty('description', $body->result->structuredContent->record);
-
-        $this->assertCount(1, $body->result->content);
-        $this->assertEquals('resource_link', $body->result->content[0]->type);
-        $this->assertEquals("http://localhost#Lead/view/{$lead1->getId()}", $body->result->content[0]->uri);
-
-        $this->processValidateJsonSchema($endpoint, 'Read.Lead', $body->result->structuredContent);
-
-        // Call Read.Lead. Select fields.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Read.Lead',
-                    'arguments' => (object) [
-                        'id' => $lead1->getId(),
-                        'selectFields' => [
-                            'status',
-                        ],
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertEquals($lead1->getId(), $body->result->structuredContent->record->id);
-        $this->assertObjectNotHasProperty('name', $body->result->structuredContent->record);
-        $this->assertObjectHasProperty('status', $body->result->structuredContent->record);
-
-        // Call Read.Lead. Not found error.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Read.Lead',
-                    'arguments' => (object) [
-                        'id' => $lead2->getId(),
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals('complete', $body->result?->resultType);
-        $this->assertObjectNotHasProperty('record', $body->result->structuredContent);
-        $this->assertEquals(403, $body->result->structuredContent->error->code);
-
-        // Call Read.Opportunity.
-
-        $opportunity1 = $em->getRDBRepositoryByClass(Opportunity::class)
-            ->where([Field::NAME => 'Test 1'])
-            ->findOne();
-
-        assert($opportunity1 !== null);
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Read.Opportunity',
-                    'arguments' => (object) [
-                        'id' => $opportunity1->getId(),
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertIsObject($body->result->structuredContent->record);
-
-        $this->assertEquals([$team->getId()], $body->result->structuredContent->record->teamsIds);
-        $this->assertEquals($team->getName(), $body->result->structuredContent->record->teamsNames->{$team->getId()});
-        $this->processValidateJsonSchema($endpoint, 'Read.Opportunity', $body->result->structuredContent);
-
-        // Call Read.Meeting. No tool because no access.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Read.Meeting',
-                    'arguments' => (object) [
-                        'id' => 'any',
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertEquals(-32602, $body->error->code);
-
-        // Call Read.Call.
-
-        $call1 = $em->getRDBRepositoryByClass(Call::class)
-            ->where([Field::NAME => 'Test 1'])
-            ->findOne();
-
-        assert($call1 !== null);
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Read.Call',
-                    'arguments' => (object) [
-                        'id' => $call1->getId(),
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertIsObject($body->result->structuredContent->record);
-
-        $this->assertEquals(1800, $body->result->structuredContent->record->duration);
-
-        $this->processValidateJsonSchema($endpoint, 'Read.Call', $body->result->structuredContent);
-
-        // Call Create.Lead.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Create.Lead',
-                    'arguments' => (object) [
-                        'record' => (object) [
-                            'firstName' => 'Hello',
-                            'lastName' => 'A 1',
-                            'emailAddress' => 'hello@a1.test',
-                            'phoneNumber' => '+15453535543',
-                            'teamsIds' => [$team->getId()],
-                        ],
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertIsString($body->result->structuredContent->record?->id);
-
-        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
-
-        // Call Create.Lead. Duplicate detection.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Create.Lead',
-                    'arguments' => (object) [
-                        'record' => (object) [
-                            'emailAddress' => 'hello@a1.test',
-                        ],
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertObjectNotHasProperty('structuredContent', $body->result);
-
-        $this->assertEquals('elicitation/create', $body->result->inputRequests->confirmDuplicate->method);
-        $this->assertCount(1, $body->result->content);
-
-        // Call Create.Lead. Duplicate skip confirmed.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Create.Lead',
-                    'arguments' => (object) [
-                        'record' => (object) [
-                            'emailAddress' => 'hello@a1.test',
-                        ],
-                    ],
-                    'inputResponses' => (object) [
-                        'confirmDuplicate' => (object) [
-                            'action' => 'accept',
-                        ],
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertObjectHasProperty('structuredContent', $body->result);
-
-        // Call Create.Lead. Validation error.
-
-        $response = $apiAction->process(
-            $this->createEntryRequest(
-                method: Method::TOOLS_CALL,
-                slug: 'test',
-                id: 1,
-                params: (object) [
-                    'name' => 'Create.Lead',
-                    'arguments' => (object) [
-                        'record' => (object) [
-                            'phoneNumber' => '000',
-                        ],
-                    ],
-                ],
-            ),
-        );
-
-        $body = Json::decode($response->getBody());
-
-        $this->assertTrue($body->result->isError);
-        $this->assertEquals(400, $body->result->structuredContent->error->code);
-        $this->assertTrue(str_contains($body->result->structuredContent->error->message, 'Validation'));
-
-        //
     }
 
     private function createRecords(
@@ -1229,5 +706,611 @@ class EndpointTest extends BaseTestCase
 
         $createLeadToolIndex = array_find_key($tools, fn($it) => $it->name === 'Create.Meeting');
         $this->assertNull($createLeadToolIndex);
+    }
+
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function processTestFind(PostEntry $apiAction, Team $team, Endpoint $endpoint, User $testUser): void
+    {
+        // Call `Find.Lead`. Primary filter.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Find.Lead',
+                    'arguments' => (object)[
+                        'primaryFilter' => 'actual',
+                        'selectFields' => [
+                            'name',
+                            'status',
+                            'emailAddress',
+                            'teams',
+                        ],
+                    ],
+                ],
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals(1, $body->id);
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(1, $body->result->structuredContent->total);
+        $this->assertIsArray($body->result->structuredContent->records);
+        $this->assertObjectHasProperty('id', $body->result->structuredContent->records[0]);
+        $this->assertObjectNotHasProperty('campaignId', $body->result->structuredContent->records[0]);
+        $this->assertObjectNotHasProperty('description', $body->result->structuredContent->records[0]);
+        $this->assertObjectNotHasProperty('source', $body->result->structuredContent->records[0]);
+        $this->assertEquals('test1@test.com', $body->result->structuredContent->records[0]->emailAddress);
+        $this->assertEquals(Lead::STATUS_NEW, $body->result->structuredContent->records[0]->status);
+        $this->assertEquals([$team->getId()], $body->result->structuredContent->records[0]->teamsIds);
+
+        $this->createJsonSchemaValidator()->assert(
+            $this->getToolEnvelope($endpoint, 'Find.Lead')->tool->outputSchema,
+            $body->result->structuredContent
+        );
+
+        // Call `Find.Lead`. Where clause, text filter.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Find.Lead',
+                    'arguments' => (object)[
+                        'textFilter' => 'Test*',
+                        'offset' => 0,
+                        'maxSize' => 5,
+                        'where' => [
+                            (object)[
+                                'type' => Type::IN,
+                                'attribute' => 'status',
+                                'value' => [Lead::STATUS_CONVERTED],
+                            ],
+                            (object)[
+                                'type' => Type::IS_NOT_NULL,
+                                'attribute' => 'status',
+                            ],
+                            (object)[
+                                'type' => Type::EQUALS,
+                                'attribute' => 'name',
+                                'value' => 'Test 3',
+                            ],
+                            (object)[
+                                'type' => Type::EQUALS,
+                                'attribute' => 'assignedUserId',
+                                'value' => $testUser->getId(),
+                            ],
+                            (object)[
+                                'type' => Type::EQUALS,
+                                'attribute' => 'emailAddress',
+                                'value' => 'test3@test.com',
+                            ],
+                            (object)[
+                                'type' => Type::IS_LINKED_WITH,
+                                'attribute' => 'teams',
+                                'value' => [$team->getId()],
+                            ],
+                            (object)[
+                                'type' => Type::IS_LINKED_WITH_ANY,
+                                'attribute' => 'teams',
+                                'value' => [$team->getId()],
+                            ],
+                        ],
+                    ],
+                ],
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(1, $body->result->structuredContent->total);
+        $this->assertEquals(Lead::STATUS_CONVERTED, $body->result->structuredContent->records[0]->status);
+
+        $this->processValidateJsonSchema($endpoint, 'Find.Lead', $body->result->structuredContent);
+
+        // Call `Find.Task`. Offset, order.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Find.Task',
+                    'arguments' => (object)[
+                        'textFilter' => 'Test*',
+                        'offset' => 1,
+                        'maxSize' => 2,
+                        'orderBy' => 'name',
+                        'order' => 'desc',
+                    ],
+                ],
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(3, $body->result->structuredContent->total);
+        $this->assertCount(2, $body->result->structuredContent->records);
+        $this->assertEquals('Test 2', $body->result->structuredContent->records[0]->name);
+        $this->assertEquals('Test 1', $body->result->structuredContent->records[1]->name);
+
+        $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
+
+        //
+
+        $lead1 = $this->getLead('Test 1');
+        $lead2 = $this->getLead('Test 2');
+
+        $this->assertNotNull($lead1);
+        $this->assertNotNull($lead2);
+
+        // Call `Find.Task`. Where.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Find.Task',
+                    'arguments' => (object)[
+                        'orderBy' => 'name',
+                        'order' => 'desc',
+                        'where' => [
+                            (object)[
+                                'type' => Type::EQUALS,
+                                'attribute' => 'parentType',
+                                'value' => Lead::ENTITY_TYPE,
+                            ],
+                            (object)[
+                                'type' => Type::EQUALS,
+                                'attribute' => 'parentId',
+                                'value' => $lead1->getId(),
+                            ],
+                            (object)[
+                                'type' => Type::ON,
+                                'attribute' => 'dateStart',
+                                'value' => '2030-01-01',
+                                'dateTime' => true,
+                            ],
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(1, $body->result->structuredContent->total);
+
+        $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
+
+        // Call `Find.Opportunity`. Where.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Find.Opportunity',
+                    'arguments' => (object)[
+                        'orderBy' => 'name',
+                        'where' => [
+                            (object)[
+                                'type' => Type::ON,
+                                'attribute' => Opportunity::FIELD_CLOSE_DATE,
+                                'value' => '2030-01-01',
+                            ],
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals(2, $body->result->structuredContent->total);
+
+        $this->processValidateJsonSchema($endpoint, 'Find.Opportunity', $body->result->structuredContent);
+    }
+
+    private function getLead(string $name): ?Lead
+    {
+        return $this->getEntityManager()
+            ->getRDBRepositoryByClass(Lead::class)
+            ->where([Field::NAME => $name])
+            ->findOne();
+    }
+
+
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function processTestRead(PostEntry $apiAction, Endpoint $endpoint, Team $team): void
+    {
+        $em = $this->getEntityManager();
+
+        $lead1 = $this->getLead('Test 1');
+        $lead2 = $this->getLead('Test 2');
+
+        // Call Read.Lead.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Read.Lead',
+                    'arguments' => (object)[
+                        'id' => $lead1->getId(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals($lead1->getId(), $body->result->structuredContent->record->id);
+        $this->assertObjectHasProperty('name', $body->result->structuredContent->record);
+        $this->assertObjectHasProperty('status', $body->result->structuredContent->record);
+        $this->assertObjectNotHasProperty('description', $body->result->structuredContent->record);
+
+        $this->assertCount(1, $body->result->content);
+        $this->assertEquals('resource_link', $body->result->content[0]->type);
+        $this->assertEquals("http://localhost#Lead/view/{$lead1->getId()}", $body->result->content[0]->uri);
+
+        $this->processValidateJsonSchema($endpoint, 'Read.Lead', $body->result->structuredContent);
+
+        // Call Read.Lead. Select fields.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Read.Lead',
+                    'arguments' => (object)[
+                        'id' => $lead1->getId(),
+                        'selectFields' => [
+                            'status',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals($lead1->getId(), $body->result->structuredContent->record->id);
+        $this->assertObjectNotHasProperty('name', $body->result->structuredContent->record);
+        $this->assertObjectHasProperty('status', $body->result->structuredContent->record);
+
+        // Call Read.Lead. Not found error.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Read.Lead',
+                    'arguments' => (object)[
+                        'id' => $lead2->getId(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertObjectNotHasProperty('record', $body->result->structuredContent);
+        $this->assertEquals(403, $body->result->structuredContent->error->code);
+
+        // Call Read.Opportunity.
+
+        $opportunity1 = $em->getRDBRepositoryByClass(Opportunity::class)
+            ->where([Field::NAME => 'Test 1'])
+            ->findOne();
+
+        assert($opportunity1 !== null);
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Read.Opportunity',
+                    'arguments' => (object)[
+                        'id' => $opportunity1->getId(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertIsObject($body->result->structuredContent->record);
+
+        $this->assertEquals([$team->getId()], $body->result->structuredContent->record->teamsIds);
+        $this->assertEquals($team->getName(), $body->result->structuredContent->record->teamsNames->{$team->getId()});
+        $this->processValidateJsonSchema($endpoint, 'Read.Opportunity', $body->result->structuredContent);
+
+        // Call Read.Meeting. No tool because no access.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Read.Meeting',
+                    'arguments' => (object)[
+                        'id' => 'any',
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals(-32602, $body->error->code);
+
+        // Call Read.Call.
+
+        $call1 = $em->getRDBRepositoryByClass(Call::class)
+            ->where([Field::NAME => 'Test 1'])
+            ->findOne();
+
+        assert($call1 !== null);
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Read.Call',
+                    'arguments' => (object)[
+                        'id' => $call1->getId(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertIsObject($body->result->structuredContent->record);
+
+        $this->assertEquals(1800, $body->result->structuredContent->record->duration);
+
+        $this->processValidateJsonSchema($endpoint, 'Read.Call', $body->result->structuredContent);
+    }
+
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function processTestCreate(PostEntry $apiAction, Endpoint $endpoint, Team $team): void
+    {
+        // Call Create.Lead.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Create.Lead',
+                    'arguments' => (object)[
+                        'record' => (object)[
+                            'firstName' => 'Hello',
+                            'lastName' => 'A 1',
+                            'emailAddress' => 'hello@a1.test',
+                            'phoneNumber' => '+15453535543',
+                            'teamsIds' => [$team->getId()],
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertIsString($body->result->structuredContent->record?->id);
+
+        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
+
+        // Call Create.Lead. Duplicate detection.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Create.Lead',
+                    'arguments' => (object)[
+                        'record' => (object)[
+                            'emailAddress' => 'hello@a1.test',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectNotHasProperty('structuredContent', $body->result);
+
+        $this->assertEquals('elicitation/create', $body->result->inputRequests->confirmDuplicate->method);
+        $this->assertCount(1, $body->result->content);
+
+        // Call Create.Lead. Duplicate skip confirmed.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Create.Lead',
+                    'arguments' => (object)[
+                        'record' => (object)[
+                            'emailAddress' => 'hello@a1.test',
+                        ],
+                    ],
+                    'inputResponses' => (object)[
+                        'confirmDuplicate' => (object)[
+                            'action' => 'accept',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        // Call Create.Lead. Validation error.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Create.Lead',
+                    'arguments' => (object)[
+                        'record' => (object)[
+                            'phoneNumber' => '000',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertTrue($body->result->isError);
+        $this->assertEquals(400, $body->result->structuredContent->error->code);
+        $this->assertTrue(str_contains($body->result->structuredContent->error->message, 'Validation'));
+
+        //
+    }
+
+    private function createEndpoint(User $apiUser): Endpoint
+    {
+        $em = $this->getEntityManager();
+
+        $endpoint = $em->getRDBRepositoryByClass(Endpoint::class)->getNew()
+            ->setName('Test')
+            ->setSlug('test')
+            ->setPublicDescription('Test.');
+        $em->saveEntity($endpoint);
+
+        $em->getRelation($endpoint, Endpoint::LINK_USERS)->relate($apiUser);
+
+        return $endpoint;
+    }
+
+
+    private function createApiUser(Team $team): User
+    {
+        return $this->createUser([
+            User::FIELD_USER_NAME => 'api',
+            User::LINK_TEAMS . 'Ids' => [$team->getId()],
+            User::FIELD_TYPE => User::TYPE_API,
+            User::FIELD_AUTH_METHOD => User::AUTH_METHOD_API_KEY,
+            User::FIELD_API_KEY => self::TEST_API_KEY,
+        ], [
+            Role::FIELD_DATA => [
+                Scope::MCP => true,
+                Account::ENTITY_TYPE => [
+                    Table::ACTION_READ => Table::LEVEL_ALL,
+                ],
+                Lead::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_YES,
+                    Table::ACTION_READ => Table::LEVEL_TEAM,
+                ],
+                Opportunity::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_YES,
+                    Table::ACTION_READ => Table::LEVEL_ALL,
+                ],
+                Task::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_YES,
+                    Table::ACTION_READ => Table::LEVEL_ALL,
+                ],
+                Meeting::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_NO,
+                    Table::ACTION_READ => Table::LEVEL_NO,
+                ],
+                Call::ENTITY_TYPE => [
+                    Table::ACTION_CREATE => Table::LEVEL_YES,
+                    Table::ACTION_READ => Table::LEVEL_YES,
+                ],
+            ],
+            Role::FIELD_FIELD_DATA => [
+                Lead::ENTITY_TYPE => [
+                    'description' => [
+                        Table::ACTION_READ => Table::LEVEL_NO,
+                        Table::ACTION_EDIT => Table::LEVEL_NO,
+                    ]
+                ],
+            ],
+        ]);
+    }
+
+    private function configureApp(): void
+    {
+        $configWriter = $this->getInjectableFactory()->create(ConfigWriter::class);
+
+        $configWriter->setMultiple([
+            'siteUrl' => 'http://localhost'
+        ]);
+
+        $configWriter->save();
+    }
+
+
+    private function createTeam(): Team
+    {
+        $em = $this->getEntityManager();
+
+        $team = $em->getRDBRepositoryByClass(Team::class)->getNew();
+        $team->setName('Team 1');
+        $em->saveEntity($team);
+
+        return $team;
+    }
+
+    private function createTestUser(): User
+    {
+        $em = $this->getEntityManager();
+
+        $testUser = $em->getRDBRepositoryByClass(User::class)->getNew()
+            ->setUserName('test-0')
+            ->setLastName('Test User 0');
+        $em->saveEntity($testUser);
+
+        return $testUser;
     }
 }
