@@ -3,6 +3,7 @@
 
 namespace integration\Espo\Modules\Mcp;
 
+use DateTimeInterface;
 use Espo\Core\Acl\Permission;
 use Espo\Core\Acl\Table;
 use Espo\Core\Api\RequestWrapper;
@@ -455,6 +456,7 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field('dateEnd'),
                             new FindData\Field('duration'),
                             new FindData\Field('description'),
+                            new FindData\Field('assignedUser'),
                         ],
                     )
                 )
@@ -545,8 +547,11 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field('name'),
                             new FindData\Field('dateStart'),
                             new FindData\Field('dateEnd'),
+                            new FindData\Field('duration'),
+                            new FindData\Field('parent'),
                             new FindData\Field('status'),
                             new FindData\Field('description'),
+                            new FindData\Field('assignedUser'),
                         ],
                     )
                 )
@@ -1249,6 +1254,61 @@ class EndpointTest extends BaseTestCase
         $body = Json::decode($response->getBody());
 
         $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        // Call Create.Task.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Create.Task',
+                    'arguments' => (object) [
+                        'record' => (object) [
+                            'name' => 'Test',
+                            'dateEndDate' => '2030-01-01',
+                            'status' => Task::STATUS_STARTED,
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        // Call Create.Call.
+
+        $lead1 = $this->getLead('Test 1');
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Create.Call',
+                    'arguments' => (object) [
+                        'record' => (object) [
+                            'name' => 'Test',
+                            'dateStart' => DateTime::fromString('2030-01-01 10:00')
+                                ->toDateTime()
+                                ->format(DateTimeInterface::RFC3339),
+                            'duration' => 180,
+                            'assignedUserId' => $testUser->getId(),
+                            'parentId' => $lead1->getId(),
+                            'parentType' => $lead1->getEntityType(),
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
     }
 
     private function createEndpoint(User $apiUser): Endpoint
@@ -1265,7 +1325,6 @@ class EndpointTest extends BaseTestCase
 
         return $endpoint;
     }
-
 
     private function createApiUser(Team $team): User
     {
