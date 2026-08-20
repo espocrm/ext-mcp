@@ -53,8 +53,38 @@ class FindToolProcessor implements ToolProcessor
 
         try {
             $recordCollection = $service->find($searchParams);
-        } catch (BadRequest|Forbidden $e) {
-            throw new InternalError("Error while performing 'find' action.", previous: $e);
+        } catch (Forbidden $e) {
+            $message = "No access.";
+
+            if ($e->getMessage()) {
+                $message .= ' ' . $e->getMessage();
+            }
+
+            return new CallToolResult(
+                structuredContent: (object) [
+                    'error' => (object) [
+                        'code' => 403,
+                        'message' => $message,
+                    ],
+                ],
+                isError: true,
+            );
+        } catch (BadRequest $e) {
+            $message = "Bad request.";
+
+            if ($e->getMessage()) {
+                $message .= ' ' . $e->getMessage();
+            }
+
+            return new CallToolResult(
+                structuredContent: (object) [
+                    'error' => (object) [
+                        'code' => 400,
+                        'message' => $message,
+                    ],
+                ],
+                isError: true,
+            );
         }
 
         $output = (object) [
