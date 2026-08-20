@@ -31,7 +31,7 @@ class DatetimeSchemaProvider implements SchemaProvider
 
         $required = [];
 
-        if ($fieldDefs->getParam(FieldParam::REQUIRED) && $fieldDefs->getParam(FieldParam::DEFAULT) === null) {
+        if ($this->toApplyDefault($fieldDefs)) {
             $required[] = $params->field;
         }
 
@@ -55,5 +55,22 @@ class DatetimeSchemaProvider implements SchemaProvider
             ],
             required: $required,
         );
+    }
+
+    private function toApplyDefault(Defs\FieldDefs $fieldDefs): bool
+    {
+        $default = $fieldDefs->getParam(FieldParam::DEFAULT);
+
+        if (
+            $fieldDefs->getParam(FieldParam::REQUIRED) &&
+            (
+                $default === null ||
+                is_string($default) && str_starts_with($default, 'javascript:')
+            )
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -652,7 +652,7 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $findLeadToolIndex = array_find_key($tools, fn($it) => $it->name === 'Find.Lead');
+        $findLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Find.Lead');
         $this->assertNotNull($findLeadToolIndex);
         $findLeadTool = $tools[$findLeadToolIndex] ?? null;
         $this->assertNotNull($findLeadTool);
@@ -671,7 +671,7 @@ class EndpointTest extends BaseTestCase
         $this->assertCount(1, $findLeadTool->inputSchema->properties->boolFilterList->items->anyOf);
         $this->assertEquals('array', $findLeadTool->inputSchema->properties->where->type);
 
-        $this->assertEquals((object)[
+        $this->assertEquals((object) [
             'anyOf' => [
                 (object) [
                     'const' => 'asc',
@@ -691,7 +691,7 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $readLeadToolIndex = array_find_key($tools, fn($it) => $it->name === 'Read.Lead');
+        $readLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Read.Lead');
         $this->assertNotNull($readLeadToolIndex);
         $readLeadTool = $tools[$readLeadToolIndex] ?? null;
         $this->assertNotNull($readLeadTool);
@@ -701,7 +701,7 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $createLeadToolIndex = array_find_key($tools, fn($it) => $it->name === 'Create.Lead');
+        $createLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Create.Lead');
         $this->assertNotNull($createLeadToolIndex);
         $createLeadTool = $tools[$createLeadToolIndex] ?? null;
         $this->assertNotNull($createLeadTool);
@@ -712,8 +712,19 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $createLeadToolIndex = array_find_key($tools, fn($it) => $it->name === 'Create.Meeting');
-        $this->assertNull($createLeadToolIndex);
+        $createMeetingToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Create.Meeting');
+        $this->assertNull($createMeetingToolIndex);
+
+        //
+
+        $createCallToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Create.Call');
+        $this->assertNotNull($createCallToolIndex);
+        $createCallTool = $tools[$createCallToolIndex] ?? null;
+        $this->assertNotNull($createCallTool);
+
+        $this->assertContains('dateStart', $createCallTool->inputSchema->properties->record->required);
+        $this->assertContains('name', $createCallTool->inputSchema->properties->record->required);
+        $this->assertContains('assignedUserId', $createCallTool->inputSchema->properties->record->required);
     }
 
     /**

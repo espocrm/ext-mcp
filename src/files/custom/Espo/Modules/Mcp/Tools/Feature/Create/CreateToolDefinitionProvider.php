@@ -63,6 +63,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
     {
         $properties = [];
         $suppress = [];
+        $required = [];
 
         $writeFields = array_map(fn ($it) => $it->name, $data->writeFields);
 
@@ -76,7 +77,9 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
                 continue;
             }
 
-            if ($entityDefs->tryGetField($field)?->getParam(FieldParam::READ_ONLY)) {
+            $fieldDefs = $entityDefs->tryGetField($field);
+
+            if ($fieldDefs?->getParam(FieldParam::READ_ONLY)) {
                 continue;
             }
 
@@ -92,12 +95,19 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
 
             $properties = array_merge($properties, $result->properties);
             $suppress = array_merge($suppress, $result->suppress);
+
+            if ($this->toApplyRequired($fieldDefs)) {
+                $required = array_merge($required, $result->required);
+            }
         }
+
+        $required = array_values(array_unique($required));
 
         return new ObjectType(
             properties: [
                 'record' => new ObjectType(
                     properties: $properties,
+                    required: $required,
                     additionalProperties: false,
                     description: "Record values.",
                 ),
@@ -182,5 +192,16 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
             'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
             'entityType' => $data->entityType,
         ]);
+    }
+
+    private function toApplyRequired(?Defs\FieldDefs $fieldDefs): bool
+    {
+        $suppressValidationList = $fieldDefs?->getParam('suppressValidationList') ?? [];
+
+        if (!is_array($suppressValidationList)) {
+            return true;
+        }
+
+        return !in_array('required', $suppressValidationList);
     }
 }
