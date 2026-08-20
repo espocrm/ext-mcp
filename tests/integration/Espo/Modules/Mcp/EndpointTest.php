@@ -933,6 +933,40 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals(2, $body->result->structuredContent->total);
 
         $this->processValidateJsonSchema($endpoint, 'Find.Opportunity', $body->result->structuredContent);
+
+        //
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object)[
+                    'name' => 'Find.Lead',
+                    'arguments' => (object) [
+                        'primaryFilter' => 'actual',
+                        'selectFields' => [
+                            'name',
+                            'status',
+                            'emailAddress',
+                            'teams',
+                        ],
+                        'where' => [
+                            (object) [
+                                'attribute' => 'teams',
+                                'type' => Type::IS_LINKED_WITH,
+                                'value' => ['non-existing-id'],
+                            ],
+                        ]
+                    ],
+                ],
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertTrue($body->result->isError);
+        $this->assertEquals(400, $body->result->structuredContent->error->code);
     }
 
     private function getLead(string $name): ?Lead
