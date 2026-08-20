@@ -95,11 +95,18 @@ class UpdateToolDefinitionProvider implements ToolDefinitionProvider
 
         return new ObjectType(
             properties: [
+                'id' => new StringType(
+                    description: 'Record ID.',
+                ),
                 'record' => new ObjectType(
                     properties: $properties,
                     additionalProperties: false,
                     description: "Record values.",
                 ),
+            ],
+            required: [
+                'id',
+                'record',
             ],
             additionalProperties: false,
         );

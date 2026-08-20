@@ -116,6 +116,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
                     default: false,
                 ),
             ],
+            required: ['record'],
             additionalProperties: false,
         );
     }

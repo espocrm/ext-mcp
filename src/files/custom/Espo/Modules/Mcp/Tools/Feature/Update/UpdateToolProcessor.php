@@ -1,13 +1,14 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\Feature\Create;
+namespace Espo\Modules\Mcp\Tools\Feature\Update;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Conflict;
 use Espo\Core\Exceptions\Forbidden;
-use Espo\Core\Record\CreateParams;
+use Espo\Core\Exceptions\NotFound;
 use Espo\Core\Record\ServiceFactory;
+use Espo\Core\Record\UpdateParams;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
@@ -23,11 +24,11 @@ use RuntimeException;
 use stdClass;
 
 /**
- * @implements ToolProcessor<CreateData>
+ * @implements ToolProcessor<UpdateData>
  */
-class CreateToolProcessor implements ToolProcessor
+class UpdateToolProcessor implements ToolProcessor
 {
-    private const string KEY_CONFIRM_DUPLICATE = 'confirmDuplicate';
+    public const string KEY_CONFIRM_DUPLICATE = 'confirmDuplicate';
 
     public function __construct(
         private ServiceFactory $serviceFactory,
@@ -46,38 +47,45 @@ class CreateToolProcessor implements ToolProcessor
             throw new InternalError("Could not create record service for `$entityType`.", previous: $e);
         }
 
+        $id = $this->fetchId($params);
         $input = $this->fetchInput($params);
-        $createParams = $this->prepareCreateParams($params);
+        $updateParams = $this->prepareUpdateParams($params);
 
         try {
-            $createResult = $service->create($input, $createParams);
+            $updateResult = $service->update($id, $input, $updateParams);
         } catch (BadRequest $e) {
             return $this->exceptionUtil->prepareWriteBadRequestResult($e);
         } catch (Forbidden $e) {
             return $this->exceptionUtil->prepareWriteForbiddenResult($e);
         } catch (Conflict $e) {
             return $this->exceptionUtil->prepareWriteConflictResult($e);
+        } catch (NotFound) {
+            return new CallToolResult(
+                structuredContent: (object) [
+                    'error' => (object) [
+                        'code' => 404,
+                        'message' => 'Record not found.',
+                    ],
+                ],
+                isError: true,
+            );
         }
 
         return new CallToolResult(
             structuredContent: (object) [
                 'record' => (object) [
-                    'id' => $createResult->getEntity()->getId(),
+                    'id' => $updateResult->getEntity()->getId(),
                 ],
             ],
             content: [
-                $this->resourceLinkPreparator->prepare($createResult->getEntity()),
+                $this->resourceLinkPreparator->prepare($updateResult->getEntity()),
             ],
         );
     }
 
-    private function prepareCreateParams(CallToolRequestParams $params): CreateParams
+    private function prepareUpdateParams(CallToolRequestParams $params): UpdateParams
     {
         $skipDuplicateCheck = false;
-
-        if ($params->arguments->skipDuplicateCheck ?? false) {
-            $skipDuplicateCheck = true;
-        }
 
         $confirmDuplicate = $params->inputResponses[self::KEY_CONFIRM_DUPLICATE] ?? null;
 
@@ -85,7 +93,7 @@ class CreateToolProcessor implements ToolProcessor
             $skipDuplicateCheck = true;
         }
 
-        return (new CreateParams())->withSkipDuplicateCheck($skipDuplicateCheck);
+        return (new UpdateParams())->withSkipDuplicateCheck($skipDuplicateCheck);
     }
 
     private function fetchInput(CallToolRequestParams $params): stdClass
@@ -97,5 +105,19 @@ class CreateToolProcessor implements ToolProcessor
         }
 
         return $input;
+    }
+
+    /**
+     * @throws InternalError
+     */
+    private function fetchId(CallToolRequestParams $params): string
+    {
+        $id = $params->arguments->id ?? null;
+
+        if (!is_string($id) || !$id) {
+            throw new InternalError("No or bad ID.");
+        }
+
+        return $id;
     }
 }

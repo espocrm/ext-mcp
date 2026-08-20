@@ -67,6 +67,7 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
 
         return new ObjectType(
             properties: $properties,
+            required: ['id'],
             additionalProperties: false,
         );
     }
