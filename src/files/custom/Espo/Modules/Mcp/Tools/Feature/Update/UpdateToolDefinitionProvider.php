@@ -1,7 +1,7 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\Feature\Create;
+namespace Espo\Modules\Mcp\Tools\Feature\Update;
 
 use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
@@ -12,7 +12,6 @@ use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
-use Espo\Modules\Mcp\Tools\JsonSchema\Type\BooleanType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
@@ -26,14 +25,11 @@ use Espo\ORM\Defs\Params\FieldParam;
 use Espo\ORM\Name\Attribute;
 
 /**
- * @implements ToolDefinitionProvider<CreateData>
+ * @implements ToolDefinitionProvider<UpdateData>
  */
-class CreateToolDefinitionProvider implements ToolDefinitionProvider
+class UpdateToolDefinitionProvider implements ToolDefinitionProvider
 {
-    private const string DESCRIPTION = "Creates '{scopeName}' record. Entity type: `{entityType}`.";
-
-    private const string DESCRIPTION_SKIP_DUPLICATE_CHECK =
-        "To bypass check for duplicates. The record will be created even if a duplicate found.";
+    private const string DESCRIPTION = "Updates '{scopeName}' record. Entity type: `{entityType}`.";
 
     public function __construct(
         private Language $defaultLanguage,
@@ -44,12 +40,12 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
 
     public function get(Data $data): Tool
     {
-        if (!$this->acl->tryCheck($data->entityType, Acl\Table::ACTION_CREATE)) {
-            throw new NoUserAccess("No 'create' access to '$data->entityType'.");
+        if (!$this->acl->tryCheck($data->entityType, Acl\Table::ACTION_EDIT)) {
+            throw new NoUserAccess("No 'edit' access to '$data->entityType'.");
         }
 
         return new Tool(
-            name: 'Create.' . $data->entityType,
+            name: 'Update.' . $data->entityType,
             inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),
@@ -59,7 +55,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
     /**
      * @throws UnsupportedFeatureValue
      */
-    private function prepareInputSchema(CreateData $data): ObjectType
+    private function prepareInputSchema(UpdateData $data): ObjectType
     {
         $properties = [];
         $suppress = [];
@@ -76,7 +72,10 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
                 continue;
             }
 
-            if ($entityDefs->tryGetField($field)?->getParam(FieldParam::READ_ONLY)) {
+            if (
+                $entityDefs->tryGetField($field)?->getParam(FieldParam::READ_ONLY) ||
+                $entityDefs->tryGetField($field)?->getParam(FieldParam::READ_ONLY_AFTER_CREATE)
+            ) {
                 continue;
             }
 
@@ -85,7 +84,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
             $params = new FieldSchemaProviderParams(
                 entityType: $data->entityType,
                 field: $field,
-                action: Action::Create,
+                action: Action::Update,
             );
 
             $result = $provider->get($params);
@@ -101,10 +100,6 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
                     additionalProperties: false,
                     description: "Record values.",
                 ),
-                'skipDuplicateCheck' => new BooleanType(
-                    description: self::DESCRIPTION_SKIP_DUPLICATE_CHECK,
-                    default: false,
-                ),
             ],
             additionalProperties: false,
         );
@@ -113,7 +108,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
     /**
      * @throws UnsupportedFeatureValue
      */
-    private function prepareOutputSchema(CreateData $data): Schema
+    private function prepareOutputSchema(UpdateData $data): Schema
     {
         $properties = [];
         $suppress = [];
@@ -161,7 +156,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
                                 ),
                                 new ConstSchema(
                                     value: 403,
-                                    description: "No 'read' or 'create' access to the record. Or other access error.",
+                                    description: "No 'read' or 'edit' access to the record. Or other access error.",
                                 ),
                                 new ConstSchema(
                                     value: 409,
@@ -176,7 +171,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
         );
     }
 
-    private function getDescription(CreateData $data): string
+    private function getDescription(UpdateData $data): string
     {
         return strtr(self::DESCRIPTION, [
             'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),

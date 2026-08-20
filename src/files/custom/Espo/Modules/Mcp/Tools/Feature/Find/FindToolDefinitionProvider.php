@@ -348,7 +348,27 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
                          - `-1`: Has more records – pagination can be used to retrieve the next portion.
                          - `-2`: Has no more records – reached the end of the list.
                         EOT
-                )
+                ),
+                'error' => new ObjectType(
+                    properties: [
+                        'message' => new StringType(
+                            description: "Error message.",
+                        ),
+                        'code' => GroupSchema::createAnyOf(
+                            schemas: [
+                                new ConstSchema(
+                                    value: 400,
+                                    description: "Bad request.",
+                                ),
+                                new ConstSchema(
+                                    value: 403,
+                                    description: "No 'read' access. Or other access error.",
+                                ),
+                            ],
+                            description: 'Error code.',
+                        ),
+                    ],
+                ),
             ],
         );
     }
