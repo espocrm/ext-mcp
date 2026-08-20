@@ -14,6 +14,7 @@ use Espo\Core\Record\ServiceFactory;
 use Espo\Core\Utils\Config\ApplicationConfig;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitAction;
@@ -41,6 +42,7 @@ class CreateToolProcessor implements ToolProcessor
         private ServiceFactory $serviceFactory,
         private User $user,
         private ApplicationConfig $applicationConfig,
+        private ExceptionUtil $exceptionUtil,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -59,7 +61,7 @@ class CreateToolProcessor implements ToolProcessor
         try {
             $createResult = $service->create($input, $createParams);
         } catch (BadRequest $e) {
-            $message = 'Bad request.';
+            $message = $this->exceptionUtil->appendBodyMessage("Bad request.", $e);
 
             if ($e instanceof ValidationError) {
                 $message = "Validation error.";
@@ -83,9 +85,11 @@ class CreateToolProcessor implements ToolProcessor
                 isError: true,
             );
         } catch (Forbidden $e) {
-            $message = 'No access.';
+            $message = "No access.";
 
-            if ($e->getMessage()) {
+            if ($e->getBody()) {
+                $message = $this->exceptionUtil->appendBodyMessage($message, $e);
+            } else if ($e->getMessage()) {
                 $message .= ' ' . $e->getMessage();
             }
 
@@ -115,11 +119,13 @@ class CreateToolProcessor implements ToolProcessor
                 );
             }
 
+            $message = $this->exceptionUtil->appendBodyMessage("Conflict occurred.", $e);
+
             return new CallToolResult(
                 structuredContent: (object) [
                     'error' => (object) [
                         'code' => 409,
-                        'message' => "Conflict occurred.",
+                        'message' => $message,
                     ],
                 ],
                 isError: true,
