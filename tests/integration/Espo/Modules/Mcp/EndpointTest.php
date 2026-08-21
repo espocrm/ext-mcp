@@ -1487,7 +1487,7 @@ class EndpointTest extends BaseTestCase
      */
     private function processTestDelete(PostEntry $apiAction, Endpoint $endpoint): void
     {
-        // Call Update.Lead.
+        // Call Delete.Lead.
 
         $lead = $this->getLead('Test 1');
 
@@ -1510,6 +1510,9 @@ class EndpointTest extends BaseTestCase
         $this->assertObjectHasProperty('structuredContent', $body->result);
 
         $this->processValidateJsonSchema($endpoint, 'Delete.Lead', $body->result->structuredContent);
+
+        $lead = $this->getLead('Test 1');
+        $this->assertNull($lead);
     }
 
     private function createEndpoint(User $apiUser): Endpoint
