@@ -34,6 +34,7 @@ use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\Create\CreateData;
 use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
 use Espo\Modules\Mcp\Tools\Feature\Read\ReadData;
+use Espo\Modules\Mcp\Tools\Feature\Update\UpdateData;
 use Espo\Modules\Mcp\Tools\Mcp\Api\PostEntry;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\JsonSchemaValidator\Validator;
@@ -91,7 +92,7 @@ class EndpointTest extends BaseTestCase
         );
 
         $this->processTestToolsList(
-            apiAction: $apiAction
+            apiAction: $apiAction,
         );
 
         $this->processTestFind(
@@ -108,6 +109,12 @@ class EndpointTest extends BaseTestCase
         );
 
         $this->processTestCreate(
+            apiAction: $apiAction,
+            endpoint: $endpoint,
+            team: $team,
+        );
+
+        $this->processTestUpdate(
             apiAction: $apiAction,
             endpoint: $endpoint,
             team: $team,
@@ -557,6 +564,26 @@ class EndpointTest extends BaseTestCase
                 )
                 ->setEndpoint($endpoint)
         );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(UpdateData::TYPE)
+                ->setData(
+                    new CreateData(
+                        entityType: Lead::ENTITY_TYPE,
+                        writeFields: [
+                            new FindData\Field('firstName'),
+                            new FindData\Field('lastName'),
+                            new FindData\Field('emailAddress'),
+                            new FindData\Field('phoneNumber'),
+                            new FindData\Field('status'),
+                            new FindData\Field('description'),
+                            new FindData\Field('teams'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
     }
 
     /**
@@ -614,8 +641,8 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('complete', $body->result?->resultType);
         $this->assertEquals(['2026-07-28'], $body->result?->supportedVersions);
         $this->assertEquals('private', $body->result?->cacheScope);
-        $this->assertEquals((object)[
-            'tools' => (object)[
+        $this->assertEquals((object) [
+            'tools' => (object) [
                 'listChanged' => false,
             ],
         ], $body->result?->capabilities);
@@ -725,6 +752,20 @@ class EndpointTest extends BaseTestCase
         $this->assertContains('dateStart', $createCallTool->inputSchema->properties->record->required);
         $this->assertContains('name', $createCallTool->inputSchema->properties->record->required);
         $this->assertContains('assignedUserId', $createCallTool->inputSchema->properties->record->required);
+
+        //
+
+        $updateLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Update.Lead');
+        $this->assertNotNull($updateLeadToolIndex);
+        $updateLeadTool = $tools[$updateLeadToolIndex] ?? null;
+        $this->assertNotNull($updateLeadTool);
+
+        $this->assertObjectHasProperty('teamsIds', $updateLeadTool->inputSchema->properties->record->properties);
+
+        //
+
+        $updateMeetingToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Update.Meeting');
+        $this->assertNull($updateMeetingToolIndex);
     }
 
     /**
@@ -739,9 +780,9 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Find.Lead',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'primaryFilter' => 'actual',
                         'selectFields' => [
                             'name',
@@ -780,43 +821,43 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Find.Lead',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'textFilter' => 'Test*',
                         'offset' => 0,
                         'maxSize' => 5,
                         'where' => [
-                            (object)[
+                            (object) [
                                 'type' => Type::IN,
                                 'attribute' => 'status',
                                 'value' => [Lead::STATUS_CONVERTED],
                             ],
-                            (object)[
+                            (object) [
                                 'type' => Type::IS_NOT_NULL,
                                 'attribute' => 'status',
                             ],
-                            (object)[
+                            (object) [
                                 'type' => Type::EQUALS,
                                 'attribute' => 'name',
                                 'value' => 'Test 3',
                             ],
-                            (object)[
+                            (object) [
                                 'type' => Type::EQUALS,
                                 'attribute' => 'assignedUserId',
                                 'value' => $testUser->getId(),
                             ],
-                            (object)[
+                            (object) [
                                 'type' => Type::EQUALS,
                                 'attribute' => 'emailAddress',
                                 'value' => 'test3@test.com',
                             ],
-                            (object)[
+                            (object) [
                                 'type' => Type::IS_LINKED_WITH,
                                 'attribute' => 'teams',
                                 'value' => [$team->getId()],
                             ],
-                            (object)[
+                            (object) [
                                 'type' => Type::IS_LINKED_WITH_ANY,
                                 'attribute' => 'teams',
                                 'value' => [$team->getId()],
@@ -842,9 +883,9 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Find.Task',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'textFilter' => 'Test*',
                         'offset' => 1,
                         'maxSize' => 2,
@@ -880,23 +921,23 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Find.Task',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'orderBy' => 'name',
                         'order' => 'desc',
                         'where' => [
-                            (object)[
+                            (object) [
                                 'type' => Type::EQUALS,
                                 'attribute' => 'parentType',
                                 'value' => Lead::ENTITY_TYPE,
                             ],
-                            (object)[
+                            (object) [
                                 'type' => Type::EQUALS,
                                 'attribute' => 'parentId',
                                 'value' => $lead1->getId(),
                             ],
-                            (object)[
+                            (object) [
                                 'type' => Type::ON,
                                 'attribute' => 'dateStart',
                                 'value' => '2030-01-01',
@@ -922,12 +963,12 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Find.Opportunity',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'orderBy' => 'name',
                         'where' => [
-                            (object)[
+                            (object) [
                                 'type' => Type::ON,
                                 'attribute' => Opportunity::FIELD_CLOSE_DATE,
                                 'value' => '2030-01-01',
@@ -952,7 +993,7 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Find.Lead',
                     'arguments' => (object) [
                         'primaryFilter' => 'actual',
@@ -1006,9 +1047,9 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Read.Lead',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'id' => $lead1->getId(),
                     ],
                 ],
@@ -1036,9 +1077,9 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Read.Lead',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'id' => $lead1->getId(),
                         'selectFields' => [
                             'status',
@@ -1062,9 +1103,9 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Read.Lead',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'id' => $lead2->getId(),
                     ],
                 ],
@@ -1090,9 +1131,9 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Read.Opportunity',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'id' => $opportunity1->getId(),
                     ],
                 ],
@@ -1114,9 +1155,9 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Read.Meeting',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'id' => 'any',
                     ],
                 ],
@@ -1140,9 +1181,9 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Read.Call',
-                    'arguments' => (object)[
+                    'arguments' => (object) [
                         'id' => $call1->getId(),
                     ],
                 ],
@@ -1172,8 +1213,8 @@ class EndpointTest extends BaseTestCase
                 id: 1,
                 params: (object) [
                     'name' => 'Create.Lead',
-                    'arguments' => (object)[
-                        'record' => (object)[
+                    'arguments' => (object) [
+                        'record' => (object) [
                             'firstName' => 'Hello',
                             'lastName' => 'A 1',
                             'emailAddress' => 'hello@a1.test',
@@ -1223,15 +1264,15 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Create.Lead',
-                    'arguments' => (object)[
-                        'record' => (object)[
+                    'arguments' => (object) [
+                        'record' => (object) [
                             'emailAddress' => 'hello@a1.test',
                         ],
                     ],
-                    'inputResponses' => (object)[
-                        'confirmDuplicate' => (object)[
+                    'inputResponses' => (object) [
+                        'confirmDuplicate' => (object) [
                             'action' => 'accept',
                         ],
                     ],
@@ -1250,10 +1291,10 @@ class EndpointTest extends BaseTestCase
                 method: Method::TOOLS_CALL,
                 slug: 'test',
                 id: 1,
-                params: (object)[
+                params: (object) [
                     'name' => 'Create.Lead',
-                    'arguments' => (object)[
-                        'record' => (object)[
+                    'arguments' => (object) [
+                        'record' => (object) [
                             'phoneNumber' => '000',
                         ],
                     ],
@@ -1362,6 +1403,42 @@ class EndpointTest extends BaseTestCase
         $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
     }
 
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function processTestUpdate(PostEntry $apiAction, Endpoint $endpoint, Team $team): void
+    {
+        // Call Update.Lead.
+
+        $lead = $this->getLead('Test 1');
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Update.Lead',
+                    'arguments' => (object) [
+                        'id' => $lead->getId(),
+                        'record' => (object) [
+                            'emailAddress' => 'hello-changed@a1.test',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        $lead = $this->getLead('Test 1');
+        $this->assertEquals('hello-changed@a1.test', $lead->getEmailAddress());
+
+        $this->processValidateJsonSchema($endpoint, 'Update.Lead', $body->result->structuredContent);
+    }
+
     private function createEndpoint(User $apiUser): Endpoint
     {
         $em = $this->getEntityManager();
@@ -1394,6 +1471,7 @@ class EndpointTest extends BaseTestCase
                 Lead::ENTITY_TYPE => [
                     Table::ACTION_CREATE => Table::LEVEL_YES,
                     Table::ACTION_READ => Table::LEVEL_TEAM,
+                    Table::ACTION_EDIT => Table::LEVEL_TEAM,
                 ],
                 Opportunity::ENTITY_TYPE => [
                     Table::ACTION_CREATE => Table::LEVEL_YES,
@@ -1406,6 +1484,7 @@ class EndpointTest extends BaseTestCase
                 Meeting::ENTITY_TYPE => [
                     Table::ACTION_CREATE => Table::LEVEL_NO,
                     Table::ACTION_READ => Table::LEVEL_NO,
+                    Table::ACTION_EDIT => Table::LEVEL_NO,
                 ],
                 Call::ENTITY_TYPE => [
                     Table::ACTION_CREATE => Table::LEVEL_YES,

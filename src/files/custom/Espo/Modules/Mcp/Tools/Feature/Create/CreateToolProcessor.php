@@ -10,6 +10,7 @@ use Espo\Core\Record\CreateParams;
 use Espo\Core\Record\ServiceFactory;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\Update\UpdateToolProcessor;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ResourceLinkPreparator;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
@@ -27,7 +28,7 @@ use stdClass;
  */
 class CreateToolProcessor implements ToolProcessor
 {
-    private const string KEY_CONFIRM_DUPLICATE = 'confirmDuplicate';
+    private const string KEY_CONFIRM_DUPLICATE = UpdateToolProcessor::KEY_CONFIRM_DUPLICATE;
 
     public function __construct(
         private ServiceFactory $serviceFactory,
