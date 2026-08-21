@@ -32,6 +32,7 @@ use Espo\Modules\Crm\Entities\Task;
 use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\Create\CreateData;
+use Espo\Modules\Mcp\Tools\Feature\Delete\DeleteData;
 use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
 use Espo\Modules\Mcp\Tools\Feature\Read\ReadData;
 use Espo\Modules\Mcp\Tools\Feature\Update\UpdateData;
@@ -117,7 +118,11 @@ class EndpointTest extends BaseTestCase
         $this->processTestUpdate(
             apiAction: $apiAction,
             endpoint: $endpoint,
-            team: $team,
+        );
+
+        $this->processTestDelete(
+            apiAction: $apiAction,
+            endpoint: $endpoint,
         );
     }
 
@@ -580,6 +585,44 @@ class EndpointTest extends BaseTestCase
                             new FindData\Field('description'),
                             new FindData\Field('teams'),
                         ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(UpdateData::TYPE)
+                ->setData(
+                    new CreateData(
+                        entityType: Meeting::ENTITY_TYPE,
+                        writeFields: [
+                            new FindData\Field('name'),
+                            new FindData\Field('dateStart'),
+                            new FindData\Field('description'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(DeleteData::TYPE)
+                ->setData(
+                    new DeleteData(
+                        entityType: Lead::ENTITY_TYPE,
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(DeleteData::TYPE)
+                ->setData(
+                    new DeleteData(
+                        entityType: Meeting::ENTITY_TYPE,
                     )
                 )
                 ->setEndpoint($endpoint)
@@ -1406,7 +1449,7 @@ class EndpointTest extends BaseTestCase
     /**
      * @noinspection PhpUnhandledExceptionInspection
      */
-    private function processTestUpdate(PostEntry $apiAction, Endpoint $endpoint, Team $team): void
+    private function processTestUpdate(PostEntry $apiAction, Endpoint $endpoint): void
     {
         // Call Update.Lead.
 
@@ -1437,6 +1480,36 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('hello-changed@a1.test', $lead->getEmailAddress());
 
         $this->processValidateJsonSchema($endpoint, 'Update.Lead', $body->result->structuredContent);
+    }
+
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function processTestDelete(PostEntry $apiAction, Endpoint $endpoint): void
+    {
+        // Call Update.Lead.
+
+        $lead = $this->getLead('Test 1');
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => 'Delete.Lead',
+                    'arguments' => (object) [
+                        'id' => $lead->getId(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        $this->processValidateJsonSchema($endpoint, 'Delete.Lead', $body->result->structuredContent);
     }
 
     private function createEndpoint(User $apiUser): Endpoint
@@ -1472,6 +1545,7 @@ class EndpointTest extends BaseTestCase
                     Table::ACTION_CREATE => Table::LEVEL_YES,
                     Table::ACTION_READ => Table::LEVEL_TEAM,
                     Table::ACTION_EDIT => Table::LEVEL_TEAM,
+                    Table::ACTION_DELETE => Table::LEVEL_TEAM,
                 ],
                 Opportunity::ENTITY_TYPE => [
                     Table::ACTION_CREATE => Table::LEVEL_YES,
@@ -1485,6 +1559,7 @@ class EndpointTest extends BaseTestCase
                     Table::ACTION_CREATE => Table::LEVEL_NO,
                     Table::ACTION_READ => Table::LEVEL_NO,
                     Table::ACTION_EDIT => Table::LEVEL_NO,
+                    Table::ACTION_DELETE => Table::LEVEL_NO,
                 ],
                 Call::ENTITY_TYPE => [
                     Table::ACTION_CREATE => Table::LEVEL_YES,
@@ -1492,7 +1567,7 @@ class EndpointTest extends BaseTestCase
                 ],
                 User::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_TEAM,
-                ]
+                ],
             ],
             Role::FIELD_FIELD_DATA => [
                 Lead::ENTITY_TYPE => [
