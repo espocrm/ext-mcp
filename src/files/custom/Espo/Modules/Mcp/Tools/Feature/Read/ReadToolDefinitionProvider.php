@@ -19,6 +19,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\ToolAnnotations;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params as FieldSchemaProviderParams;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProviderFactory as FieldSchemaProviderFactory;
@@ -53,6 +54,11 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
             inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),
+            annotations: new ToolAnnotations(
+                readOnlyHint: true,
+                destructiveHint: false,
+                openWorldHint: false,
+            ),
         );
     }
 

@@ -384,5 +384,43 @@
                 }
             ]
         }
+    },
+    "Delete": {
+        "tool": {
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteToolProcessor"
+        },
+        "record": {
+            "client": {
+                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-delete",
+                "dynamicLogic": {
+                    "fields": {}
+                }
+            },
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteDataValidator",
+            "fields": {
+                "entityType": {
+                    "type": "enum",
+                    "required": true,
+                    "view": "modules/mcp/views/feature-record/fields/entity-type"
+                }
+            },
+            "defaults": {},
+            "layout": [
+                {
+                    "rows": [
+                        [
+                            {
+                                "name": "entityType",
+                                "labelTranslation": "McpFeature.dataFields.entityType"
+                            },
+                            false
+                        ]
+                    ]
+                }
+            ]
+        }
     }
 }

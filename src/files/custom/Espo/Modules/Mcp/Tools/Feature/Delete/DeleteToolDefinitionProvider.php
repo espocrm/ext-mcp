@@ -1,7 +1,7 @@
 <?php
 /**LICENSE**/
 
-namespace Espo\Modules\Mcp\Tools\Feature\Update;
+namespace Espo\Modules\Mcp\Tools\Feature\Delete;
 
 use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
@@ -21,100 +21,51 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\ToolAnnotations;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params as FieldSchemaProviderParams;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProviderFactory as FieldSchemaProviderFactory;
-use Espo\ORM\Defs;
-use Espo\ORM\Defs\Params\FieldParam;
 use Espo\ORM\Name\Attribute;
 
 /**
- * @implements ToolDefinitionProvider<UpdateData>
+ * @implements ToolDefinitionProvider<DeleteData>
  */
-class UpdateToolDefinitionProvider implements ToolDefinitionProvider
+class DeleteToolDefinitionProvider implements ToolDefinitionProvider
 {
-    private const string DESCRIPTION = "Updates '{scopeName}' record. Entity type: `{entityType}`.";
+    private const string DESCRIPTION = "Deletes '{scopeName}' record. Entity type: `{entityType}`.";
 
     public function __construct(
         private Language $defaultLanguage,
         private FieldSchemaProviderFactory $fieldSchemaProviderFactory,
         private Acl $acl,
-        private Defs $ormDefs,
     ) {}
 
     public function get(Data $data): Tool
     {
-        if (!$this->acl->tryCheck($data->entityType, Acl\Table::ACTION_EDIT)) {
-            throw new NoUserAccess("No 'edit' access to '$data->entityType'.");
+        if (!$this->acl->tryCheck($data->entityType, Acl\Table::ACTION_DELETE)) {
+            throw new NoUserAccess("No 'delete' access to '$data->entityType'.");
         }
 
         return new Tool(
-            name: 'Update.' . $data->entityType,
-            inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
+            name: 'Delete.' . $data->entityType,
+            inputSchema: new RootObjectSchema($this->prepareInputSchema()),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),
             annotations: new ToolAnnotations(
                 readOnlyHint: false,
                 destructiveHint: true,
-                idempotentHint: true,
                 openWorldHint: false,
             ),
         );
     }
 
-    /**
-     * @throws UnsupportedFeatureValue
-     */
-    private function prepareInputSchema(UpdateData $data): ObjectType
+    private function prepareInputSchema(): ObjectType
     {
-        $properties = [];
-        $suppress = [];
-
-        $writeFields = array_map(fn ($it) => $it->name, $data->writeFields);
-
-        $entityDefs = $this->ormDefs->getEntity($data->entityType);
-
-        foreach ($writeFields as $field) {
-            if (
-                !$this->acl->checkField($data->entityType, $field, Acl\Table::ACTION_EDIT) ||
-                in_array($field, $suppress)
-            ) {
-                continue;
-            }
-
-            if (
-                $entityDefs->tryGetField($field)?->getParam(FieldParam::READ_ONLY) ||
-                $entityDefs->tryGetField($field)?->getParam(FieldParam::READ_ONLY_AFTER_CREATE)
-            ) {
-                continue;
-            }
-
-            $provider = $this->fieldSchemaProviderFactory->create($data->entityType, $field);
-
-            $params = new FieldSchemaProviderParams(
-                entityType: $data->entityType,
-                field: $field,
-                action: Action::Update,
-            );
-
-            $result = $provider->get($params);
-
-            $properties = array_merge($properties, $result->properties);
-            $suppress = array_merge($suppress, $result->suppress);
-        }
+        $properties = [
+            'id' => new StringType(
+                description: "Record ID.",
+            ),
+        ];
 
         return new ObjectType(
-            properties: [
-                'id' => new StringType(
-                    description: 'Record ID.',
-                ),
-                'record' => new ObjectType(
-                    properties: $properties,
-                    additionalProperties: false,
-                    description: "Record values.",
-                ),
-            ],
-            required: [
-                'id',
-                'record',
-            ],
+            properties: $properties,
+            required: ['id'],
             additionalProperties: false,
         );
     }
@@ -122,7 +73,7 @@ class UpdateToolDefinitionProvider implements ToolDefinitionProvider
     /**
      * @throws UnsupportedFeatureValue
      */
-    private function prepareOutputSchema(UpdateData $data): Schema
+    private function prepareOutputSchema(DeleteData $data): Schema
     {
         $properties = [];
         $suppress = [];
@@ -155,7 +106,7 @@ class UpdateToolDefinitionProvider implements ToolDefinitionProvider
             properties: [
                 'record' => new ObjectType(
                     properties: $properties,
-                    description: "Updated record. To fetch other fields, use the `Read.$data->entityType` tool.",
+                    description: "Deleted record.",
                 ),
                 'error' => new ObjectType(
                     properties: [
@@ -170,7 +121,7 @@ class UpdateToolDefinitionProvider implements ToolDefinitionProvider
                                 ),
                                 new ConstSchema(
                                     value: 403,
-                                    description: "No 'edit' access to the record. Or other access error.",
+                                    description: "No 'delete' access to the record. Or other access error.",
                                 ),
                                 new ConstSchema(
                                     value: 404,
@@ -189,7 +140,7 @@ class UpdateToolDefinitionProvider implements ToolDefinitionProvider
         );
     }
 
-    private function getDescription(UpdateData $data): string
+    private function getDescription(DeleteData $data): string
     {
         return strtr(self::DESCRIPTION, [
             'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),

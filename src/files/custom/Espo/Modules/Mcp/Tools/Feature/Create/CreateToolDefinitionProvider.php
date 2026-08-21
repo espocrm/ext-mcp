@@ -18,6 +18,7 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\ToolAnnotations;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params as FieldSchemaProviderParams;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProviderFactory as FieldSchemaProviderFactory;
@@ -53,6 +54,11 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
             inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),
+            annotations: new ToolAnnotations(
+                readOnlyHint: false,
+                destructiveHint: false,
+                openWorldHint: false,
+            ),
         );
     }
 
@@ -157,7 +163,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
             properties: [
                 'record' => new ObjectType(
                     properties: $properties,
-                    description: "Record. To fetch other fields, use the `Read.$data->entityType` tool.",
+                    description: "Created record. To fetch other fields, use the `Read.$data->entityType` tool.",
                 ),
                 'error' => new ObjectType(
                     properties: [
