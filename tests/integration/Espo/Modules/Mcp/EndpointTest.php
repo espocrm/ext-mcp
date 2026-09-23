@@ -722,12 +722,12 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $findLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Find.Lead');
+        $findLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === self::composeToolName('Find', 'Lead'));
         $this->assertNotNull($findLeadToolIndex);
         $findLeadTool = $tools[$findLeadToolIndex] ?? null;
         $this->assertNotNull($findLeadTool);
 
-        $this->assertEquals('Find.Lead', $findLeadTool->name);
+        $this->assertEquals(self::composeToolName('Find', 'Lead'), $findLeadTool->name);
         $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $findLeadTool->inputSchema->{'$schema'});
         $this->assertEquals('https://json-schema.org/draft/2020-12/schema', $findLeadTool->outputSchema->{'$schema'});
 
@@ -761,7 +761,7 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $readLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Read.Lead');
+        $readLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === self::composeToolName('Read', 'Lead'));
         $this->assertNotNull($readLeadToolIndex);
         $readLeadTool = $tools[$readLeadToolIndex] ?? null;
         $this->assertNotNull($readLeadTool);
@@ -771,7 +771,7 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $createLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Create.Lead');
+        $createLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === self::composeToolName('Create', 'Lead'));
         $this->assertNotNull($createLeadToolIndex);
         $createLeadTool = $tools[$createLeadToolIndex] ?? null;
         $this->assertNotNull($createLeadTool);
@@ -782,12 +782,12 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $createMeetingToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Create.Meeting');
+        $createMeetingToolIndex = array_find_key($tools, fn ($it) => $it->name === self::composeToolName('Create', 'Meeting'));
         $this->assertNull($createMeetingToolIndex);
 
         //
 
-        $createCallToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Create.Call');
+        $createCallToolIndex = array_find_key($tools, fn ($it) => $it->name === self::composeToolName('Create', 'Call'));
         $this->assertNotNull($createCallToolIndex);
         $createCallTool = $tools[$createCallToolIndex] ?? null;
         $this->assertNotNull($createCallTool);
@@ -798,7 +798,7 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $updateLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Update.Lead');
+        $updateLeadToolIndex = array_find_key($tools, fn ($it) => $it->name === self::composeToolName('Update', 'Lead'));
         $this->assertNotNull($updateLeadToolIndex);
         $updateLeadTool = $tools[$updateLeadToolIndex] ?? null;
         $this->assertNotNull($updateLeadTool);
@@ -807,7 +807,7 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        $updateMeetingToolIndex = array_find_key($tools, fn ($it) => $it->name === 'Update.Meeting');
+        $updateMeetingToolIndex = array_find_key($tools, fn ($it) => $it->name === self::composeToolName('Update', 'Meeting'));
         $this->assertNull($updateMeetingToolIndex);
     }
 
@@ -824,7 +824,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Find.Lead',
+                    'name' => self::composeToolName('Find', 'Lead'),
                     'arguments' => (object) [
                         'primaryFilter' => 'actual',
                         'selectFields' => [
@@ -853,7 +853,7 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals([$team->getId()], $body->result->structuredContent->records[0]->teamsIds);
 
         $this->createJsonSchemaValidator()->assert(
-            $this->getToolEnvelope($endpoint, 'Find.Lead')->tool->outputSchema,
+            $this->getToolEnvelope($endpoint, self::composeToolName('Find', 'Lead'))->tool->outputSchema,
             $body->result->structuredContent
         );
 
@@ -865,7 +865,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Find.Lead',
+                    'name' => self::composeToolName('Find', 'Lead'),
                     'arguments' => (object) [
                         'textFilter' => 'Test*',
                         'offset' => 0,
@@ -917,7 +917,7 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals(1, $body->result->structuredContent->total);
         $this->assertEquals(Lead::STATUS_CONVERTED, $body->result->structuredContent->records[0]->status);
 
-        $this->processValidateJsonSchema($endpoint, 'Find.Lead', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Find', 'Lead'), $body->result->structuredContent);
 
         // Call `Find.Task`. Offset, order.
 
@@ -927,7 +927,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Find.Task',
+                    'name' => self::composeToolName('Find', 'Task'),
                     'arguments' => (object) [
                         'textFilter' => 'Test*',
                         'offset' => 1,
@@ -947,7 +947,7 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('Test 2', $body->result->structuredContent->records[0]->name);
         $this->assertEquals('Test 1', $body->result->structuredContent->records[1]->name);
 
-        $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Find', 'Task'), $body->result->structuredContent);
 
         //
 
@@ -965,7 +965,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Find.Task',
+                    'name' => self::composeToolName('Find', 'Task'),
                     'arguments' => (object) [
                         'orderBy' => 'name',
                         'order' => 'desc',
@@ -997,7 +997,7 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('complete', $body->result?->resultType);
         $this->assertEquals(1, $body->result->structuredContent->total);
 
-        $this->processValidateJsonSchema($endpoint, 'Find.Task', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Find', 'Task'), $body->result->structuredContent);
 
         // Call `Find.Opportunity`. Where.
 
@@ -1007,7 +1007,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Find.Opportunity',
+                    'name' => self::composeToolName('Find', 'Opportunity'),
                     'arguments' => (object) [
                         'orderBy' => 'name',
                         'where' => [
@@ -1027,7 +1027,7 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('complete', $body->result?->resultType);
         $this->assertEquals(2, $body->result->structuredContent->total);
 
-        $this->processValidateJsonSchema($endpoint, 'Find.Opportunity', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Find', 'Opportunity'), $body->result->structuredContent);
 
         //
 
@@ -1037,7 +1037,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Find.Lead',
+                    'name' => self::composeToolName('Find', 'Lead'),
                     'arguments' => (object) [
                         'primaryFilter' => 'actual',
                         'selectFields' => [
@@ -1091,7 +1091,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Read.Lead',
+                    'name' => self::composeToolName('Read', 'Lead'),
                     'arguments' => (object) [
                         'id' => $lead1->getId(),
                     ],
@@ -1111,7 +1111,7 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('resource_link', $body->result->content[0]->type);
         $this->assertEquals("http://localhost#Lead/view/{$lead1->getId()}", $body->result->content[0]->uri);
 
-        $this->processValidateJsonSchema($endpoint, 'Read.Lead', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Read', 'Lead'), $body->result->structuredContent);
 
         // Call Read.Lead. Select fields.
 
@@ -1121,7 +1121,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Read.Lead',
+                    'name' => self::composeToolName('Read', 'Lead'),
                     'arguments' => (object) [
                         'id' => $lead1->getId(),
                         'selectFields' => [
@@ -1147,7 +1147,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Read.Lead',
+                    'name' => self::composeToolName('Read', 'Lead'),
                     'arguments' => (object) [
                         'id' => $lead2->getId(),
                     ],
@@ -1175,7 +1175,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Read.Opportunity',
+                    'name' => self::composeToolName('Read', 'Opportunity'),
                     'arguments' => (object) [
                         'id' => $opportunity1->getId(),
                     ],
@@ -1189,7 +1189,7 @@ class EndpointTest extends BaseTestCase
 
         $this->assertEquals([$team->getId()], $body->result->structuredContent->record->teamsIds);
         $this->assertEquals($team->getName(), $body->result->structuredContent->record->teamsNames->{$team->getId()});
-        $this->processValidateJsonSchema($endpoint, 'Read.Opportunity', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Read', 'Opportunity'), $body->result->structuredContent);
 
         // Call Read.Meeting. No tool because no access.
 
@@ -1199,7 +1199,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Read.Meeting',
+                    'name' => self::composeToolName('Read', 'Meeting'),
                     'arguments' => (object) [
                         'id' => 'any',
                     ],
@@ -1225,7 +1225,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Read.Call',
+                    'name' => self::composeToolName('Read', 'Call'),
                     'arguments' => (object) [
                         'id' => $call1->getId(),
                     ],
@@ -1239,7 +1239,7 @@ class EndpointTest extends BaseTestCase
 
         $this->assertEquals(1800, $body->result->structuredContent->record->duration);
 
-        $this->processValidateJsonSchema($endpoint, 'Read.Call', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Read', 'Call'), $body->result->structuredContent);
     }
 
     /**
@@ -1255,7 +1255,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Create.Lead',
+                    'name' => self::composeToolName('Create', 'Lead'),
                     'arguments' => (object) [
                         'record' => (object) [
                             'firstName' => 'Hello',
@@ -1273,7 +1273,7 @@ class EndpointTest extends BaseTestCase
 
         $this->assertIsString($body->result->structuredContent->record?->id);
 
-        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Create', 'Lead'), $body->result->structuredContent);
 
         // Call Create.Lead. Duplicate detection.
 
@@ -1283,7 +1283,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Create.Lead',
+                    'name' => self::composeToolName('Create', 'Lead'),
                     'arguments' => (object) [
                         'record' => (object) [
                             'emailAddress' => 'hello@a1.test',
@@ -1308,7 +1308,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Create.Lead',
+                    'name' => self::composeToolName('Create', 'Lead'),
                     'arguments' => (object) [
                         'record' => (object) [
                             'emailAddress' => 'hello@a1.test',
@@ -1335,7 +1335,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Create.Lead',
+                    'name' => self::composeToolName('Create', 'Lead'),
                     'arguments' => (object) [
                         'record' => (object) [
                             'phoneNumber' => '000',
@@ -1366,7 +1366,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Create.Opportunity',
+                    'name' => self::composeToolName('Create', 'Opportunity'),
                     'arguments' => (object) [
                         'record' => (object) [
                             'name' => 'Test',
@@ -1384,7 +1384,7 @@ class EndpointTest extends BaseTestCase
 
         $this->assertObjectHasProperty('structuredContent', $body->result);
 
-        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Create', 'Lead'), $body->result->structuredContent);
 
         // Call Create.Task.
 
@@ -1394,7 +1394,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Create.Task',
+                    'name' => self::composeToolName('Create', 'Task'),
                     'arguments' => (object) [
                         'record' => (object) [
                             'name' => 'Test',
@@ -1410,7 +1410,7 @@ class EndpointTest extends BaseTestCase
 
         $this->assertObjectHasProperty('structuredContent', $body->result);
 
-        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Create', 'Lead'), $body->result->structuredContent);
 
         // Call Create.Call.
 
@@ -1422,7 +1422,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Create.Call',
+                    'name' => self::composeToolName('Create', 'Call'),
                     'arguments' => (object) [
                         'record' => (object) [
                             'name' => 'Test',
@@ -1443,7 +1443,7 @@ class EndpointTest extends BaseTestCase
 
         $this->assertObjectHasProperty('structuredContent', $body->result);
 
-        $this->processValidateJsonSchema($endpoint, 'Create.Lead', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Create', 'Lead'), $body->result->structuredContent);
     }
 
     /**
@@ -1461,7 +1461,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Update.Lead',
+                    'name' => self::composeToolName('Update', 'Lead'),
                     'arguments' => (object) [
                         'id' => $lead->getId(),
                         'record' => (object) [
@@ -1479,7 +1479,7 @@ class EndpointTest extends BaseTestCase
         $lead = $this->getLead('Test 1');
         $this->assertEquals('hello-changed@a1.test', $lead->getEmailAddress());
 
-        $this->processValidateJsonSchema($endpoint, 'Update.Lead', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Update', 'Lead'), $body->result->structuredContent);
     }
 
     /**
@@ -1497,7 +1497,7 @@ class EndpointTest extends BaseTestCase
                 slug: 'test',
                 id: 1,
                 params: (object) [
-                    'name' => 'Delete.Lead',
+                    'name' => self::composeToolName('Delete', 'Lead'),
                     'arguments' => (object) [
                         'id' => $lead->getId(),
                     ],
@@ -1509,7 +1509,7 @@ class EndpointTest extends BaseTestCase
 
         $this->assertObjectHasProperty('structuredContent', $body->result);
 
-        $this->processValidateJsonSchema($endpoint, 'Delete.Lead', $body->result->structuredContent);
+        $this->processValidateJsonSchema($endpoint, self::composeToolName('Delete', 'Lead'), $body->result->structuredContent);
 
         $lead = $this->getLead('Test 1');
         $this->assertNull($lead);
@@ -1617,5 +1617,10 @@ class EndpointTest extends BaseTestCase
         $em->saveEntity($testUser);
 
         return $testUser;
+    }
+
+    private static function composeToolName(string $type, string $entityType): string
+    {
+        return $type . '_' . $entityType;
     }
 }

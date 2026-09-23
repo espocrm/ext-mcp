@@ -50,7 +50,7 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
         }
 
         return new Tool(
-            name: 'Read.' . $data->entityType,
+            name: 'Read_' . $data->entityType,
             inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),

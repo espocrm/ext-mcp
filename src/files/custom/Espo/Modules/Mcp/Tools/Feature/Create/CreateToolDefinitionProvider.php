@@ -50,7 +50,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
         }
 
         return new Tool(
-            name: 'Create.' . $data->entityType,
+            name: 'Create_' . $data->entityType,
             inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),

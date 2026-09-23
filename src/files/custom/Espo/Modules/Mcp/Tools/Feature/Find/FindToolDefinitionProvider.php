@@ -87,7 +87,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         }
 
         return new Tool(
-            name: 'Find.' . $data->entityType,
+            name: 'Find_' . $data->entityType,
             inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),

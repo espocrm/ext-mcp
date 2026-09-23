@@ -46,7 +46,7 @@ class UpdateToolDefinitionProvider implements ToolDefinitionProvider
         }
 
         return new Tool(
-            name: 'Update.' . $data->entityType,
+            name: 'Update_' . $data->entityType,
             inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),

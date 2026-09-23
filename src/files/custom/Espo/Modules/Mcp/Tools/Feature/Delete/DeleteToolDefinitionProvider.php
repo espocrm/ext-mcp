@@ -43,7 +43,7 @@ class DeleteToolDefinitionProvider implements ToolDefinitionProvider
         }
 
         return new Tool(
-            name: 'Delete.' . $data->entityType,
+            name: 'Delete_' . $data->entityType,
             inputSchema: new RootObjectSchema($this->prepareInputSchema()),
             outputSchema: new RootSchema($this->prepareOutputSchema($data)),
             description: $this->getDescription($data),

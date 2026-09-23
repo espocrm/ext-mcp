@@ -21,7 +21,7 @@ class ToolProcessorFactory
      */
     public function create(string $name): ToolProcessor
     {
-        $feature = explode('.', $name)[0];
+        $feature = explode('_', $name)[0];
 
         /** @var ?class-string<ToolProcessor> $className */
         $className = $this->metadata->get("app.mcpFeatures.$feature.tool.processorClassName");
