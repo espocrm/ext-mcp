@@ -143,8 +143,8 @@ class DeleteToolDefinitionProvider implements ToolDefinitionProvider
     private function getDescription(DeleteData $data): string
     {
         return strtr(self::DESCRIPTION, [
-            'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
-            'entityType' => $data->entityType,
+            '{scopeName}' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
+            '{entityType}' => $data->entityType,
         ]);
     }
 }

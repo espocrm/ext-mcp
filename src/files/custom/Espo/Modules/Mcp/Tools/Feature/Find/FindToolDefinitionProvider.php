@@ -307,8 +307,8 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     private function getDescription(FindData $data): string
     {
         return strtr(self::DESCRIPTION, [
-            'scopeName' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
-            'entityType' => $data->entityType,
+            '{scopeName}' => $this->defaultLanguage->translateLabel($data->entityType, 'scopeNames'),
+            '{entityType}' => $data->entityType,
         ]);
     }
 
