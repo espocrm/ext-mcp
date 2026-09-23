@@ -115,15 +115,12 @@ class TypesTest extends TestCase
         $this->assertEquals(
             expected: new Result(
                 properties: [
-                    'test' => new UnionTypeSchema(
-                        schemas: [
-                            new NumberType(
-                                minimum: 0,
-                                title: 'Field',
-                                description: "Amount. Currency code is set in the `testCurrency` field.",
-                            ),
-                            new NullType(),
-                        ],
+                    'test' => Util::wrapWithNull(
+                        new NumberType(
+                            minimum: 0,
+                            title: 'Field',
+                            description: "Amount. Currency code is set in the `testCurrency` field.",
+                        )
                     ),
                     'testCurrency' => new EnumSchema(
                         values: ['EUR', 'USD', null],
@@ -265,16 +262,13 @@ class TypesTest extends TestCase
                         title: 'Field',
                         description: "If set, must be later than the `testAnother` field.",
                     ),
-                    'testDate' => new UnionTypeSchema(
-                        schemas: [
-                            new StringType(
-                                format: StringFormat::date,
-                                title: 'Field (Date)',
-                                description: "Is set only when `test` represents all-day (the time part is omitted). " .
-                                    "Should be `null` otherwise.",
-                            ),
-                            new NullType(),
-                        ],
+                    'testDate' => Util::wrapWithNull(
+                        new StringType(
+                            format: StringFormat::date,
+                            title: 'Field (Date)',
+                            description: "Is set only when `test` represents all-day (the time part is omitted). " .
+                                "Should be `null` otherwise.",
+                        )
                     ),
                 ],
                 required: ['test'],
@@ -411,14 +405,11 @@ class TypesTest extends TestCase
         $this->assertEquals(
             expected: new Result(
                 properties: [
-                    'testConverted' => new UnionTypeSchema(
-                        schemas: [
-                            new NumberType(
-                                title: 'Field Converted',
-                                description: "Amount of `test` field converted to EUR currency.",
-                            ),
-                            new NullType(),
-                        ]
+                    'testConverted' => Util::wrapWithNull(
+                        new NumberType(
+                            title: 'Field Converted',
+                            description: "Amount of `test` field converted to EUR currency.",
+                        )
                     ),
                 ],
             ),
@@ -1131,16 +1122,13 @@ class TypesTest extends TestCase
                             "Field name: `parent`. " .
                             "Specifies the foreign entity type.",
                     ),
-                    'parentName' => new UnionTypeSchema(
-                        schemas: [
-                            new StringType(
-                                title: 'Parent (Name)',
-                                description:
-                                    "A Name attribute of 'Parent' link-parent field. Field name: `parent`. " .
-                                    "Contains the related record name.",
-                            ),
-                            new NullType(),
-                        ]
+                    'parentName' => Util::wrapWithNull(
+                        new StringType(
+                            title: 'Parent (Name)',
+                            description:
+                            "A Name attribute of 'Parent' link-parent field. Field name: `parent`. " .
+                            "Contains the related record name.",
+                        )
                     )
                 ],
                 required: [
@@ -1291,17 +1279,12 @@ class TypesTest extends TestCase
                             "Specifies the 'A Label' record ID. Foreign type: `A`. " .
                             "Tool to retrieve IDs: `Find.A`."
                     ),
-                    'fieldName' => new UnionTypeSchema(
-                        schemas: [
-                            new StringType(
-                                title: "Field (Name)",
-                                description:
-                                    "A Name attribute of 'Field' link field. Field name: `field`. " .
-                                    "Contains the related record name.",
-                            ),
-                            new NullType(),
-                        ]
-                    )
+                    'fieldName' => Util::wrapWithNull(new StringType(
+                        title: "Field (Name)",
+                        description:
+                        "A Name attribute of 'Field' link field. Field name: `field`. " .
+                        "Contains the related record name.",
+                    )),
                 ],
                 required: [
                     'fieldId',
