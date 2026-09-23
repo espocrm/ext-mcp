@@ -3,5 +3,15 @@
     "mergeDisabled": true,
     "filterList": [
         "active"
-    ]
+    ],
+    "menu": {
+        "list": {
+            "dropdown": [
+                {
+                    "link": "#McpEndpoint",
+                    "labelTranslation": "Global.scopeNamesPlural.McpEndpoint"
+                }
+            ]
+        }
+    }
 }
