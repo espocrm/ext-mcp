@@ -1508,6 +1508,48 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('hello-changed@a1.test', $lead->getEmailAddress());
 
         $this->processValidateJsonSchema($endpoint, self::composeToolName('Update', 'Lead'), $body->result->structuredContent);
+
+        //
+
+        // Call Update.Lead. Duplicate detection.
+
+        $lead1 = $this->getEntityManager()->getRDBRepositoryByClass(Lead::class)->getNew();
+        $lead1
+            ->setTeams($lead->getTeams());
+        $this->getEntityManager()->saveEntity($lead1);
+
+        $lead3 = $this->getEntityManager()->getRDBRepositoryByClass(Lead::class)->getNew();
+        $lead3
+            ->setEmailAddressGroup(
+                EmailAddressGroup::create()->withAdded(EmailAddress::create('test@duplicate.com'))
+            )
+            ->setTeams($lead->getTeams());
+        $this->getEntityManager()->saveEntity($lead3);
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => self::composeToolName('Update', 'Lead'),
+                    'arguments' => (object) [
+                        'id' => $lead1->getId(),
+                        'record' => (object) [
+                            'emailAddress' => 'test@duplicate.com',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectNotHasProperty('structuredContent', $body->result);
+
+        $this->assertEquals('input_required', $body->result->resultType);
+        $this->assertEquals('elicitation/create', $body->result->inputRequests->confirmDuplicate->method);
+        $this->assertCount(1, $body->result->content);
     }
 
     /**
@@ -1621,6 +1663,16 @@ class EndpointTest extends BaseTestCase
         ]);
 
         $configWriter->save();
+
+        //
+
+        $metadata = $this->getMetadata();
+
+        $metadata->set('recordDefs', Lead::ENTITY_TYPE, [
+            'updateDuplicateCheck' => true,
+        ]);
+
+        $metadata->save();
     }
 
     private function createTeam(): Team
