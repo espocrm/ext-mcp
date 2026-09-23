@@ -43,6 +43,7 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequestFormParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Value\ResultType;
 use JsonException;
 use stdClass;
 
@@ -70,6 +71,7 @@ class ExceptionUtil
     {
         if ($e instanceof DuplicateConflict) {
             return new CallToolResult(
+                resultType: ResultType::InputRequired,
                 content: $this->prepareDuplicateLinks($e),
                 inputRequests: [
                     UpdateToolProcessor::KEY_CONFIRM_DUPLICATE => new ElicitRequest(

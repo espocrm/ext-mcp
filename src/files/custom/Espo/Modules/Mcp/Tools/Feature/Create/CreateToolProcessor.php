@@ -41,6 +41,7 @@ use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ResourceLinkPreparator;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitAction;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitResult;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
@@ -71,6 +72,18 @@ class CreateToolProcessor implements ToolProcessor
             $service = $this->serviceFactory->createForUser($entityType, $this->user);
         } catch (Exception $e) {
             throw new InternalError("Could not create record service for `$entityType`.", previous: $e);
+        }
+
+        if ($this->isDuplicateElicitationCanceled($params)) {
+            return new CallToolResult(
+                structuredContent: (object) [
+                    'error' => (object) [
+                        'code' => 409,
+                        'message' => "Duplicate record creation is canceled.",
+                    ],
+                ],
+                isError: true,
+            );
         }
 
         $input = $this->fetchInput($params);
@@ -106,7 +119,7 @@ class CreateToolProcessor implements ToolProcessor
             $skipDuplicateCheck = true;
         }
 
-        $confirmDuplicate = $params->inputResponses[self::KEY_CONFIRM_DUPLICATE] ?? null;
+        $confirmDuplicate = $this->getConfirmDuplicateElicitResult($params);
 
         if ($confirmDuplicate && $confirmDuplicate->action === ElicitAction::Accept) {
             $skipDuplicateCheck = true;
@@ -124,5 +137,21 @@ class CreateToolProcessor implements ToolProcessor
         }
 
         return $input;
+    }
+
+    private function getConfirmDuplicateElicitResult(CallToolRequestParams $params): ?ElicitResult
+    {
+        return $params->inputResponses[self::KEY_CONFIRM_DUPLICATE] ?? null;
+    }
+
+    private function isDuplicateElicitationCanceled(CallToolRequestParams $params): bool
+    {
+        $confirmDuplicateElicitResult = $this->getConfirmDuplicateElicitResult($params);
+
+        return $confirmDuplicateElicitResult &&
+            (
+                $confirmDuplicateElicitResult->action === ElicitAction::Cancel ||
+                $confirmDuplicateElicitResult->action === ElicitAction::Decline
+            );
     }
 }

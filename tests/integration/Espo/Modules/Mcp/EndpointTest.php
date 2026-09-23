@@ -1297,6 +1297,7 @@ class EndpointTest extends BaseTestCase
 
         $this->assertObjectNotHasProperty('structuredContent', $body->result);
 
+        $this->assertEquals('input_required', $body->result->resultType);
         $this->assertEquals('elicitation/create', $body->result->inputRequests->confirmDuplicate->method);
         $this->assertCount(1, $body->result->content);
 
@@ -1326,6 +1327,33 @@ class EndpointTest extends BaseTestCase
         $body = Json::decode($response->getBody());
 
         $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        // Call Create.Lead. Duplicate skip canceled.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => self::composeToolName('Create', 'Lead'),
+                    'arguments' => (object) [
+                        'record' => (object) [
+                            'emailAddress' => 'hello@a1.test',
+                        ],
+                    ],
+                    'inputResponses' => (object) [
+                        'confirmDuplicate' => (object) [
+                            'action' => 'cancel',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertTrue($body->result->isError);
 
         // Call Create.Lead. Validation error.
 

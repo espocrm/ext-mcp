@@ -32,4 +32,5 @@ namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Value;
 enum ResultType: string
 {
     case Complete = 'complete';
+    case InputRequired = 'input_required';
 }
