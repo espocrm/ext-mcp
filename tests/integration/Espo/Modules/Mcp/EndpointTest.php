@@ -1511,8 +1511,6 @@ class EndpointTest extends BaseTestCase
 
         //
 
-        // Call Update.Lead. Duplicate detection.
-
         $lead1 = $this->getEntityManager()->getRDBRepositoryByClass(Lead::class)->getNew();
         $lead1
             ->setTeams($lead->getTeams());
@@ -1525,6 +1523,8 @@ class EndpointTest extends BaseTestCase
             )
             ->setTeams($lead->getTeams());
         $this->getEntityManager()->saveEntity($lead3);
+
+        // Call Update.Lead. Duplicate detection.
 
         $response = $apiAction->process(
             $this->createEntryRequest(
@@ -1550,6 +1550,34 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals('input_required', $body->result->resultType);
         $this->assertEquals('elicitation/create', $body->result->inputRequests->confirmDuplicate->method);
         $this->assertCount(1, $body->result->content);
+
+        // Call Update.Lead. Duplicate skip confirmed.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => self::composeToolName('Update', 'Lead'),
+                    'arguments' => (object) [
+                        'id' => $lead1->getId(),
+                        'record' => (object) [
+                            'emailAddress' => 'test@duplicate.com',
+                        ],
+                    ],
+                    'inputResponses' => (object) [
+                        'confirmDuplicate' => (object) [
+                            'action' => 'accept',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
     }
 
     /**
