@@ -40,16 +40,44 @@ use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProviderFactory;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\Tool;
+use Espo\Modules\Mcp\Tools\Mcp\Util\Cache\DataCacheAccess;
 
 class ToolProvider
 {
     private const int NAME_MAX_LENGTH = 128;
 
+    /**
+     * @param DataCacheAccess<ToolEnvelope[]> $dataCacheAccess
+     */
     public function __construct(
         private Endpoint $endpoint,
         private DataFactory $dataFactory,
         private ToolDefinitionProviderFactory $toolSchemaProviderFactory,
-    ) {}
+        private DataCacheAccess $dataCacheAccess,
+        private CacheKeyProvider $cacheKeyProvider,
+    ) {
+        $this->dataCacheAccess->init(
+            key: $this->cacheKeyProvider->get(),
+            loader: function () {
+                $tools = [];
+
+                foreach ($this->endpoint->getFeatures() as $feature) {
+                    $tool = $this->getForFeature($feature);
+
+                    if (!$tool) {
+                        continue;
+                    }
+
+                    $tools[] = new ToolEnvelope(
+                        tool: $tool,
+                        featureId: $feature->getId(),
+                    );
+                }
+
+                return $tools;
+            },
+        );
+    }
 
     /**
      * @throws InternalError
@@ -84,29 +112,12 @@ class ToolProvider
     }
 
     /**
-     * @todo Cache. For user and endpoint.
-     *
      * @return ToolEnvelope[]
      * @throws InternalError
      */
     private function getEnvelopeAll(): array
     {
-        $tools = [];
-
-        foreach ($this->endpoint->getFeatures() as $feature) {
-            $tool = $this->getForFeature($feature);
-
-            if (!$tool) {
-                continue;
-            }
-
-            $tools[] = new ToolEnvelope(
-                tool: $tool,
-                featureId: $feature->getId(),
-            );
-        }
-
-        return $tools;
+        return $this->dataCacheAccess->get();
     }
 
     /**
