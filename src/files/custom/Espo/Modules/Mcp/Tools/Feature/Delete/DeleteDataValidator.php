@@ -31,14 +31,29 @@ namespace Espo\Modules\Mcp\Tools\Feature\Delete;
 
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\DataValidator;
+use Espo\Modules\Mcp\Tools\Feature\Utils\DataValidatorHelper;
+use Espo\Modules\Mcp\Tools\Feature\Validator\Failure;
 
 /**
  * @implements DataValidator<DeleteData>
  */
 class DeleteDataValidator implements DataValidator
 {
+    public function __construct(
+        private DataValidatorHelper $helper,
+    ) {}
+
     public function validate(Data $data): array
     {
-        return [];
+        $list = [];
+
+        if (!$this->helper->isObjectEntityType($data->entityType)) {
+            $list[] = new Failure(
+                field: 'entityType',
+                message: "Only object entity types supported.",
+            );
+        }
+
+        return $list;
     }
 }

@@ -26,21 +26,31 @@
 * these Appropriate Legal Notices must retain the display of the "EspoCRM" word.
 ************************************************************************/
 
-import EntityTypeFieldView from 'views/fields/entity-type';
+import EnumFieldView from 'views/fields/enum';
 
-export default class FeatureRecordEntityTypeFieldView extends EntityTypeFieldView {
+export default class FeatureRecordEntityTypeFieldView extends EnumFieldView {
+
+    protected allowedScopes: string[] = []
 
     setupOptions() {
         super.setupOptions();
 
-        this.params.options = (this.params.options ?? []).filter(scope => {
-            if (scope === '') {
-                return true;
-            }
+        const scopes = this.getMetadata().getScopeEntityList()
 
-            const defs = this.getMetadata().get(`scopes.${scope}`, {}) as Record<string, any>;
+        this.params.options = scopes
+            .filter(scope => {
+                const defs = this.getMetadata().get(`scopes.${scope}`, {}) as Record<string, any>;
 
-            return !!defs.object;
-        });
+                if (!defs.entity || defs.disabled) {
+                    return false;
+                }
+
+                return !!defs.object || this.allowedScopes.includes(scope);
+            })
+            .sort((a, b) => {
+                return this.translate(a, 'scopeNames').localeCompare(this.translate(b, 'scopeNames'));
+            });
+
+        this.params.options.unshift('');
     }
 }

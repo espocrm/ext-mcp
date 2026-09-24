@@ -88,7 +88,7 @@
                 "entityType": {
                     "type": "enum",
                     "required": true,
-                    "view": "modules/mcp/views/feature-record/fields/entity-type"
+                    "view": "modules/mcp/views/feature-record/fields/entity-type-read"
                 },
                 "textFilter": {
                     "type": "bool"
@@ -113,7 +113,11 @@
                 }
             },
             "defaults": {
-                "textFilter": true
+                "textFilter": true,
+                "primaryFilters": [],
+                "boolFilters": [],
+                "selectFields": [],
+                "filterFields": []
             },
             "layout": [
                 {
@@ -204,7 +208,7 @@
                 "entityType": {
                     "type": "enum",
                     "required": true,
-                    "view": "modules/mcp/views/feature-record/fields/entity-type"
+                    "view": "modules/mcp/views/feature-record/fields/entity-type-read"
                 },
                 "selectFields": {
                     "type": "jsonArray",
@@ -213,7 +217,9 @@
                     "tooltip": "McpFeature.findSelectFields"
                 }
             },
-            "defaults": {},
+            "defaults": {
+                "selectFields": []
+            },
             "layout": [
                 {
                     "rows": [

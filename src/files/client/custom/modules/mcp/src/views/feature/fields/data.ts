@@ -117,7 +117,7 @@ export default class FeatureDataFieldView extends BaseFieldView {
             defs: {fields: params.fields ?? {}},
         });
 
-        const values = Espo.Utils.cloneDeep(this.model.attributes.data || {});
+        const values = Utils.cloneDeep(this.model.attributes.data || {});
 
         this.subModel.setMultiple(values);
 

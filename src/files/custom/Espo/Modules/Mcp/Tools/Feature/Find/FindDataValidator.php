@@ -29,16 +29,40 @@
 
 namespace Espo\Modules\Mcp\Tools\Feature\Find;
 
+use Espo\Entities\Team;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\DataValidator;
+use Espo\Modules\Mcp\Tools\Feature\Utils\DataValidatorHelper;
+use Espo\Modules\Mcp\Tools\Feature\Validator\Failure;
 
 /**
  * @implements DataValidator<FindData>
  */
 class FindDataValidator implements DataValidator
 {
+    /** @var string[] */
+    private array $allowedEntityType = [
+        Team::ENTITY_TYPE,
+    ];
+
+    public function __construct(
+        private DataValidatorHelper $helper,
+    ) {}
+
     public function validate(Data $data): array
     {
-        return [];
+        $list = [];
+
+        if (
+            !$this->helper->isObjectEntityType($data->entityType) &&
+            !in_array($data->entityType, $this->allowedEntityType)
+        ) {
+            $list[] = new Failure(
+                field: 'entityType',
+                message: "Only object entity types supported.",
+            );
+        }
+
+        return $list;
     }
 }
