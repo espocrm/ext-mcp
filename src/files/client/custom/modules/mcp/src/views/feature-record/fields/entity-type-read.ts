@@ -5,6 +5,7 @@ import FeatureRecordEntityTypeFieldView from 'modules/mcp/views/feature-record/f
 export default class FeatureRecordEntityTypeReadFieldView extends FeatureRecordEntityTypeFieldView {
 
     protected allowedScopes: string[] = [
-        'Team'
+        'Team',
+        'User',
     ]
 }

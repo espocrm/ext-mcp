@@ -29,6 +29,7 @@
 
 namespace Espo\Modules\Mcp\Tools\Feature\Update;
 
+use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\DataValidator;
 use Espo\Modules\Mcp\Tools\Feature\Utils\DataValidatorHelper;
@@ -47,7 +48,7 @@ class UpdateDataValidator implements DataValidator
     {
         $list = [];
 
-        if (!$this->helper->isObjectEntityType($data->entityType)) {
+        if (!$this->helper->isObjectEntityType($data->entityType) || $data->entityType === User::ENTITY_TYPE) {
             $list[] = new Failure(
                 field: 'entityType',
                 message: "Only object entity types supported.",

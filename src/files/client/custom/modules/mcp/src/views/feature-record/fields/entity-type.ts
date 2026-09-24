@@ -45,7 +45,9 @@ export default class FeatureRecordEntityTypeFieldView extends EnumFieldView {
                     return false;
                 }
 
-                return !!defs.object || this.allowedScopes.includes(scope);
+                const isObject = !!defs.object && scope !== 'User';
+
+                return isObject || this.allowedScopes.includes(scope);
             })
             .sort((a, b) => {
                 return this.translate(a, 'scopeNames').localeCompare(this.translate(b, 'scopeNames'));
