@@ -34,7 +34,11 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Schema;
 readonly class Result
 {
     /**
-     * @todo When reading 'required', use `array_values(array_unique(...))`.
+     * @var string[] Required attributes.
+     */
+    public array $required;
+
+    /**
      * @param array<string, Schema> $properties
      * @param string[] $required Required attributes.
      * @param string[] $suppress Suppress fields. If a field already defined attributes for a field.
@@ -42,7 +46,9 @@ readonly class Result
      */
     public function __construct(
         public array $properties = [],
-        public array $required = [],
+        array $required = [],
         public array $suppress = [],
-    ) {}
+    ) {
+        $this->required = array_values(array_unique($required));
+    }
 }
