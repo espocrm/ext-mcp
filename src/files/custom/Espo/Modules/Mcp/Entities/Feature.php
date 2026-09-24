@@ -48,6 +48,8 @@ class Feature extends Entity
 
     public const string STATUS_ACTIVE = 'Active';
 
+    public const string ATTR_ENDPOINT_ID = 'endpointId';
+
     public function isActive(): bool
     {
         return $this->get(self::FIELD_STATUS) === self::STATUS_ACTIVE;
