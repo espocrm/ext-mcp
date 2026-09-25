@@ -32,7 +32,10 @@ export default class FeatureRecordEntityTypeFieldView extends EnumFieldView {
 
     protected allowedScopes: string[] = []
 
+
     setupOptions() {
+        this.params.translation = 'Global.scopeNames';
+
         super.setupOptions();
 
         const scopes = this.getMetadata().getScopeEntityList()
