@@ -20,6 +20,7 @@ use Espo\Core\Name\Field;
 use Espo\Core\Select\Where\Item\Type;
 use Espo\Core\Utils\Config\ConfigWriter;
 use Espo\Core\Utils\Json;
+use Espo\Entities\Note;
 use Espo\Entities\Role;
 use Espo\Entities\Team;
 use Espo\Entities\User;
@@ -35,6 +36,7 @@ use Espo\Modules\Mcp\Tools\Feature\Create\CreateData;
 use Espo\Modules\Mcp\Tools\Feature\Delete\DeleteData;
 use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
 use Espo\Modules\Mcp\Tools\Feature\Read\ReadData;
+use Espo\Modules\Mcp\Tools\Feature\RecordStream\RecordStreamData;
 use Espo\Modules\Mcp\Tools\Feature\Update\UpdateData;
 use Espo\Modules\Mcp\Tools\Mcp\Api\PostEntry;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
@@ -123,6 +125,12 @@ class EndpointTest extends BaseTestCase
         $this->processTestDelete(
             apiAction: $apiAction,
             endpoint: $endpoint,
+        );
+
+        $this->processTestRecordStream(
+            apiAction: $apiAction,
+            endpoint: $endpoint,
+            user: $testUser,
         );
     }
 
@@ -627,6 +635,22 @@ class EndpointTest extends BaseTestCase
                 )
                 ->setEndpoint($endpoint)
         );
+
+        //
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(RecordStreamData::TYPE)
+                ->setData(
+                    new RecordStreamData(
+                        entityTypes: [
+                            Account::ENTITY_TYPE,
+                            Meeting::ENTITY_TYPE,
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
     }
 
     /**
@@ -809,6 +833,16 @@ class EndpointTest extends BaseTestCase
 
         $updateMeetingToolIndex = array_find_key($tools, fn ($it) => $it->name === self::composeToolName('Update', 'Meeting'));
         $this->assertNull($updateMeetingToolIndex);
+
+        //
+
+        $recordStreamToolIndex = array_find_key($tools, fn ($it) => $it->name === RecordStreamData::TYPE);
+
+        $this->assertNotNull($recordStreamToolIndex);
+        $recordStreamTool = $tools[$recordStreamToolIndex] ?? null;
+        $this->assertNotNull($recordStreamTool);
+
+        $this->assertCount(1, $recordStreamTool->inputSchema->properties->parentType->anyOf);
     }
 
     /**
@@ -1641,12 +1675,14 @@ class EndpointTest extends BaseTestCase
                 Scope::MCP => true,
                 Account::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_ALL,
+                    Table::ACTION_STREAM => Table::LEVEL_ALL,
                 ],
                 Lead::ENTITY_TYPE => [
                     Table::ACTION_CREATE => Table::LEVEL_YES,
                     Table::ACTION_READ => Table::LEVEL_TEAM,
                     Table::ACTION_EDIT => Table::LEVEL_TEAM,
                     Table::ACTION_DELETE => Table::LEVEL_TEAM,
+                    Table::ACTION_STREAM => Table::LEVEL_TEAM,
                 ],
                 Opportunity::ENTITY_TYPE => [
                     Table::ACTION_CREATE => Table::LEVEL_YES,
@@ -1661,6 +1697,7 @@ class EndpointTest extends BaseTestCase
                     Table::ACTION_READ => Table::LEVEL_NO,
                     Table::ACTION_EDIT => Table::LEVEL_NO,
                     Table::ACTION_DELETE => Table::LEVEL_NO,
+                    Table::ACTION_STREAM => Table::LEVEL_NO,
                 ],
                 Call::ENTITY_TYPE => [
                     Table::ACTION_CREATE => Table::LEVEL_YES,
@@ -1730,5 +1767,54 @@ class EndpointTest extends BaseTestCase
     private static function composeToolName(string $type, string $entityType): string
     {
         return $type . '_' . $entityType;
+    }
+
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function processTestRecordStream(
+        PostEntry $apiAction,
+        Endpoint $endpoint,
+        User $user,
+    ): void {
+
+        $em = $this->getEntityManager();
+
+        $account = $em->getRDBRepositoryByClass(Account::class)->getNew();
+        $account
+            ->setName('Test Account')
+            ->setAssignedUser($user);
+        $em->saveEntity($account);
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Note::class)->getNew()
+                ->setParent($account)
+                ->setType(Note::TYPE_POST)
+                ->setPost("Test hello.")
+        );
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => RecordStreamData::TYPE,
+                    'arguments' => (object) [
+                        'parentId' => $account->getId(),
+                        'parentType' => $account->getEntityType(),
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        $this->processValidateJsonSchema($endpoint, RecordStreamData::TYPE, $body->result->structuredContent);
+
+        $this->assertCount(2, $body->result->structuredContent->records);
+        $this->assertEquals(2, $body->result->structuredContent->total);
     }
 }

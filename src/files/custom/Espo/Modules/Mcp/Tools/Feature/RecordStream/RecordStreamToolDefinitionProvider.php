@@ -7,6 +7,7 @@ use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
 use Espo\Entities\Note;
 use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
@@ -32,7 +33,8 @@ class RecordStreamToolDefinitionProvider implements ToolDefinitionProvider
     private const int MAX_SIZE_LIMIT = 100;
 
     private const string DESCRIPTION =
-        "Returns activity stream entries for a specific record. Entries are sorted by creation date in reverse order.";
+        "Returns activity stream entries (such as post and updates) for a specific record. " .
+        "Entries are sorted by creation date in reverse order.";
 
     private const string MAX_SIZE_DESCRIPTION = 'Maximum number of records to fetch.';
 
@@ -74,6 +76,10 @@ class RecordStreamToolDefinitionProvider implements ToolDefinitionProvider
 
     public function get(Data $data): Tool
     {
+        if ($this->getEntityTypes($data) === []) {
+            throw new NoUserAccess("No stream access to any entity type.");
+        }
+
         return new Tool(
             name: RecordStreamData::TYPE,
             inputSchema: new RootObjectSchema($this->prepareInputSchema($data)),

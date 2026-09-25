@@ -173,7 +173,13 @@ class RecordStreamToolProcessor implements ToolProcessor
         $output = [];
 
         foreach ($recordCollection->getCollection() as $entity) {
-            $output[] = $this->entityOutput->prepare($entity, $recordSchema);
+            $item = $this->entityOutput->prepare($entity, $recordSchema);
+
+            if ($entity->getType() !== Note::TYPE_POST) {
+                unset($item->isInternal);
+            }
+
+            $output[] = $item;
         }
 
         return $output;
