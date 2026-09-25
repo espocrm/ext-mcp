@@ -161,7 +161,11 @@ class RecordStreamToolDefinitionProvider implements ToolDefinitionProvider
                                 ),
                                 new ConstSchema(
                                     value: 403,
-                                    description: "No 'read' access. Or other access error.",
+                                    description: "No 'stream' access. Or other access error.",
+                                ),
+                                new ConstSchema(
+                                    value: 404,
+                                    description: "Record not found.",
                                 ),
                             ],
                             description: 'Error code.',
