@@ -37,5 +37,5 @@ interface TextComposer
     /**
      * @param TData $data
      */
-    public function compose(Data $data): string;
+    public function compose(Data $data): ?string;
 }

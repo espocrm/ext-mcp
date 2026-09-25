@@ -22,7 +22,8 @@
             "Read": "Read",
             "Create": "Create",
             "Update": "Update",
-            "Delete": "Delete"
+            "Delete": "Delete",
+            "RecordStream": "Record Stream"
         }
     },
     "dataFields": {
@@ -32,12 +33,14 @@
         "boolFilters": "Bool Filters",
         "filterFields": "Filter Fields",
         "textFilter": "Text Filter",
-        "writeFields": "Write Fields"
+        "writeFields": "Write Fields",
+        "entityTypes": "Entity Types"
     },
     "messages": {
         "featureAlreadyExists": "The same feature already exists in the endpoint."
     },
     "tooltips": {
+        "recordStreamEntityTypes": "Specify the entity types whose stream entries the client can view.",
         "updateWriteFields": "Specify which fields the client is allowed to write and an optional description (for LLM) for each field.",
         "createWriteFields": "Specify which fields the client is allowed to write and an optional description (for LLM) for each field.\n\nEnsure that all required fields (marked with `*`) are included unless unless they have default values or are computed programmatically.",
         "findSelectFields": "Specify which fields to allow to fetch and an optional description (for LLM) for each field."

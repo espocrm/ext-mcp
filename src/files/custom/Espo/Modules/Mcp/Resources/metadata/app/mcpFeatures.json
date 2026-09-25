@@ -428,5 +428,44 @@
                 }
             ]
         }
+    },
+    "RecordStream": {
+        "tool": {
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamToolProcessor"
+        },
+        "record": {
+            "client": {
+                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-record-stream"
+            },
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamDataValidator",
+            "fields": {
+                "entityTypes": {
+                    "type": "array",
+                    "required": true,
+                    "displayAsList": true,
+                    "tooltip": "McpFeature.recordStreamEntityTypes",
+                    "view": "modules/mcp/views/feature-record/fields/record-stream/entity-types"
+                }
+            },
+            "defaults": {
+                "entityTypes": []
+            },
+            "layout": [
+                {
+                    "rows": [
+                        [
+                            {
+                                "name": "entityTypes",
+                                "labelTranslation": "McpFeature.dataFields.entityTypes"
+                            },
+                            false
+                        ]
+                    ]
+                }
+            ]
+        }
     }
 }
