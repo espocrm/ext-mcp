@@ -35,6 +35,8 @@ use stdClass;
 
 class DeleteData implements Data
 {
+    use Data\Traits\GetKeyTrait;
+
     public const string TYPE = 'Delete';
 
     public function __construct(
@@ -44,11 +46,6 @@ class DeleteData implements Data
     public function composeName(): string
     {
         return $this->getKey();
-    }
-
-    public function getKey(): string
-    {
-        return self::TYPE . '.' . $this->entityType;
     }
 
     public function jsonSerialize(): stdClass

@@ -37,6 +37,8 @@ use stdClass;
 
 class UpdateData implements Data
 {
+    use Data\Traits\GetKeyTrait;
+
     public const string TYPE = 'Update';
 
     /**
@@ -50,11 +52,6 @@ class UpdateData implements Data
     public function composeName(): string
     {
         return $this->getKey();
-    }
-
-    public function getKey(): string
-    {
-        return self::TYPE . '.' . $this->entityType;
     }
 
     public function jsonSerialize(): stdClass

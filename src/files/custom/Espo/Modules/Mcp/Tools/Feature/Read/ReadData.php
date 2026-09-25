@@ -37,6 +37,8 @@ use stdClass;
 
 readonly class ReadData implements Data
 {
+    use Data\Traits\GetKeyTrait;
+
     public const string TYPE = 'Read';
 
     /**
@@ -50,11 +52,6 @@ readonly class ReadData implements Data
     public function composeName(): string
     {
         return $this->getKey();
-    }
-
-    public function getKey(): string
-    {
-        return self::TYPE . '.' . $this->entityType;
     }
 
     public function jsonSerialize(): stdClass

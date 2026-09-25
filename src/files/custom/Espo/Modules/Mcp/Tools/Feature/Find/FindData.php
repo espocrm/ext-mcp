@@ -37,6 +37,8 @@ use stdClass;
 
 readonly class FindData implements Data
 {
+    use Data\Traits\GetKeyTrait;
+
     public const string TYPE = 'Find';
 
     /**
@@ -57,11 +59,6 @@ readonly class FindData implements Data
     public function composeName(): string
     {
         return $this->getKey();
-    }
-
-    public function getKey(): string
-    {
-        return self::TYPE . '.' . $this->entityType;
     }
 
     /**
