@@ -221,6 +221,10 @@ class RecordStreamToolDefinitionProvider implements ToolDefinitionProvider
                 additionalProperties: new IntegerType(),
                 description: "Reaction counts.",
             ),
+            'myReactions' => new ArrayType(
+                items: new StringType(),
+                description: "My reactions.",
+            ),
         ];
 
         return new ArrayType(

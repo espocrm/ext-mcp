@@ -173,11 +173,7 @@ class RecordStreamToolProcessor implements ToolProcessor
         $output = [];
 
         foreach ($recordCollection->getCollection() as $entity) {
-            $item = $this->entityOutput->prepare($entity, $recordSchema);
-
-            if ($entity->getType() !== Note::TYPE_POST) {
-                unset($item->isInternal);
-            }
+            $item = $this->prepareRecordItem($entity, $recordSchema);
 
             $output[] = $item;
         }
@@ -209,5 +205,48 @@ class RecordStreamToolProcessor implements ToolProcessor
         }
 
         return $itemsSchema;
+    }
+
+    private function prepareRecordItem(Note $entity, ObjectType $recordSchema): stdClass
+    {
+        $item = $this->entityOutput->prepare($entity, $recordSchema);
+
+        if ($entity->getType() !== Note::TYPE_POST || !$entity->isInternal()) {
+            unset($item->isInternal);
+        }
+
+        if (
+            $entity->getPost() === null &&
+            $entity->getType() !== Note::TYPE_POST
+        ) {
+            unset($item->post);
+        }
+
+        if (get_object_vars($entity->getData()) === []) {
+            unset($item->data);
+        }
+
+        if (
+            !in_array($entity->getType(), [
+                Note::TYPE_POST,
+                Note::TYPE_EMAIL_RECEIVED,
+                Note::TYPE_EMAIL_SENT,
+            ])
+        ) {
+            unset($item->reactionCounts);
+            unset($item->myReactions);
+        } else {
+            $reactionCounts = $entity->get('reactionCounts');
+
+            if (is_object($reactionCounts) && get_object_vars($reactionCounts) === []) {
+                unset($item->reactionCounts);
+            }
+
+            if ($entity->get('myReactions') === []) {
+                unset($item->myReactions);
+            }
+        }
+
+        return $item;
     }
 }
