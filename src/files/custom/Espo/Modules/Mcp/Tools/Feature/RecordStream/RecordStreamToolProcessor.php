@@ -3,13 +3,18 @@
 
 namespace Espo\Modules\Mcp\Tools\Feature\RecordStream;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
+use Espo\Core\Field\DateTime;
 use Espo\Core\Name\Field;
 use Espo\Core\Record\Collection;
 use Espo\Core\Select\SearchParams;
 use Espo\Core\Select\Where\Item as WhereItem;
+use Espo\Core\Utils\DateTime as DateTimeUtil;
 use Espo\Entities\Note;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Find\EntityOutput;
@@ -22,6 +27,7 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
 use Espo\Modules\Mcp\Tools\Mcp\ToolsCall\ToolProcessor;
 use Espo\Tools\Stream\RecordService;
+use RuntimeException;
 use stdClass;
 
 /**
@@ -148,9 +154,10 @@ class RecordStreamToolProcessor implements ToolProcessor
         }
 
         if ($after) {
+            $after = $this->sanitizeDateTime($after);
+
             $searchParams = $searchParams->withWhereAdded(
-                WhereItem
-                    ::createBuilder()
+                WhereItem::createBuilder()
                     ->setAttribute(Field::CREATED_AT)
                     ->setType(WhereItem\Type::AFTER)
                     ->setValue($after)
@@ -248,5 +255,18 @@ class RecordStreamToolProcessor implements ToolProcessor
         }
 
         return $item;
+    }
+
+    private function sanitizeDateTime(string $after): string
+    {
+        $dateTime = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $after);
+
+        if ($dateTime === false) {
+            throw new RuntimeException("Bad date-time value.");
+        }
+
+        return $dateTime
+            ->setTimezone(new DateTimeZone('UTC'))
+            ->format(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT);
     }
 }

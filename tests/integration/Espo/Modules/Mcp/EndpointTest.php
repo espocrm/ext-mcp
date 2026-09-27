@@ -1803,6 +1803,10 @@ class EndpointTest extends BaseTestCase
                     'arguments' => (object) [
                         'parentId' => $account->getId(),
                         'parentType' => $account->getEntityType(),
+                        'after' => DateTime::createNow()
+                            ->addHours(-1)
+                            ->toDateTime()
+                            ->format(DateTimeInterface::ATOM)
                     ],
                 ],
             ),
@@ -1816,5 +1820,9 @@ class EndpointTest extends BaseTestCase
 
         $this->assertCount(2, $body->result->structuredContent->records);
         $this->assertEquals(2, $body->result->structuredContent->total);
+
+        //
+
+
     }
 }
