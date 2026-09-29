@@ -11,7 +11,7 @@ Important: Only MCP protocol version 2026-07-28 is supported. Make sure your MCP
 Download an extension [package](https://github.com/espocrm/ext-mcp/releases)
 and [install](https://docs.espocrm.com/administration/extensions/) it in your EspoCRM instance.
 
-## Configuration
+## Setting up
 
 An administrator can create multiple MCP endpoints, each will function as a separate MCP server. For an MCP endpoint,
 the administrator configures supported features. Each feature corresponds to an MCP tool.
@@ -47,6 +47,10 @@ you need to configure the MCP client to pass the `X-Api-Key` header.
 ### OAuth 2.0
 
 As of EspoCRM v10.1, it will be possible to use OAuth 2.0 for authentication.
+
+## Customization
+
+The framework allows developers to define and implement custom features (tools) in a future-proof way. See metadata > app > mcpFeatures.
 
 ---
 
