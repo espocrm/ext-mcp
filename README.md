@@ -1,25 +1,48 @@
-# Template repository for EspoCRM extensions
+# MCP server for EspoCRM
 
-Create a repository for your extension from this template.
+An official extension.
 
-(rename the header after initialization and change the text of the paragraph)
+With the extension installed, EspoCRM can act as an MCP server, allowing AI agents to access CRM data and perform operations.
 
-## Preparing repository
+Important: Only MCP protocol version 2026-07-28 is supported. Make sure your MCP client supports this version.
 
-(remove this section after initialization)
+An administrator can create multiple MCP endpoints, each will function as a separate MCP server. For an MCP endpoint,
+the administrator configures supported features. Each feature corresponds to an MCP tool.
 
-Run:
+To create an MCP endpoint, follow: Administration > MCP Endpoints.
 
-```
-php init.php
-```
+Each feature type has its own set of parameters. For example, in a Find feature, you can configure what fields are exposed and
+what filters are available.
 
-It will ask to enter an extension name and some other information. After the initialization, the script will prompt you to run `npm install`.
+The ability to configure what is exposed helps keep the context window small.
+For example, if your MCP server is intended for a customer support team, you can whitelist only a small set of tools
+and limit each tool to what is needed.
 
-After initialization, placeholders in the readme file will be replaced with values specific to your extension.
-Use the changed readme as the documentation.
+Currently supported feature types:
 
-After initialization, you can remove `init.php` file from your repository. Commit the changes and proceed to configuration & building.
+- Find – Lists and searches records.
+- Read – Reads a record.
+- Create – Creates a record.
+- Update – Updates a record.
+- Delete – Deletes a record.
+- Record Stream – Lists and searches in a record's stream.
+
+What is exposed as tools is also controlled by the user's access rights.
+For example, if a user does not have permission to create Leads, the client won't see the *Create_Lead* tool.
+
+## Authentication
+
+## API User
+
+To use an API user, you need to configure the MCP client to pass the `X-Api-Key` header.
+
+## OAuth 2.0
+
+As of EspoCRM v10.1, it will be possible to use OAuth 2.0 for authentication.
+
+---
+
+Below is for developers.
 
 ## Configuration
 
@@ -128,7 +151,7 @@ Necessary steps:
     ```php
     <?php
     return [
-        'version' => '9.3.0',
+        'version' => '10.1.0',
     ];
     ```
 
@@ -142,51 +165,6 @@ Extensions will be installed automatically after running the command `node build
 1. Do development in `src` dir.
 2. Run `npm run sync`.
 3. Test changes in EspoCRM instance at `site` dir.
-
-## Using entity manager to create entities
-
-You can block out new entity types right in Espo (using Entity Manager) and then copy generated custom files (`site/custom` dir) to the repository (`src` dir) using `copy-custom.js` script.
-
-1. Create entity types, fields, layouts, relationships in Espo (it should be available in `site` dir after building).
-2. Run `node copy-custom.js`. It will copy all files from `site/custom` to `src/files/custom/Espo/Modules/Mcp` and apply needed modifications to files.
-3. Remove files from `site/custom`.
-4. Run `npm run sync`. It will copy files from the repository to Espo build (`site/custom//Espo/Modules/Mcp` dir).
-5. Clear cache in Espo.
-6. Test in Espo.
-7. Commit changes.
-
-You can remove `copy-custom.js` from the repository if you don't plan to use it future.
-
-## Using composer in extension
-
-If your extension requires additional libraries, they can be installed by composer:
-
-1. Create a file `src/files/custom/Espo/Modules/Mcp/composer.json` with your dependencies. You can change dir to this directory and add composer dependencies using *composer require*.
-2. Once you run `node build --all` or `node build --composer-install`, composer dependencies will be automatically installed.
-3. Create a file `src/files/custom/Espo/Modules/Mcp/Resources/autoload.json`.
-
-Note: The extension build will contain only the `vendor` directory without the `composer.json` file.
-
-The `autoload.json` file defines paths for namespaces:
-
-```json
-{
-    "psr-4": {
-        "LibraryNamespace\\": "custom/Espo/Modules/Mcp/vendor/<vendor-name>/<library-name>/path/to/src"
-    }
-}
-```
-
-This definition is needed because in EspoCRM extensions are not installed via composer, they are included in runtime.
-
-For static analysis, add to `phpstan.neon`:
-
-```
-    excludePaths:
-        - src/files/custom/Espo/Modules/Mcp/vendor
-    scanDirectories:
-        - site/custom/Espo/Modules/Mcp/vendor
-```
 
 ## Versioning
 
@@ -306,11 +284,6 @@ Note that integration tests needs the full Espo installation.
 Integration tests should be placed in `tests/integration/Espo/Modules/Mcp` directory
 and be in `tests\integration\Espo\Modules\Mcp` namespace.
 
-### GitHub workflow
-
-A workflow running unit tests and static analysis is defined in `.github/workflows/test.yml.disabled`.
-Remove `.disabled` from the filename to activate the workflow.
-
 ## Configuring IDE
 
 You need to set the following paths to be ignored in your IDE:
@@ -333,24 +306,6 @@ File watcher parameters for PhpStorm:
 * Program: `node`
 * Arguments: `build --copy-file --file=$FilePathRelativeToProjectRoot$`
 * Working Directory: `$ProjectFileDir$`
-
-## Using ES modules
-
-The initialization script asks whether you want to use ES6 modules. It's recommended to choose "YES".
-
-If you have chosen No and want to switch to ES6 later, then:
-
-1. Set *bundled* to true in `extension.json`.
-2. Set *bundled* and *jsTranspiled* to true in `src/files/custom/Espo/Modules/Mcp/Resources/module.json`.
-3. Add `src/files/custom/Espo/Modules/Mcp/Resources/metadata/app/client.json`
-    ```json
-    {
-        "scriptList": [
-            "__APPEND__",
-            "client/custom/modules/mcp/lib/init.js"
-        ]
-    }
-    ```
 
 ## JavaScript frontend libraries
 
@@ -396,9 +351,3 @@ Or just update everything:
 ```
 npm update
 ```
-
-## License
-
-(change this section after initialization)
-
-Change the license in `LICENSE` file. The current license is intended for scripts of this repository. It's not supposed to be used for code of your extension.
