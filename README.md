@@ -6,13 +6,10 @@ With the extension installed, EspoCRM can act as an MCP server, allowing AI agen
 
 Important: Only MCP protocol version 2026-07-28 is supported. Make sure your MCP client supports this version.
 
-### Configurable
+The MCP extension is:
 
-Control which tools are exposed to MCP clients and tailor their behavior to your needs.
-
-### Extensible
-
-Add custom tools and extend the MCP server with your own functionality.
+- **Configurable** – Admins can control which tools are exposed to MCP clients and tailor their behavior to their needs.
+- **Extensible** – Developers can add custom tools and extend the MCP server with their own functionality.
 
 ## Installation
 
