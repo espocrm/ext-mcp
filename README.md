@@ -6,6 +6,13 @@ With the extension installed, EspoCRM can act as an MCP server, allowing AI agen
 
 Important: Only MCP protocol version 2026-07-28 is supported. Make sure your MCP client supports this version.
 
+## Installation
+
+Download an extension [package](https://github.com/espocrm/ext-mcp/releases)
+and [install](https://docs.espocrm.com/administration/extensions/) it in your EspoCRM instance.
+
+## Configuration
+
 An administrator can create multiple MCP endpoints, each will function as a separate MCP server. For an MCP endpoint,
 the administrator configures supported features. Each feature corresponds to an MCP tool.
 
@@ -32,11 +39,11 @@ For example, if a user does not have permission to create Leads, the client won'
 
 ## Authentication
 
-## API User
+### API User
 
 To use an API user, you need to configure the MCP client to pass the `X-Api-Key` header.
 
-## OAuth 2.0
+### OAuth 2.0
 
 As of EspoCRM v10.1, it will be possible to use OAuth 2.0 for authentication.
 
