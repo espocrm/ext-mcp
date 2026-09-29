@@ -41,7 +41,8 @@ For example, if a user does not have permission to create Leads, the client won'
 
 ### API User
 
-To use an API user, you need to configure the MCP client to pass the `X-Api-Key` header.
+To use an [API user](https://docs.espocrm.com/development/api/#setting-up),
+you need to configure the MCP client to pass the `X-Api-Key` header.
 
 ### OAuth 2.0
 
