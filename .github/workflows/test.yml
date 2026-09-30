@@ -83,19 +83,20 @@ jobs:
           src/files/custom/Espo/Modules/Mcp/composer.lock \
           site/custom/Espo/Modules/Mcp/
 
-#    - name: Cache Module Vendor
-#      id: cache-module-vendor
-#      uses: actions/cache@v4
-#      with:
-#        path: site/custom/Espo/Modules/Mcp/vendor
-#        key: ${{ runner.os }}-module-${{ hashFiles('composer.lock') }}
+    - name: Cache Module Vendor
+      id: cache-module-vendor
+      uses: actions/cache@v4
+      with:
+        path: site/custom/Espo/Modules/Mcp/vendor
+        key: ${{ runner.os }}-module-${{ hashFiles('composer.lock') }}
 
     - name: Composer install in module
-#      if: steps.cache-module-vendor.outputs.cache-hit != 'true'
+      if: steps.cache-module-vendor.outputs.cache-hit != 'true'
       run: composer install
       working-directory: site/custom/Espo/Modules/Mcp/
 
     - name: Scope vendor dependencies with PHP-Scoper
+      if: steps.cache-module-vendor.outputs.cache-hit != 'true'
       env:
         VENDOR_DIR: site/custom/Espo/Modules/Mcp/vendor
         CONFIG_FILE: ${{ github.workspace }}/scoper.inc.php
@@ -111,6 +112,7 @@ jobs:
         mv "${VENDOR_DIR}-build" "$VENDOR_DIR"
 
     - name: Dump autoload
+      if: steps.cache-module-vendor.outputs.cache-hit != 'true'
       run: composer dump-autoload --working-dir site/custom/Espo/Modules/Mcp --classmap-authoritative
 
     - name: Static analysis
