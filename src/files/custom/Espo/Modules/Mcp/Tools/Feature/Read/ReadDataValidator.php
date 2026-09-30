@@ -60,7 +60,7 @@ class ReadDataValidator implements DataValidator
         ) {
             $list[] = new Failure(
                 field: 'entityType',
-                message: "Only object entity types supported.",
+                message: "Only object entity types are supported.",
             );
         }
 

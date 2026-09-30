@@ -51,7 +51,7 @@ class DeleteDataValidator implements DataValidator
         if (!$this->helper->isObjectEntityType($data->entityType) || $data->entityType === User::ENTITY_TYPE) {
             $list[] = new Failure(
                 field: 'entityType',
-                message: "Only object entity types supported.",
+                message: "Only object entity types are supported.",
             );
         }
 
