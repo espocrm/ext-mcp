@@ -72,6 +72,25 @@ jobs:
       run: composer install
       working-directory: site
 
+    - name: Copy module composer files
+      run: |
+        mkdir -p site/custom/Espo/Modules/Mcp/
+        cp src/files/custom/Espo/Modules/Mcp/composer.json \
+          src/files/custom/Espo/Modules/Mcp/composer.lock \
+          site/custom/Espo/Modules/Mcp/
+
+    - name: Cache Module Vendor
+      id: cache-vendor
+      uses: actions/cache@v4
+      with:
+        path: site/custom/Espo/Modules/Mcp/vendor
+        key: ${{ runner.os }}-module-${{ hashFiles('composer.lock') }}
+
+    - name: Composer install in module
+      if: steps.cache-module-vendor.outputs.cache-hit != 'true'
+      run: composer install
+      working-directory: site/custom/Espo/Modules/Mcp/
+
     - name: Composer install
       if: steps.cache-vendor.outputs.cache-hit != 'true'
       run: composer install
