@@ -30,6 +30,14 @@ The ability to configure what is exposed helps keep the context window small.
 For example, if your MCP server is intended for a customer support team, you can whitelist only a small set of tools
 and limit each tool to what is needed.
 
+Add users to the endpoint. Only added users will be able to connect.
+
+### User roles
+
+In Roles, enable the MCP scope. Make sure the role grants access to all the scopes the endpoint is intended to use.
+
+### Features
+
 Currently supported feature types:
 
 - Find – Lists and searches records.
