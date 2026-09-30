@@ -111,7 +111,7 @@ jobs:
         mv "${VENDOR_DIR}-build" "$VENDOR_DIR"
 
     - name: Dump autoload
-      run: composer dump-autoload --working-dir ${{ env.PLUGIN_DIR }} --classmap-authoritative
+      run: composer dump-autoload --working-dir site/custom/Espo/Modules/Mcp --classmap-authoritative
 
     - name: Static analysis
       run: vendor/bin/phpstan
