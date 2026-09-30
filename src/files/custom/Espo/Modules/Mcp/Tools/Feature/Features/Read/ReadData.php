@@ -1,0 +1,86 @@
+<?php
+/************************************************************************
+* This file is part of MCP extension for EspoCRM.
+*
+* MCP extension for EspoCRM.
+* Copyright (C) 2026 EspoCRM, Inc.
+* Website: https://www.espocrm.com
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Affero General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU Affero General Public License for more details.
+*
+* You should have received a copy of the GNU Affero General Public License
+* along with this program. If not, see <https://www.gnu.org/licenses/>.
+*
+* The interactive user interfaces in modified source and object code versions
+* of this program must display Appropriate Legal Notices, as required under
+* Section 5 of the GNU Affero General Public License version 3.
+*
+* In accordance with Section 7(b) of the GNU Affero General Public License version 3,
+* these Appropriate Legal Notices must retain the display of the "EspoCRM" word.
+************************************************************************/
+
+namespace Espo\Modules\Mcp\Tools\Feature\Features\Read;
+
+use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\DataUtil;
+use Espo\Modules\Mcp\Tools\Feature\Features\Find\FindData\Field;
+use InvalidArgumentException;
+use stdClass;
+
+readonly class ReadData implements Data
+{
+    use Data\Traits\GetKeyTrait;
+
+    public const string TYPE = 'Read';
+
+    /**
+     * @param Field[] $selectFields
+     */
+    public function __construct(
+        public string $entityType,
+        public array $selectFields,
+    ) {}
+
+    public function composeName(): string
+    {
+        return $this->getKey();
+    }
+
+    public function jsonSerialize(): stdClass
+    {
+        return (object) [
+            'entityType' => $this->entityType,
+            'selectFields' => array_map(fn ($it) => (object) get_object_vars($it), $this->selectFields),
+        ];
+    }
+
+    public static function fromRaw(stdClass $raw): self
+    {
+        $entityType = $raw->entityType ?? null;
+        $selectFields = $raw->selectFields ?? null;
+
+        if (!is_string($entityType)) {
+            throw new InvalidArgumentException("No 'entityType'.");
+        }
+
+        DataUtil::assertArrayOfFields($selectFields, 'selectFields', true);
+
+        return new self(
+            entityType: $entityType,
+            selectFields: array_map(function ($it) {
+                return new Field(
+                    name: $it->name,
+                    description: $it->description ?? null,
+                );
+            }, $selectFields),
+        );
+    }
+}

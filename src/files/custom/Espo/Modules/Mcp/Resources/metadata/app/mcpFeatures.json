@@ -1,8 +1,8 @@
 {
     "Find": {
         "tool": {
-            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolDefinitionProvider",
-            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindToolProcessor"
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Find\\FindToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Find\\FindToolProcessor"
         },
         "record": {
             "client": {
@@ -81,9 +81,9 @@
                     }
                 }
             },
-            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindData",
-            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindTextComposer",
-            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Find\\FindDataValidator",
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Find\\FindData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Find\\FindTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Find\\FindDataValidator",
             "fields": {
                 "entityType": {
                     "type": "enum",
@@ -165,8 +165,8 @@
     },
     "Read": {
         "tool": {
-            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadToolDefinitionProvider",
-            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadToolProcessor"
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Read\\ReadToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Read\\ReadToolProcessor"
         },
         "record": {
             "client": {
@@ -201,9 +201,9 @@
                     }
                 }
             },
-            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadData",
-            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadTextComposer",
-            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Read\\ReadDataValidator",
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Read\\ReadData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Read\\ReadTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Read\\ReadDataValidator",
             "fields": {
                 "entityType": {
                     "type": "enum",
@@ -243,8 +243,8 @@
     },
     "Create": {
         "tool": {
-            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateToolDefinitionProvider",
-            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateToolProcessor"
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Create\\CreateToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Create\\CreateToolProcessor"
         },
         "record": {
             "client": {
@@ -279,9 +279,9 @@
                     }
                 }
             },
-            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateData",
-            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateTextComposer",
-            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Create\\CreateDataValidator",
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Create\\CreateData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Create\\CreateTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Create\\CreateDataValidator",
             "fields": {
                 "entityType": {
                     "type": "enum",
@@ -318,8 +318,8 @@
     },
     "Update": {
         "tool": {
-            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateToolDefinitionProvider",
-            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateToolProcessor"
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Update\\UpdateToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Update\\UpdateToolProcessor"
         },
         "record": {
             "client": {
@@ -354,9 +354,9 @@
                     }
                 }
             },
-            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateData",
-            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateTextComposer",
-            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Update\\UpdateDataValidator",
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Update\\UpdateData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Update\\UpdateTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Update\\UpdateDataValidator",
             "fields": {
                 "entityType": {
                     "type": "enum",
@@ -393,8 +393,8 @@
     },
     "Delete": {
         "tool": {
-            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteToolDefinitionProvider",
-            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteToolProcessor"
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Delete\\DeleteToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Delete\\DeleteToolProcessor"
         },
         "record": {
             "client": {
@@ -403,9 +403,9 @@
                     "fields": {}
                 }
             },
-            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteData",
-            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteTextComposer",
-            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Delete\\DeleteDataValidator",
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Delete\\DeleteData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Delete\\DeleteTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Delete\\DeleteDataValidator",
             "fields": {
                 "entityType": {
                     "type": "enum",
@@ -431,16 +431,16 @@
     },
     "RecordStream": {
         "tool": {
-            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamToolDefinitionProvider",
-            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamToolProcessor"
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\RecordStream\\RecordStreamToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\RecordStream\\RecordStreamToolProcessor"
         },
         "record": {
             "client": {
                 "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-record-stream"
             },
-            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamData",
-            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamTextComposer",
-            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\RecordStream\\RecordStreamDataValidator",
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\RecordStream\\RecordStreamData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\RecordStream\\RecordStreamTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\RecordStream\\RecordStreamDataValidator",
             "fields": {
                 "entityTypes": {
                     "type": "array",

@@ -4,7 +4,7 @@
 namespace tests\unit\Espo\Modules\Mcp\Tools\Feature\Find;
 
 use Espo\Core\Field\DateTime;
-use Espo\Modules\Mcp\Tools\Feature\Find\EntityOutput;
+use Espo\Modules\Mcp\Tools\Feature\Features\Find\EntityOutput;
 use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;

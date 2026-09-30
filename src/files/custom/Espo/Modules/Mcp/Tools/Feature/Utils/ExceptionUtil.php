@@ -36,7 +36,7 @@ use Espo\Core\FieldValidation\Exceptions\ValidationError;
 use Espo\Core\Record\Exceptions\DuplicateConflict;
 use Espo\Core\Utils\Json;
 use Espo\Core\Utils\Language;
-use Espo\Modules\Mcp\Tools\Feature\Update\UpdateToolProcessor;
+use Espo\Modules\Mcp\Tools\Feature\Features\Update\UpdateToolProcessor;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequest;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequestFormParams;

@@ -8,7 +8,7 @@ use Espo\Core\ORM\Repository\Option\SaveOption;
 use Espo\Modules\Crm\Entities\Lead;
 use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Entities\Feature;
-use Espo\Modules\Mcp\Tools\Feature\Find\FindData;
+use Espo\Modules\Mcp\Tools\Feature\Features\Find\FindData;
 use tests\integration\Core\BaseTestCase;
 
 class EndpointRecordTest extends BaseTestCase
