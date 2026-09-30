@@ -80,7 +80,7 @@ jobs:
           site/custom/Espo/Modules/Mcp/
 
     - name: Cache Module Vendor
-      id: cache-vendor
+      id: cache-module-vendor
       uses: actions/cache@v4
       with:
         path: site/custom/Espo/Modules/Mcp/vendor
