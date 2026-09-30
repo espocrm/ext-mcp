@@ -91,6 +91,24 @@ jobs:
       run: composer install
       working-directory: site/custom/Espo/Modules/Mcp/
 
+    - name: Scope vendor dependencies with PHP-Scoper
+      env:
+        VENDOR_DIR: site/custom/Espo/Modules/Mcp/vendor
+        CONFIG_FILE: ${{ github.workspace }}/scoper.inc.php
+      run: |
+        vendor/bin/php-scoper add-prefix \
+          --prefix="Espo\Modules\Mcp\Vendor" \
+          --working-dir="$VENDOR_DIR" \
+          --config="$CONFIG_FILE" \
+          --output-dir="../vendor-build" \
+          --force
+
+        rm -Rf "$VENDOR_DIR"
+        mv "${VENDOR_DIR}-build" "$VENDOR_DIR"
+
+    - name: Dump autoload
+      run: composer dump-autoload --working-dir ${{ env.PLUGIN_DIR }} --classmap-authoritative
+
     - name: Composer install
       if: steps.cache-vendor.outputs.cache-hit != 'true'
       run: composer install
