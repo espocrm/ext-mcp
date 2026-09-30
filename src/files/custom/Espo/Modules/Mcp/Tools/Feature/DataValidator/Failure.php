@@ -27,7 +27,7 @@
 * these Appropriate Legal Notices must retain the display of the "EspoCRM" word.
 ************************************************************************/
 
-namespace Espo\Modules\Mcp\Tools\Feature\Validator;
+namespace Espo\Modules\Mcp\Tools\Feature\DataValidator;
 
 readonly class Failure
 {

@@ -33,7 +33,7 @@ use Espo\Entities\Team;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\DataValidator;
 use Espo\Modules\Mcp\Tools\Feature\Utils\DataValidatorHelper;
-use Espo\Modules\Mcp\Tools\Feature\Validator\Failure;
+use Espo\Modules\Mcp\Tools\Feature\DataValidator\Failure;
 
 /**
  * @implements DataValidator<FindData>

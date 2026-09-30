@@ -38,7 +38,7 @@ use Espo\Modules\Mcp\Tools\Feature\DataFactory;
 use Espo\Modules\Mcp\Tools\Feature\DataValidatorFactory;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\BadFeatureData;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;
-use Espo\Modules\Mcp\Tools\Feature\Validator\Failure as ValidatorFailure;
+use Espo\Modules\Mcp\Tools\Feature\DataValidator\Failure as ValidatorFailure;
 use Espo\ORM\Entity;
 
 /**

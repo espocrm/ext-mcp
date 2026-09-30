@@ -6,7 +6,7 @@ namespace Espo\Modules\Mcp\Tools\Feature\RecordStream;
 use Espo\Core\Utils\Metadata;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\DataValidator;
-use Espo\Modules\Mcp\Tools\Feature\Validator\Failure;
+use Espo\Modules\Mcp\Tools\Feature\DataValidator\Failure;
 
 /**
  * @implements DataValidator<RecordStreamData>

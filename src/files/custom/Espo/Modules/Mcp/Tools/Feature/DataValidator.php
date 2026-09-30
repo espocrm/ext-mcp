@@ -29,7 +29,7 @@
 
 namespace Espo\Modules\Mcp\Tools\Feature;
 
-use Espo\Modules\Mcp\Tools\Feature\Validator\Failure;
+use Espo\Modules\Mcp\Tools\Feature\DataValidator\Failure;
 
 /**
  * @template TData of Data
