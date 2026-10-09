@@ -47,7 +47,7 @@ readonly class FindData implements Data
      * @param string[] $boolFilters
      * @param Field[] $filterFields
      */
-    public function __construct(
+    final public function __construct(
         public string $entityType,
         public bool $textFilter,
         public array $selectFields,
@@ -64,7 +64,7 @@ readonly class FindData implements Data
     /**
      * @throws InvalidArgumentException
      */
-    public static function fromRaw(stdClass $raw): self
+    public static function fromRaw(stdClass $raw): static
     {
         $entityType = $raw->entityType ?? null;
         $textFilter = $raw->textFilter ?? null;
@@ -87,7 +87,7 @@ readonly class FindData implements Data
         DataUtil::assertArrayOfStrings($primaryFilters, 'primaryFilters');
         DataUtil::assertArrayOfStrings($boolFilters, 'boolFilters');
 
-        return new self(
+        return new static(
             entityType: $entityType,
             textFilter: $textFilter,
             selectFields: array_map(function ($it) {

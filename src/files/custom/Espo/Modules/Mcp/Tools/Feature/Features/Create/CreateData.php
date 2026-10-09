@@ -44,7 +44,7 @@ class CreateData implements Data
     /**
      * @param Field[] $writeFields
      */
-    public function __construct(
+    final public function __construct(
         public string $entityType,
         public array $writeFields,
     ) {}
@@ -62,7 +62,7 @@ class CreateData implements Data
         ];
     }
 
-    public static function fromRaw(stdClass $raw): self
+    public static function fromRaw(stdClass $raw): static
     {
         $entityType = $raw->entityType ?? null;
         $writeFields = $raw->writeFields ?? null;
@@ -73,7 +73,7 @@ class CreateData implements Data
 
         DataUtil::assertArrayOfFields($writeFields, 'writeFields', true);
 
-        return new self(
+        return new static(
             entityType: $entityType,
             writeFields: array_map(function ($it) {
                 return new Field(

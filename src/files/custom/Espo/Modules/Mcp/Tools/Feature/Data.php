@@ -37,7 +37,7 @@ interface Data
 
     public function jsonSerialize(): stdClass;
 
-    public static function fromRaw(stdClass $raw): self;
+    public static function fromRaw(stdClass $raw): static;
 
     public function getKey(): string;
 }

@@ -14,7 +14,7 @@ class RecordStreamData implements Data
     /**
      * @param string[] $entityTypes
      */
-    public function __construct(
+    final public function __construct(
         public array $entityTypes,
     ) {}
 
@@ -30,7 +30,7 @@ class RecordStreamData implements Data
         ];
     }
 
-    public static function fromRaw(stdClass $raw): Data
+    public static function fromRaw(stdClass $raw): static
     {
         $entityTypes = $raw->entityTypes ?? null;
 
@@ -46,7 +46,7 @@ class RecordStreamData implements Data
 
         sort($entityTypes);
 
-        return new self(
+        return new static(
             entityTypes: $entityTypes,
         );
     }

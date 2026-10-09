@@ -44,7 +44,7 @@ readonly class ReadData implements Data
     /**
      * @param Field[] $selectFields
      */
-    public function __construct(
+    final public function __construct(
         public string $entityType,
         public array $selectFields,
     ) {}
@@ -62,7 +62,7 @@ readonly class ReadData implements Data
         ];
     }
 
-    public static function fromRaw(stdClass $raw): self
+    public static function fromRaw(stdClass $raw): static
     {
         $entityType = $raw->entityType ?? null;
         $selectFields = $raw->selectFields ?? null;
@@ -73,7 +73,7 @@ readonly class ReadData implements Data
 
         DataUtil::assertArrayOfFields($selectFields, 'selectFields', true);
 
-        return new self(
+        return new static(
             entityType: $entityType,
             selectFields: array_map(function ($it) {
                 return new Field(

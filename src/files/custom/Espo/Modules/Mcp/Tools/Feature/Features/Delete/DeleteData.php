@@ -39,7 +39,7 @@ class DeleteData implements Data
 
     public const string TYPE = 'Delete';
 
-    public function __construct(
+    final public function __construct(
         public string $entityType,
     ) {}
 
@@ -55,7 +55,7 @@ class DeleteData implements Data
         ];
     }
 
-    public static function fromRaw(stdClass $raw): self
+    public static function fromRaw(stdClass $raw): static
     {
         $entityType = $raw->entityType ?? null;
 
@@ -63,7 +63,7 @@ class DeleteData implements Data
             throw new InvalidArgumentException("No 'entityType'.");
         }
 
-        return new self(
+        return new static(
             entityType: $entityType,
         );
     }
