@@ -467,5 +467,44 @@
                 }
             ]
         }
+    },
+    "CreatePost": {
+        "tool": {
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\CreatePost\\CreatePostToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\CreatePost\\CreatePostToolProcessor"
+        },
+        "record": {
+            "client": {
+                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-create-post"
+            },
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\CreatePost\\CreatePostData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\CreatePost\\CreatePostTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\CreatePost\\CreatePostDataValidator",
+            "fields": {
+                "entityTypes": {
+                    "type": "array",
+                    "required": true,
+                    "displayAsList": true,
+                    "tooltip": "McpFeature.createPostEntityTypes",
+                    "view": "modules/mcp/views/feature-record/fields/record-stream/entity-types"
+                }
+            },
+            "defaults": {
+                "entityTypes": []
+            },
+            "layout": [
+                {
+                    "rows": [
+                        [
+                            {
+                                "name": "entityTypes",
+                                "labelTranslation": "McpFeature.dataFields.entityTypes"
+                            },
+                            false
+                        ]
+                    ]
+                }
+            ]
+        }
     }
 }

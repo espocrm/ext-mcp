@@ -26,6 +26,7 @@ use Espo\Entities\Team;
 use Espo\Entities\User;
 use Espo\Modules\Crm\Entities\Account;
 use Espo\Modules\Crm\Entities\Call;
+use Espo\Modules\Crm\Entities\CaseObj;
 use Espo\Modules\Crm\Entities\Lead;
 use Espo\Modules\Crm\Entities\Meeting;
 use Espo\Modules\Crm\Entities\Opportunity;
@@ -33,6 +34,7 @@ use Espo\Modules\Crm\Entities\Task;
 use Espo\Modules\Mcp\Entities\Endpoint;
 use Espo\Modules\Mcp\Entities\Feature;
 use Espo\Modules\Mcp\Tools\Feature\Features\Create\CreateData;
+use Espo\Modules\Mcp\Tools\Feature\Features\CreatePost\CreatePostData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Delete\DeleteData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\FindData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Read\ReadData;
@@ -128,6 +130,12 @@ class EndpointTest extends BaseTestCase
         );
 
         $this->processTestRecordStream(
+            apiAction: $apiAction,
+            endpoint: $endpoint,
+            user: $testUser,
+        );
+
+        $this->processTestCreatePost(
             apiAction: $apiAction,
             endpoint: $endpoint,
             user: $testUser,
@@ -646,6 +654,22 @@ class EndpointTest extends BaseTestCase
                         entityTypes: [
                             Account::ENTITY_TYPE,
                             Meeting::ENTITY_TYPE,
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        //
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(CreatePostData::TYPE)
+                ->setData(
+                    new RecordStreamData(
+                        entityTypes: [
+                            Account::ENTITY_TYPE,
+                            CaseObj::ENTITY_TYPE,
                         ],
                     )
                 )
@@ -1703,6 +1727,10 @@ class EndpointTest extends BaseTestCase
                     Table::ACTION_CREATE => Table::LEVEL_YES,
                     Table::ACTION_READ => Table::LEVEL_YES,
                 ],
+                CaseObj::ENTITY_TYPE => [
+                    Table::ACTION_READ => Table::LEVEL_ALL,
+                    Table::ACTION_STREAM => Table::LEVEL_ALL,
+                ],
                 User::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_TEAM,
                 ],
@@ -1822,7 +1850,57 @@ class EndpointTest extends BaseTestCase
         $this->assertEquals(2, $body->result->structuredContent->total);
 
         //
+    }
 
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function processTestCreatePost(
+        PostEntry $apiAction,
+        Endpoint $endpoint,
+        User $user,
+    ): void {
 
+        $em = $this->getEntityManager();
+
+        $case = $em->getRDBRepositoryByClass(CaseObj::class)->getNew();
+        $case
+            ->setName('Test Case')
+            ->setAssignedUser($user);
+        $em->saveEntity($case);
+
+        $post = "Test.";
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => CreatePostData::TYPE,
+                    'arguments' => (object) [
+                        'parentId' => $case->getId(),
+                        'parentType' => $case->getEntityType(),
+                        'isInternal' => true,
+                        'post' => $post,
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('structuredContent', $body->result);
+
+        $this->processValidateJsonSchema($endpoint, CreatePostData::TYPE, $body->result->structuredContent);
+
+        $noteId = $body->result->structuredContent->record->id ?? null;
+        $this->assertNotNull($noteId);
+
+        $note = $em->getRDBRepositoryByClass(Note::class)->getById($noteId);
+        $this->assertNotNull($note);
+
+        $this->assertTrue($note->isInternal());
+        $this->assertEquals($post, $note->getPost());
     }
 }
