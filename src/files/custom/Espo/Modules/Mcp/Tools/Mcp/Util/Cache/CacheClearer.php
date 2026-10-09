@@ -17,7 +17,7 @@ class CacheClearer
 
     public function clear(string $endpointId): void
     {
-        $dir = CacheKeyProvider::CATEGORY . '/' . basename($endpointId);
+        $dir = 'data/cache/application/' . CacheKeyProvider::CATEGORY . '/' . basename($endpointId);
 
         $this->fileManager->removeInDir($dir, true);
     }
