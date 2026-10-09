@@ -1936,6 +1936,8 @@ class EndpointTest extends BaseTestCase
 
         $this->assertTrue($note->isInternal());
         $this->assertEquals($post, $note->getPost());
+        $this->assertEquals($case->getId(), $note->getParentId());
+        $this->assertEquals($case->getEntityType(), $note->getParentType());
     }
 
     /**
