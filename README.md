@@ -51,6 +51,14 @@ Currently supported feature types:
 What is exposed as tools is also controlled by the user's access rights.
 For example, if a user does not have permission to create Leads, the client won't see the *Create_Lead* tool.
 
+Specific schema is built for each field type – for CRUD and filters. Schema builders are customizable per field type
+and per field:
+
+- app > mcpSchema > fieldTypes > {type} > filterSchemaProviderClassName
+- entityDefs > {entityType} > fields > {field} > mcpFilterSchemaProviderClassName
+
+An admin can specify additional instructions for the model for each field when configuring a CRUD or Find feature.
+
 ## Authentication
 
 ### API User
