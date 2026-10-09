@@ -9,7 +9,6 @@ use DateTimeZone;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
-use Espo\Core\Field\DateTime;
 use Espo\Core\Name\Field;
 use Espo\Core\Record\Collection;
 use Espo\Core\Select\SearchParams;
@@ -53,11 +52,11 @@ class RecordStreamToolProcessor implements ToolProcessor
         $entityType = $params->arguments->parentType ?? null;
 
         if (!is_string($id)) {
-            throw new InternalError("No `id' provided.");
+            throw new InternalError("No `parentId' provided.");
         }
 
         if (!is_string($entityType)) {
-            throw new InternalError("No `entityType' provided.");
+            throw new InternalError("No `parentType' provided.");
         }
 
         $searchParams = $this->fetchSearchParams($params);
