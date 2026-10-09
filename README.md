@@ -30,7 +30,7 @@ The ability to configure what is exposed helps keep the context window small.
 For example, if your MCP server is intended for a customer support team, you can whitelist only a small set of tools
 and limit each tool to what is needed.
 
-Add users to the endpoint. Only added users will be able to connect.
+Add users to the endpoint (from the Users panel in the MCP Endpoint detail view). Only added users will be able to connect.
 
 ### User roles
 
