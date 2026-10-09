@@ -24,7 +24,7 @@
             "Update": "Update",
             "Delete": "Delete",
             "RecordStream": "Record Stream",
-            "CreatePost": "CreatePost"
+            "CreatePost": "Create Post"
         }
     },
     "dataFields": {
