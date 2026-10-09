@@ -47,12 +47,23 @@ class Feature extends Entity
     public const string LINK_ENDPOINT = 'endpoint';
 
     public const string STATUS_ACTIVE = 'Active';
+    public const string STATUS_INACTIVE = 'Inactive';
 
     public const string ATTR_ENDPOINT_ID = 'endpointId';
 
     public function isActive(): bool
     {
         return $this->get(self::FIELD_STATUS) === self::STATUS_ACTIVE;
+    }
+
+    public function setActive(): self
+    {
+        return $this->set(self::FIELD_STATUS, self::STATUS_ACTIVE);
+    }
+
+    public function setInactive(): self
+    {
+        return $this->set(self::FIELD_STATUS, self::STATUS_INACTIVE);
     }
 
     public function setType(string $type): self

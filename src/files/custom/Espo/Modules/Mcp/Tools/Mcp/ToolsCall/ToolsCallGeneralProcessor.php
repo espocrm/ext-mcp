@@ -85,6 +85,10 @@ class ToolsCallGeneralProcessor
             throw new InternalError("Feature `$id` for tool `$name` not found.");
         }
 
+        if (!$feature->isActive()) {
+            throw new InternalError("Tool `$name` is inactivated.");
+        }
+
         return $feature;
     }
 }

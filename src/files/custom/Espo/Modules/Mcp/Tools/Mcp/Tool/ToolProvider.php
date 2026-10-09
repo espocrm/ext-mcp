@@ -62,6 +62,10 @@ class ToolProvider
                 $tools = [];
 
                 foreach ($this->endpoint->getFeatures() as $feature) {
+                    if (!$feature->isActive()) {
+                        continue;
+                    }
+
                     $tool = $this->getForFeature($feature);
 
                     if (!$tool) {

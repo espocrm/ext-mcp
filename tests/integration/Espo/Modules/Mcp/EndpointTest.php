@@ -27,6 +27,7 @@ use Espo\Entities\User;
 use Espo\Modules\Crm\Entities\Account;
 use Espo\Modules\Crm\Entities\Call;
 use Espo\Modules\Crm\Entities\CaseObj;
+use Espo\Modules\Crm\Entities\KnowledgeBaseArticle;
 use Espo\Modules\Crm\Entities\Lead;
 use Espo\Modules\Crm\Entities\Meeting;
 use Espo\Modules\Crm\Entities\Opportunity;
@@ -409,6 +410,26 @@ class EndpointTest extends BaseTestCase
                         filterFields: [],
                     )
                 )
+                ->setEndpoint($endpoint)
+        );
+
+        // Inactive.
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: KnowledgeBaseArticle::ENTITY_TYPE,
+                        textFilter: true,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                        ],
+                        primaryFilters: [],
+                        boolFilters: [],
+                        filterFields: [],
+                    )
+                )
+                ->setInactive()
                 ->setEndpoint($endpoint)
         );
 
@@ -867,6 +888,14 @@ class EndpointTest extends BaseTestCase
         $this->assertNotNull($recordStreamTool);
 
         $this->assertCount(1, $recordStreamTool->inputSchema->properties->parentType->anyOf);
+
+        //
+
+        // Inactive not listed.
+
+        $findKbArticleToolIndex = array_find_key($tools,
+            fn ($it) => $it->name === self::composeToolName('Find', KnowledgeBaseArticle::ENTITY_TYPE));
+        $this->assertNull($findKbArticleToolIndex);
     }
 
     /**
@@ -1730,6 +1759,9 @@ class EndpointTest extends BaseTestCase
                 CaseObj::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_ALL,
                     Table::ACTION_STREAM => Table::LEVEL_ALL,
+                ],
+                KnowledgeBaseArticle::ENTITY_TYPE => [
+                    Table::ACTION_READ => Table::LEVEL_ALL,
                 ],
                 User::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_TEAM,
