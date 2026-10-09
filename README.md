@@ -51,12 +51,6 @@ Currently supported feature types:
 What is exposed as tools is also controlled by the user's access rights.
 For example, if a user does not have permission to create Leads, the client won't see the *Create_Lead* tool.
 
-Specific schema is built for each field type – for CRUD and filters. Schema builders are customizable per field type
-and per field:
-
-- app > mcpSchema > fieldTypes > {type} > filterSchemaProviderClassName
-- entityDefs > {entityType} > fields > {field} > mcpFilterSchemaProviderClassName
-
 An admin can specify additional instructions for the model for each field when configuring a CRUD or Find feature.
 
 ## Authentication
@@ -73,3 +67,9 @@ As of EspoCRM v10.1, it will be possible to use OAuth 2.0 for authentication.
 ## Customization
 
 The framework allows developers to define and implement custom features (tools) in a future-proof way. See metadata > app > mcpFeatures.
+
+Specific schema is built for each field type – for CRUD and filters. Schema builders are customizable per field type
+and per field:
+
+- app > mcpSchema > fieldTypes > {type} > filterSchemaProviderClassName
+- entityDefs > {entityType} > fields > {field} > mcpFilterSchemaProviderClassName
