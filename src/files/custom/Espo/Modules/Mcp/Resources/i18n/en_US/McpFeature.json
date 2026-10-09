@@ -23,7 +23,8 @@
             "Create": "Create",
             "Update": "Update",
             "Delete": "Delete",
-            "RecordStream": "Record Stream"
+            "RecordStream": "Record Stream",
+            "CreatePost": "CreatePost"
         }
     },
     "dataFields": {
@@ -40,6 +41,7 @@
         "featureAlreadyExists": "The same feature already exists in the endpoint."
     },
     "tooltips": {
+        "createPostEntityTypes": "Specify the entity types in which the client can create stream posts.",
         "recordStreamEntityTypes": "Specify the entity types whose stream entries the client can view.",
         "updateWriteFields": "Specify which fields the client is allowed to write and an optional description (for LLM) for each field.",
         "createWriteFields": "Specify which fields the client is allowed to write and an optional description (for LLM) for each field.\n\nEnsure that all required fields (marked with `*`) are included unless unless they have default values or are computed programmatically.",
