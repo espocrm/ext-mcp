@@ -26,6 +26,7 @@ use Espo\Entities\Team;
 use Espo\Entities\User;
 use Espo\Modules\Crm\Entities\Account;
 use Espo\Modules\Crm\Entities\Call;
+use Espo\Modules\Crm\Entities\Campaign;
 use Espo\Modules\Crm\Entities\CaseObj;
 use Espo\Modules\Crm\Entities\KnowledgeBaseArticle;
 use Espo\Modules\Crm\Entities\Lead;
@@ -1766,6 +1767,7 @@ class EndpointTest extends BaseTestCase
                 User::ENTITY_TYPE => [
                     Table::ACTION_READ => Table::LEVEL_TEAM,
                 ],
+                Campaign::ENTITY_TYPE => false,
             ],
             Role::FIELD_FIELD_DATA => [
                 Lead::ENTITY_TYPE => [
@@ -1934,5 +1936,114 @@ class EndpointTest extends BaseTestCase
 
         $this->assertTrue($note->isInternal());
         $this->assertEquals($post, $note->getPost());
+    }
+
+    /**
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    public function testEmptyWhere(): void
+    {
+        $this->configureApp();
+
+        $team = $this->createTeam();
+        $apiUser = $this->createApiUser(team: $team);
+
+        $endpoint = $this->createEndpoint($apiUser);
+
+        //
+
+        $this->createFeatures(
+            endpoint: $endpoint,
+        );
+
+        //
+
+        $em = $this->getEntityManager();
+
+        //
+
+        $em->saveEntity(
+            $em->getRDBRepositoryByClass(Feature::class)->getNew()
+                ->setType(FindData::TYPE)
+                ->setData(
+                    new FindData(
+                        entityType: Account::ENTITY_TYPE,
+                        textFilter: false,
+                        selectFields: [
+                            new FindData\Field(Field::NAME),
+                           ],
+                        primaryFilters: [],
+                        boolFilters: [],
+                        filterFields: [
+                            new FindData\Field('campaign'),
+                        ],
+                    )
+                )
+                ->setEndpoint($endpoint)
+        );
+
+        //
+
+        $request = $this->createEntryRequest(
+            method: Method::SERVER_DISCOVER,
+            slug: 'test',
+            jsonrpc: '1.0',
+        );
+
+        $this->authenticate(
+            method: ApiKey::NAME,
+            request: $request,
+        );
+
+        $apiAction = $this->getInjectableFactory()->create(PostEntry::class);
+
+        //
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_LIST,
+                slug: 'test',
+                id: 1,
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertEquals(1, $body->id);
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertEquals('private', $body->result?->cacheScope);
+
+        $tools = $body->result->tools;
+
+        $this->assertIsArray($tools);
+
+        //
+
+        $toolIndex = array_find_key($tools, fn ($it) => $it->name === self::composeToolName('Find', 'Account'));
+        $this->assertNotNull($toolIndex);
+        $tool = $tools[$toolIndex] ?? null;
+        $this->assertNotNull($tool);
+
+        $this->assertObjectNotHasProperty('where', $tool->inputSchema->properties);
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => self::composeToolName('Find', 'Account'),
+                    'arguments' => (object) [
+                        'selectFields' => [
+                            'name',
+                        ],
+                    ],
+                ],
+            )
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectHasProperty('result', $body);
     }
 }

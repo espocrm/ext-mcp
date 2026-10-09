@@ -140,7 +140,6 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
                 minimum: 0,
                 description: self::OFFSET_DESCRIPTION,
             ),
-            'selectFields' => $this->getSelectFieldsSchema($data),
             'order' => new GroupSchema(
                 keyword: GroupKeyword::anyOf,
                 schemas:[
@@ -155,8 +154,19 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
                 ],
                 description: self::ORDER_DESCRIPTION,
             ),
-            'orderBy' => $this->getOrderBySchema($data),
         ];
+
+        $selectFieldsSchema = $this->getSelectFieldsSchema($data);
+
+        if ($selectFieldsSchema) {
+            $properties['selectFields'] = $selectFieldsSchema;
+        }
+
+        $orderBySchema = $this->getOrderBySchema($data);
+
+        if ($orderBySchema) {
+            $properties['orderBy'] = $orderBySchema;
+        }
 
         if ($data->textFilter) {
             $properties['textFilter'] = $this->getTextFilterSchema($data);
@@ -171,7 +181,11 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         }
 
         if ($data->filterFields) {
-            $properties['where'] = $this->getWhereSchema($data);
+            $whereSchema = $this->getWhereSchema($data);
+
+            if ($whereSchema) {
+                $properties['where'] = $whereSchema;
+            }
         }
 
         return new ObjectType(
@@ -217,7 +231,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     /**
      * @throws UnsupportedFeatureValue
      */
-    private function getWhereSchema(FindData $data): Schema
+    private function getWhereSchema(FindData $data): ?Schema
     {
         $schemas = [];
 
@@ -232,6 +246,10 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
             $schemas = [...$schemas, ...$provider->get($params)];
         }
 
+        if ($schemas === []) {
+            return null;
+        }
+
         return new ArrayType(
             items: new GroupSchema(
                 keyword: GroupKeyword::anyOf,
@@ -241,7 +259,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         );
     }
 
-    private function getOrderBySchema(FindData $data): Schema
+    private function getOrderBySchema(FindData $data): ?Schema
     {
         $description = self::ORDER_BY_DESCRIPTION;
 
@@ -253,6 +271,12 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
             $description .= " If omitted, then sorted by '$defaultLabel'.";
         }
 
+        $orderByFields = $this->getOrderByFields($data);
+
+        if ($orderByFields === []) {
+            return null;
+        }
+
         return new GroupSchema(
             keyword: GroupKeyword::anyOf,
             schemas: array_map(function ($field) use ($data) {
@@ -260,7 +284,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
                     value: $field,
                     title: $this->defaultLanguage->translateLabel($field, 'fields', $data->entityType),
                 );
-            }, $this->getOrderByFields($data)),
+            }, $orderByFields),
             description: $description,
         );
     }
@@ -301,8 +325,14 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         return array_map(fn ($it) => $it->name, $fields);
     }
 
-    private function getSelectFieldsSchema(FindData $data): ArrayType
+    private function getSelectFieldsSchema(FindData $data): ?ArrayType
     {
+        $fields = $this->filterFields($data->selectFields, $data->entityType);
+
+        if ($fields === []) {
+            return null;
+        }
+
         return new ArrayType(
             items: GroupSchema::createAnyOf(
                 schemas: array_map(function ($field) use ($data) {
@@ -311,7 +341,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
                         title: $this->defaultLanguage->translateLabel($field->name, 'fields', $data->entityType),
                         description: $field->description,
                     );
-                }, $this->filterFields($data->selectFields, $data->entityType))
+                }, $fields)
             ),
             description: self::SELECT_DESCRIPTION,
         );
