@@ -46,6 +46,7 @@ Currently supported feature types:
 - Update – Updates a record.
 - Delete – Deletes a record.
 - Record Stream – Lists and searches in a record's stream.
+- Create Post – Creates a stream post in a record.
 
 What is exposed as tools is also controlled by the user's access rights.
 For example, if a user does not have permission to create Leads, the client won't see the *Create_Lead* tool.
