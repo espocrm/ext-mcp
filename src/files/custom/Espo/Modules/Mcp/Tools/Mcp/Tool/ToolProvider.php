@@ -62,6 +62,10 @@ class ToolProvider
                 $tools = [];
 
                 foreach ($this->endpoint->getFeatures() as $feature) {
+                    if (!$feature->isActive()) {
+                        continue;
+                    }
+
                     $tool = $this->getForFeature($feature);
 
                     if (!$tool) {
@@ -117,7 +121,19 @@ class ToolProvider
      */
     private function getEnvelopeAll(): array
     {
-        return $this->dataCacheAccess->get();
+        $activeFeatureIds = [];
+
+        foreach ($this->endpoint->getFeatures() as $feature) {
+            if ($feature->isActive()) {
+                $activeFeatureIds[$feature->getId()] = true;
+            }
+        }
+
+        // Cached definitions must not restore a feature that was revoked or unlinked.
+        return array_values(array_filter(
+            $this->dataCacheAccess->get(),
+            fn (ToolEnvelope $item) => isset($activeFeatureIds[$item->featureId]),
+        ));
     }
 
     /**

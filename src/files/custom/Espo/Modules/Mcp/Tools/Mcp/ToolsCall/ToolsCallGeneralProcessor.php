@@ -59,9 +59,9 @@ class ToolsCallGeneralProcessor
     {
         $toolEnvelope = $this->toolProvider->get($params->name);
 
-        $this->jsonSchemaValidator->assert($toolEnvelope->tool->inputSchema, $params->arguments);
-
         $feature = $this->getFeature($toolEnvelope->featureId, $params->name);
+
+        $this->jsonSchemaValidator->assert($toolEnvelope->tool->inputSchema, $params->arguments);
 
         $processor = $this->processorFactory->create($params->name);
 
@@ -76,6 +76,7 @@ class ToolsCallGeneralProcessor
 
     /**
      * @throws InternalError
+     * @throws InvalidParamsError
      */
     private function getFeature(string $id, string $name): Feature
     {
@@ -83,6 +84,10 @@ class ToolsCallGeneralProcessor
 
         if (!$feature) {
             throw new InternalError("Feature `$id` for tool `$name` not found.");
+        }
+
+        if (!$feature->isActive()) {
+            throw new InvalidParamsError("Tool `$name` not found.");
         }
 
         return $feature;
