@@ -8,7 +8,6 @@ use Espo\Core\Utils\Language;
 use Espo\Core\Utils\Metadata;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
-use Espo\Modules\Mcp\Tools\Feature\Features\RecordStream\RecordStreamData;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
