@@ -102,10 +102,12 @@
             "unique": true,
             "columns": [
                 "slug",
-                "status"
+                "status",
+                "deleteId"
             ]
         }
     },
     "entityClassName": "Espo\\Modules\\Mcp\\Entities\\Endpoint",
-    "transactionalSave": true
+    "transactionalSave": true,
+    "deleteId": true
 }
