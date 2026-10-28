@@ -282,6 +282,7 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
         const view = new ArrayFieldAdd({
             options: fields,
             translatedOptions: translatedOptions,
+            checkAll: true,
         });
 
         await this.assignView('dialog', view);
