@@ -96,7 +96,7 @@ class LinkParentSchemaProvider implements SchemaProvider
             description:
                 "An ID attribute of the '$label' link-parent (polymorphic) field. Field name: `$params->field`. " .
                 "Specifies the foreign record ID." .
-                "Tool to retrieve IDs: `Find.{entityType}`."
+                "Tool to retrieve IDs: `Find_{entityType}`."
         );
 
         $typeSchemas = array_map(function ($it) {

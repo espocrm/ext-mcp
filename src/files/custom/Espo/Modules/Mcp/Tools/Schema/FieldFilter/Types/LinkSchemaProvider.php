@@ -91,7 +91,7 @@ class LinkSchemaProvider implements SchemaProvider
                     'value' => new StringType(
                         description:
                             "'$foreignScopeLabel' record ID. Foreign type: `$foreignEntityType`. " .
-                            "Tool to retrieve IDs: `Find.$foreignEntityType`."
+                            "Tool to retrieve IDs: `Find_$foreignEntityType`."
                     ),
                 ],
                 required: [

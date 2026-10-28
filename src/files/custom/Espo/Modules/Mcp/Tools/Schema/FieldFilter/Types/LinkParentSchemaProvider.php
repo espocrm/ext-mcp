@@ -93,7 +93,7 @@ class LinkParentSchemaProvider implements SchemaProvider
                         description:
                             "Foreign record ID. " .
                             "Foreign types: " . $this->composeEntityTypesString($foreignEntityTypes) . ". " .
-                            "Tools to retrieve IDs: `Find.{entityType}`."
+                            "Tools to retrieve IDs: `Find_{entityType}`."
                     ),
                 ],
                 required: [

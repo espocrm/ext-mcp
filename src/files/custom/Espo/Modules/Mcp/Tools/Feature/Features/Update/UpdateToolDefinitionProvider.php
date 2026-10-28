@@ -181,7 +181,7 @@ class UpdateToolDefinitionProvider implements ToolDefinitionProvider
             properties: [
                 'record' => new ObjectType(
                     properties: $properties,
-                    description: "Updated record. To fetch other fields, use the `Read.$data->entityType` tool.",
+                    description: "Updated record. To fetch other fields, use the `Read_$data->entityType` tool.",
                 ),
                 'error' => new ObjectType(
                     properties: [

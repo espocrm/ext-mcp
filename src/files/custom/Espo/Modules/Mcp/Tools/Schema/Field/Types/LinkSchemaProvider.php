@@ -90,7 +90,7 @@ class LinkSchemaProvider implements SchemaProvider
             description:
                 "An ID attribute of the '$label' link field. Field name: `$params->field`. " .
                 "Specifies the '$foreignScopeLabel' record ID. Foreign type: `$foreignEntityType`. " .
-                "Tool to retrieve IDs: `Find.$foreignEntityType`."
+                "Tool to retrieve IDs: `Find_$foreignEntityType`."
         );
 
         if (!$fieldDefs->getParam(FieldParam::REQUIRED)) {

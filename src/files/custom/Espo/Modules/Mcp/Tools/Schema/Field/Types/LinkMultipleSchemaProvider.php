@@ -98,7 +98,7 @@ class LinkMultipleSchemaProvider implements SchemaProvider
             description:
                 "An IDs attribute of the '$label' link-multiple field. Field name: `$params->field`. " .
                 "Specifies the '$foreignScopeLabel' record IDs. Foreign type: `$foreignEntityType`. " .
-                "Tool to retrieve IDs: `Find.$foreignEntityType`."
+                "Tool to retrieve IDs: `Find_$foreignEntityType`."
         );
 
         $properties = [

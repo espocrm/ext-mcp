@@ -189,7 +189,7 @@ class CreateToolDefinitionProvider implements ToolDefinitionProvider
             properties: [
                 'record' => new ObjectType(
                     properties: $properties,
-                    description: "Created record. To fetch other fields, use the `Read.$data->entityType` tool.",
+                    description: "Created record. To fetch other fields, use the `Read_$data->entityType` tool.",
                 ),
                 'error' => new ObjectType(
                     properties: [

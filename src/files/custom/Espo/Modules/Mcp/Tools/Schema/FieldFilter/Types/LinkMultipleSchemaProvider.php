@@ -109,7 +109,7 @@ class LinkMultipleSchemaProvider implements SchemaProvider
                         ),
                         description:
                             "'$foreignScopeLabel' record IDs. Foreign type: `$foreignEntityType`. " .
-                            "Tool to retrieve IDs: `Find.$foreignEntityType`."
+                            "Tool to retrieve IDs: `Find_$foreignEntityType`."
                     ),
                 ],
                 required: [
