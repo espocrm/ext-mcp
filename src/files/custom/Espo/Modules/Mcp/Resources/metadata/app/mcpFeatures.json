@@ -103,7 +103,6 @@
                 },
                 "selectFields": {
                     "type": "jsonArray",
-                    "required": true,
                     "view": "modules/mcp/views/feature-record/fields/fields",
                     "tooltip": "McpFeature.findSelectFields"
                 },
@@ -212,7 +211,6 @@
                 },
                 "selectFields": {
                     "type": "jsonArray",
-                    "required": true,
                     "view": "modules/mcp/views/feature-record/fields/fields",
                     "tooltip": "McpFeature.findSelectFields"
                 }
