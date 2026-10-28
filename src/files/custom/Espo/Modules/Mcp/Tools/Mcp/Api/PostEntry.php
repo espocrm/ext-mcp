@@ -36,6 +36,7 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Mcp\EntryService;
+use Espo\Modules\Mcp\Tools\Mcp\Util\EndUserChecker;
 
 /**
  * @noinspection PhpUnused
@@ -45,12 +46,13 @@ class PostEntry implements Action
     public function __construct(
         private User $user,
         private EntryService $service,
+        private EndUserChecker $endUserChecker,
     ) {}
 
     public function process(Request $request): Response
     {
-        if (!$this->user->isApi()) {
-            throw new Forbidden("Only API users allowed.");
+        if (!$this->endUserChecker->check($this->user)) {
+            throw new Forbidden("Only API and internal users are allowed.");
         }
 
         $slug = $request->getRouteParam('slug') ?? throw new BadRequest();

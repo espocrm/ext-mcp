@@ -32,6 +32,7 @@ namespace Espo\Modules\Mcp\Classes\Acl\Endpoint\LinkCheckers;
 use Espo\Core\Acl\LinkChecker;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Entities\Endpoint;
+use Espo\Modules\Mcp\Tools\Mcp\Util\EndUserChecker;
 use Espo\ORM\Entity;
 
 /**
@@ -39,8 +40,12 @@ use Espo\ORM\Entity;
  */
 class Users implements LinkChecker
 {
+    public function __construct(
+        private EndUserChecker $endUserChecker,
+    ) {}
+
     public function check(User $user, Entity $entity, Entity $foreignEntity): bool
     {
-        return $foreignEntity->isApi();
+        return $this->endUserChecker->check($foreignEntity);
     }
 }
