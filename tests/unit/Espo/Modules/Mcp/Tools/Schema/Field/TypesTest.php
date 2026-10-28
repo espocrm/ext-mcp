@@ -871,7 +871,7 @@ class TypesTest extends TestCase
                         description:
                         "An IDs attribute of the 'Field' link-multiple field. Field name: `test`. " .
                         "Specifies the 'Another Label' record IDs. Foreign type: `Another`. " .
-                        "Tool to retrieve IDs: `Find.Another`."
+                        "Tool to retrieve IDs: `Find_Another`."
                     ),
                 ],
                 required: [
@@ -940,7 +940,7 @@ class TypesTest extends TestCase
                         description:
                             "An IDs attribute of the 'Field' link-multiple field. Field name: `test`. " .
                             "Specifies the 'Another Label' record IDs. Foreign type: `Another`. " .
-                            "Tool to retrieve IDs: `Find.Another`."
+                            "Tool to retrieve IDs: `Find_Another`."
                     ),
                     'testNames' => new ObjectType(
                         additionalProperties: Util::wrapWithNull(
@@ -1021,7 +1021,7 @@ class TypesTest extends TestCase
                             "An ID attribute of the 'Parent' link-parent (polymorphic) field. " .
                             "Field name: `parent`. " .
                             "Specifies the foreign record ID." .
-                            "Tool to retrieve IDs: `Find.{entityType}`."
+                            "Tool to retrieve IDs: `Find_{entityType}`."
                     ),
                     'parentType' => new GroupSchema(
                         keyword: GroupKeyword::anyOf,
@@ -1106,7 +1106,7 @@ class TypesTest extends TestCase
                         "An ID attribute of the 'Parent' link-parent (polymorphic) field. " .
                         "Field name: `parent`. " .
                         "Specifies the foreign record ID." .
-                        "Tool to retrieve IDs: `Find.{entityType}`."
+                        "Tool to retrieve IDs: `Find_{entityType}`."
                     ),
                     'parentType' => new GroupSchema(
                         keyword: GroupKeyword::anyOf,
@@ -1203,7 +1203,7 @@ class TypesTest extends TestCase
                         description:
                             "An ID attribute of the 'Field' link field. Field name: `field`. " .
                             "Specifies the 'A Label' record ID. Foreign type: `A`. " .
-                            "Tool to retrieve IDs: `Find.A`."
+                            "Tool to retrieve IDs: `Find_A`."
                     ),
                 ],
                 required: [
@@ -1277,7 +1277,7 @@ class TypesTest extends TestCase
                         description:
                             "An ID attribute of the 'Field' link field. Field name: `field`. " .
                             "Specifies the 'A Label' record ID. Foreign type: `A`. " .
-                            "Tool to retrieve IDs: `Find.A`."
+                            "Tool to retrieve IDs: `Find_A`."
                     ),
                     'fieldName' => Util::wrapWithNull(new StringType(
                         title: "Field (Name)",
