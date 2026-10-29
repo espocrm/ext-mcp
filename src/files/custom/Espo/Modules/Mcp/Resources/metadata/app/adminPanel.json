@@ -5,7 +5,8 @@
             {
                 "labelTranslation": "Global.scopeNamesPlural.McpEndpoint",
                 "url": "#McpEndpoint",
-                "iconClass": "fas fa-hexagon-nodes"
+                "iconClass": "fas fa-hexagon-nodes",
+                "tabQuickSearch": true
             }
         ]
     }
