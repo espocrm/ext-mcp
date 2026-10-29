@@ -65,6 +65,9 @@ you need to configure the MCP client to pass the `X-Api-Key` header.
 
 As of EspoCRM v10.1, it will be possible to use OAuth 2.0 for authentication.
 
+Register a client in EspoCRM under: Administration > OAuth Clients. Specify the needed scopes for the client.
+You need to add the `Mcp` unless you choose to use the `Global` scope, in which case the `Mcp` scope can be omitted.
+
 ## Customization
 
 The framework allows developers to define and implement custom features (tools) in a future-proof way. See metadata > app > mcpFeatures.
