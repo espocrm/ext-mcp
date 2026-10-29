@@ -31,6 +31,7 @@ For example, if your MCP server is intended for a customer support team, you can
 and limit each tool to what is needed.
 
 Add users to the endpoint (from the Users panel in the MCP Endpoint detail view). Only added users will be able to connect.
+Use the primary filter in the user selection modal to switch between internal users and API users.
 
 ### User roles
 
