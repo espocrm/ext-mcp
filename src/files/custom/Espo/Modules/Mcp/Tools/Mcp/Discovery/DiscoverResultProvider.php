@@ -31,6 +31,7 @@ namespace Espo\Modules\Mcp\Tools\Mcp\Discovery;
 
 use Espo\Modules\Mcp\Tools\Mcp\CachePropertyProvider;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Discovery\DiscoverResult;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Discovery\ResourcesCapability;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Discovery\ServerCapabilities;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Discovery\ToolsCapability;
 use Espo\Modules\Mcp\Tools\Mcp\SupportedVersionsProvider;
@@ -46,6 +47,7 @@ class DiscoverResultProvider
     {
         $capabilities = new ServerCapabilities(
             tools: new ToolsCapability(listChanged: false),
+            resources: new ResourcesCapability(listChanged: false),
         );
 
         return new DiscoverResult(

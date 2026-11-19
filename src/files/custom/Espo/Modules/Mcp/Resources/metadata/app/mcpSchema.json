@@ -245,6 +245,33 @@
             "update": true,
             "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\LinkMultipleSchemaProvider",
             "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\LinkMultipleSchemaProvider"
+        },
+        "file": {
+            "select": true,
+            "filter": true,
+            "read": true,
+            "create": false,
+            "update": false,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\FileSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\FileSchemaProvider"
+        },
+        "image": {
+            "select": true,
+            "filter": true,
+            "read": true,
+            "create": false,
+            "update": false,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\FileSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\FileSchemaProvider"
+        },
+        "attachmentMultiple": {
+            "select": true,
+            "filter": true,
+            "read": true,
+            "create": false,
+            "update": false,
+            "filterSchemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\Types\\AttachmentMultipleSchemaProvider",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\AttachmentMultipleSchemaProvider"
         }
     }
 }

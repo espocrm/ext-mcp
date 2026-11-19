@@ -235,6 +235,29 @@ class RecordStreamToolDefinitionProvider implements ToolDefinitionProvider
                 title: 'Is Internal',
                 description: "Is the post internal. Internal posts are not visible in portals."
             ),
+            'attachmentsIds' => new ArrayType(
+                items: new StringType(
+                    title: 'Attachment ID',
+                ),
+                title: 'Attachment IDs',
+                description: "Resource URI template: `espo://Attachment/{id}`.",
+            ),
+            'attachmentsNames' => new ObjectType(
+                additionalProperties: Util::wrapWithNull(
+                    new StringType(
+                        title: "Attachment filename",
+                    ),
+                ),
+                title: "Attachment file names",
+            ),
+            'attachmentsTypes' => new ObjectType(
+                additionalProperties: Util::wrapWithNull(
+                    new StringType(
+                        title: "Attachment mime-type",
+                    ),
+                ),
+                title: "Attachment mime-types",
+            ),
             'data' => new ObjectType(
                 additionalProperties: true,
                 title: 'Data',

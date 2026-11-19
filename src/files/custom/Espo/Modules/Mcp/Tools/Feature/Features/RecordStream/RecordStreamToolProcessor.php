@@ -261,12 +261,16 @@ class RecordStreamToolProcessor implements ToolProcessor
         if (
             !in_array($entity->getType(), [
                 Note::TYPE_POST,
+                // Email notes does not contain attachments. But it future they might contain.
                 Note::TYPE_EMAIL_RECEIVED,
                 Note::TYPE_EMAIL_SENT,
             ])
         ) {
             unset($item->reactionCounts);
             unset($item->myReactions);
+            unset($item->attachmentsIds);
+            unset($item->attachmentsNames);
+            unset($item->attachmentsTypes);
         } else {
             $reactionCounts = $entity->get('reactionCounts');
 

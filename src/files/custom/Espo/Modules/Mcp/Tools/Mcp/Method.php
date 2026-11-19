@@ -34,4 +34,7 @@ class Method
     public const string SERVER_DISCOVER = 'server/discover';
     public const string TOOLS_LIST = 'tools/list';
     public const string TOOLS_CALL = 'tools/call';
+    public const string RESOURCES_LIST = 'resources/list';
+    public const string RESOURCES_TEMPLATES_LIST = 'resources/templates/list';
+    public const string RESOURCES_READ = 'resources/read';
 }
