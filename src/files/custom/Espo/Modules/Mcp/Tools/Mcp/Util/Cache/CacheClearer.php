@@ -30,7 +30,8 @@
 namespace Espo\Modules\Mcp\Tools\Mcp\Util\Cache;
 
 use Espo\Core\Utils\File\Manager as FileManager;
-use Espo\Modules\Mcp\Tools\Mcp\Tool\CacheKeyProvider;
+use Espo\Modules\Mcp\Tools\Mcp\ResourceTemplate\CacheKeyProvider as ResourceTemplatesCacheKeyProvider;
+use Espo\Modules\Mcp\Tools\Mcp\Tool\CacheKeyProvider as ToolsCacheKeyProvider;
 
 /**
  * @todo Use clearing category against DataCache when implemented.
@@ -43,8 +44,13 @@ class CacheClearer
 
     public function clear(string $endpointId): void
     {
-        $dir = 'data/cache/application/' . CacheKeyProvider::CATEGORY . '/' . basename($endpointId);
+        $dirs = [
+            'data/cache/application/' . ToolsCacheKeyProvider::CATEGORY . '/' . basename($endpointId),
+            'data/cache/application/' . ResourceTemplatesCacheKeyProvider::CATEGORY . '/' . basename($endpointId),
+        ];
 
-        $this->fileManager->removeInDir($dir, true);
+        foreach ($dirs as $dir) {
+            $this->fileManager->removeInDir($dir, true);
+        }
     }
 }

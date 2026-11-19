@@ -1,0 +1,8 @@
+{
+    "Attachment": {
+        "uriTemplate": "espo://Attachment/{id}",
+        "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\ResourceTemplate\\Templates\\Attachment\\AttachmentDefinitionProvider",
+        "readerClassName": "Espo\\Modules\\Mcp\\Tools\\ResourceTemplate\\Templates\\Attachment\\AttachmentReader",
+        "paramsClassName": "Espo\\Modules\\Mcp\\Tools\\ResourceTemplate\\Templates\\Attachment\\AttachmentParams"
+    }
+}

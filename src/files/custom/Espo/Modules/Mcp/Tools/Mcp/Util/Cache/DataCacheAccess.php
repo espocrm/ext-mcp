@@ -39,7 +39,6 @@ use stdClass;
 
 /**
  * @internal
- * @since 10.1.0
  * @template T of mixed = mixed
  */
 class DataCacheAccess

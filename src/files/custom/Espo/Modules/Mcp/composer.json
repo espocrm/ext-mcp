@@ -1,5 +1,6 @@
 {
     "require": {
-        "opis/json-schema": "^2.6.0"
+        "opis/json-schema": "^2.6.0",
+        "rize/uri-template": "^0.4.2"
     }
 }

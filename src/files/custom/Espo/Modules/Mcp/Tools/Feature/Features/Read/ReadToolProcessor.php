@@ -37,6 +37,7 @@ use Espo\Core\Utils\FieldUtil;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\EntityOutput;
+use Espo\Modules\Mcp\Tools\Feature\Utils\AttachmentResourceLinksPreparator;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ResourceLinkPreparator;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
@@ -60,6 +61,7 @@ class ReadToolProcessor implements ToolProcessor
         private User $user,
         private FieldUtil $fieldUtil,
         private ResourceLinkPreparator $resourceLinkPreparator,
+        private AttachmentResourceLinksPreparator $attachmentResourceLinksPreparator,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -112,6 +114,8 @@ class ReadToolProcessor implements ToolProcessor
             ],
             content: [
                 $this->resourceLinkPreparator->prepare($readResult->getEntity()),
+                ...$this->attachmentResourceLinksPreparator
+                    ->get($readResult->getEntity(), $this->getSelectFields($params) ?? []),
             ],
         );
     }
@@ -169,9 +173,9 @@ class ReadToolProcessor implements ToolProcessor
      */
     private function getSelectAttributes(CallToolRequestParams $params, string $entityType): ?array
     {
-        $selectFields = $params->arguments->selectFields ?? null;
+        $selectFields = $this->getSelectFields($params);
 
-        if (!is_array($selectFields)) {
+        if ($selectFields === null) {
             return null;
         }
 
@@ -186,5 +190,23 @@ class ReadToolProcessor implements ToolProcessor
         }
 
         return array_values(array_unique($selectAttributes));
+    }
+
+    /**
+     * @return ?string[]
+     */
+    private function getSelectFields(CallToolRequestParams $params): ?array
+    {
+        $selectFields = $params->arguments->selectFields ?? null;
+
+        if ($selectFields === null) {
+            return null;
+        }
+
+        if (!is_array($selectFields)) {
+            throw new RuntimeException("Bad 'selectFields'.");
+        }
+
+        return $selectFields;
     }
 }

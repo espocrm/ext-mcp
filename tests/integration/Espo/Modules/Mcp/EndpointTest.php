@@ -784,6 +784,9 @@ class EndpointTest extends BaseTestCase
             'tools' => (object) [
                 'listChanged' => false,
             ],
+            'resources' => (object) [
+                'listChanged' => false,
+            ],
         ], $body->result?->capabilities);
 
         $this->assertEquals('EspoCRM.test', $body->result->_meta->{"io.modelcontextprotocol/serverInfo"}->name);

@@ -105,6 +105,9 @@ class Router
         return $this->injectableFactory->createWithBinding($handlerClass, $binding);
     }
 
+    /**
+     * @throws Error
+     */
     private function processBeforeHooks(Request $request): void
     {
         $binding = $this->bindingProvider->get();

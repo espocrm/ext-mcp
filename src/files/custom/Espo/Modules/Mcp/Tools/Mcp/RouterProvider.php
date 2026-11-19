@@ -31,6 +31,9 @@ namespace Espo\Modules\Mcp\Tools\Mcp;
 
 use Espo\Core\InjectableFactory;
 use Espo\Modules\Mcp\Entities\Endpoint;
+use Espo\Modules\Mcp\Tools\Mcp\Handlers\ResourcesListHandler;
+use Espo\Modules\Mcp\Tools\Mcp\Handlers\ResourcesReadHandler;
+use Espo\Modules\Mcp\Tools\Mcp\Handlers\ResourcesTemplatesListHandler;
 use Espo\Modules\Mcp\Tools\Mcp\Handlers\ServerDiscoverHandler;
 use Espo\Modules\Mcp\Tools\Mcp\Handlers\ToolsCallHandler;
 use Espo\Modules\Mcp\Tools\Mcp\Handlers\ToolsListHandler;
@@ -66,6 +69,9 @@ class RouterProvider
             Method::SERVER_DISCOVER => ServerDiscoverHandler::class,
             Method::TOOLS_LIST => ToolsListHandler::class,
             Method::TOOLS_CALL => ToolsCallHandler::class,
+            Method::RESOURCES_LIST => ResourcesListHandler::class,
+            Method::RESOURCES_TEMPLATES_LIST => ResourcesTemplatesListHandler::class,
+            Method::RESOURCES_READ => ResourcesReadHandler::class,
         ]);
     }
 }
