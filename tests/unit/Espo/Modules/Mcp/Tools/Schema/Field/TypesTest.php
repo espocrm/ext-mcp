@@ -1650,6 +1650,7 @@ class TypesTest extends TestCase
             expected: new Result(
                 properties: [
                     'test' =>  new StringType(
+                        minLength: 1,
                         maxLength: 100,
                         title: 'Test',
                         description: "Single-line.",
@@ -1701,6 +1702,7 @@ class TypesTest extends TestCase
                     'test' => GroupSchema::createAnyOf(
                         schemas: [
                             new StringType(
+                                minLength: 1,
                                 maxLength: 100,
                             ),
                             new EnumSchema(

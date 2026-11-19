@@ -74,7 +74,10 @@ class VarcharSchemaProvider implements SchemaProvider
 
         $description = "Single-line.";
 
+        $isRequiredOnWrite = $params->isWriteAction() && $fieldDefs->getParam(FieldParam::REQUIRED);
+
         $property = new StringType(
+            minLength: $isRequiredOnWrite ? 1 : null,
             maxLength: $maxLength,
             title: $label,
             description: $description,
