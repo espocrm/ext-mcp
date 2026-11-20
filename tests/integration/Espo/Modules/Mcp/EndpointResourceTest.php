@@ -175,9 +175,13 @@ class EndpointResourceTest extends BaseTestCase
         $this->assertEquals('resource_link', $link1->type);
         $this->assertEquals('a.txt', $link1->name);
         $this->assertEquals('text/plain', $link1->mimeType ?? null);
+        $this->assertEquals(CaseObj::ENTITY_TYPE, $link1->_meta->entityType ?? null);
+        $this->assertEquals('attachments', $link1->_meta->field ?? null);
 
         $this->assertEquals('b.png', $link2->name);
         $this->assertEquals('image/png', $link2->mimeType ?? null);
+        $this->assertEquals(CaseObj::ENTITY_TYPE, $link2->_meta->entityType ?? null);
+        $this->assertEquals('attachments', $link2->_meta->field ?? null);
 
         // Read_Case. Attachments not selected, no attachment links.
 
@@ -216,6 +220,8 @@ class EndpointResourceTest extends BaseTestCase
 
         $this->assertNotNull($link);
         $this->assertEquals('c.pdf', $link->name);
+        $this->assertEquals(Document::ENTITY_TYPE, $link->_meta->entityType ?? null);
+        $this->assertEquals('file', $link->_meta->field ?? null);
     }
 
     /**
