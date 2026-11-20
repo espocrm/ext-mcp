@@ -192,11 +192,12 @@ class AttachmentReader implements Reader
                 continue;
             }
 
-            $fields = [
-                ...array_map(fn ($it) => $it->name, $data->selectFields),
-                // Mandatory fields will be implemented in the future.
-                ...$this->metadata->get("app.mcpScopes.$entityType.mandatoryFields", []),
-            ];
+            // Mandatory fields will be implemented in the future.
+            if ($this->metadata->get("app.mcpScopes.$entityType.fields.read")) {
+                return true;
+            }
+
+            $fields = array_map(fn ($it) => $it->name, $data->selectFields);
 
             if (in_array($field, $fields, true)) {
                 return true;
