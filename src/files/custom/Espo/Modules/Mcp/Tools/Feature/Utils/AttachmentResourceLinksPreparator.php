@@ -100,6 +100,7 @@ class AttachmentResourceLinksPreparator
                 uri: Uri::compose($id),
                 description: "Attachment of the `$field` field.",
                 mimeType: $types->$id ?? null,
+                meta: $this->prepareMeta($entity->getEntityType(), $field),
             );
         }
 
@@ -123,6 +124,18 @@ class AttachmentResourceLinksPreparator
             name: $name ?? $id,
             uri: Uri::compose($id),
             description: "Attachment of the `$field` field.",
+            meta: $this->prepareMeta($entity->getEntityType(), $field),
         );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function prepareMeta(string $entityType, string $field): array
+    {
+        return [
+            'entityType' => $entityType,
+            'field' => $field,
+        ];
     }
 }

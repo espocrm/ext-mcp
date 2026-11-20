@@ -39,6 +39,7 @@ readonly class ResourceLink implements JsonSerializable
      * @param string $name Intended for programmatic or logical use.
      * @param ?int $size Size in bytes.
      * @param ?Annotations $annotations
+     * @param ?array<string, mixed> $meta
      */
     public function __construct(
         public string $name,
@@ -48,6 +49,7 @@ readonly class ResourceLink implements JsonSerializable
         public ?string $mimeType = null,
         public ?int $size = null,
         public ?Annotations $annotations = null,
+        public ?array $meta = null,
     ) {}
 
     public function jsonSerialize(): stdClass
@@ -76,6 +78,10 @@ readonly class ResourceLink implements JsonSerializable
 
         if ($this->annotations !== null) {
             $object->annotations = $this->annotations->jsonSerialize();
+        }
+
+        if ($this->meta !== null) {
+            $object->_meta = (object) $this->meta;
         }
 
         return $object;
