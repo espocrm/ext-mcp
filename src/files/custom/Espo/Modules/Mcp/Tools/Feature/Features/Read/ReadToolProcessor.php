@@ -38,7 +38,7 @@ use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\EntityOutput;
 use Espo\Modules\Mcp\Tools\Feature\Utils\AttachmentResourceLinksPreparator;
-use Espo\Modules\Mcp\Tools\Feature\Utils\ResourceLinkPreparator;
+use Espo\Modules\Mcp\Tools\Feature\Utils\RecordResourceTextPreparator;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
@@ -60,7 +60,7 @@ class ReadToolProcessor implements ToolProcessor
         private EntityOutput $entityOutput,
         private User $user,
         private FieldUtil $fieldUtil,
-        private ResourceLinkPreparator $resourceLinkPreparator,
+        private RecordResourceTextPreparator $recordResourceTextPreparator,
         private AttachmentResourceLinksPreparator $attachmentResourceLinksPreparator,
     ) {}
 
@@ -113,7 +113,7 @@ class ReadToolProcessor implements ToolProcessor
                 'record' => $this->prepareRecordOutput($params, $readResult, $outputSchema),
             ],
             content: [
-                $this->resourceLinkPreparator->prepare($readResult->getEntity()),
+                $this->recordResourceTextPreparator->prepare($readResult->getEntity()),
                 ...$this->attachmentResourceLinksPreparator
                     ->get($readResult->getEntity(), $this->getSelectFields($params) ?? []),
             ],

@@ -31,6 +31,7 @@ namespace Espo\Modules\Mcp\Tools\Mcp\Schema\Tool;
 
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequest;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\TextResource;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Value\ResultType;
 use JsonSerializable;
 use stdClass;
@@ -42,7 +43,7 @@ readonly class CallToolResult implements JsonSerializable
 {
     /**
      * @param stdClass|stdClass[]|(scalar|null)[]|scalar|null $structuredContent
-     * @param ResourceLink[] $content
+     * @param (TextResource|ResourceLink)[] $content
      * @param ?array<string, ElicitRequest> $inputRequests
      */
     public function __construct(

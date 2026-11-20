@@ -42,6 +42,7 @@ use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequest;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequestFormParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\TextResource;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Value\ResultType;
 use JsonException;
@@ -51,19 +52,16 @@ class ExceptionUtil
 {
     public function __construct(
         private Language $defaultLanguage,
-        private ResourceLinkPreparator $resourceLinkPreparator,
+        private RecordResourceTextPreparator $recordResourceTextPreparator,
     ) {}
 
     /**
-     * @return ResourceLink[]
+     * @return TextResource[]
      */
     private function prepareDuplicateLinks(DuplicateConflict $e): array
     {
         return array_map(function ($entity) {
-            return $this->resourceLinkPreparator->prepare(
-                entity: $entity,
-                description: "Link to the duplicate record in the CRM.",
-            );
+            return $this->recordResourceTextPreparator->prepare($entity);
         }, iterator_to_array($e->getDuplicates()));
     }
 

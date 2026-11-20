@@ -37,7 +37,7 @@ use Espo\Entities\Note;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
-use Espo\Modules\Mcp\Tools\Feature\Utils\ResourceLinkPreparator;
+use Espo\Modules\Mcp\Tools\Feature\Utils\RecordResourceTextPreparator;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
@@ -54,7 +54,7 @@ class CreatePostToolProcessor implements ToolProcessor
         private ServiceFactory $serviceFactory,
         private User $user,
         private ExceptionUtil $exceptionUtil,
-        private ResourceLinkPreparator $resourceLinkPreparator,
+        private RecordResourceTextPreparator $recordResourceTextPreparator,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -80,7 +80,7 @@ class CreatePostToolProcessor implements ToolProcessor
                 ],
             ],
             content: [
-                $this->resourceLinkPreparator->prepare($createResult->getEntity()),
+                $this->recordResourceTextPreparator->prepare($createResult->getEntity()),
             ],
         );
     }

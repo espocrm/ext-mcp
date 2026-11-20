@@ -31,33 +31,34 @@ namespace Espo\Modules\Mcp\Tools\Feature\Utils;
 
 use Espo\Core\Name\Field;
 use Espo\Core\Utils\Config\ApplicationConfig;
-use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\TextResource;
 use Espo\ORM\Entity;
 
-class ResourceLinkPreparator
+class RecordResourceTextPreparator
 {
     public function __construct(
         private ApplicationConfig $applicationConfig,
     ) {}
 
-    public function prepare(Entity $entity, ?string $description = null): ResourceLink
+    public function prepare(Entity $entity): TextResource
     {
         $entityType = $entity->getEntityType();
         $id = $entity->getId();
 
-        $title = $entity->get(Field::NAME);
+        $name = $entity->get(Field::NAME);
 
-        if (!is_string($title)) {
-            $title = $id;
+        if (!is_string($name)) {
+            $name = $id;
         }
+
+        $name = preg_replace('/([\\\\`*_{}\[\]()#+\-.!|>~])/u', '\\\\$1', $name);
 
         $url = $this->applicationConfig->getSiteUrl() . "#$entityType/view/$id";
 
-        return new ResourceLink(
-            name: "$entityType/$id",
-            uri: $url,
-            title: $title,
-            description: $description ?? "Link to the record in the CRM.",
+        $text = "[$name]($url)";
+
+        return new TextResource(
+            text: $text,
         );
     }
 }

@@ -33,7 +33,7 @@ use Espo\Core\Exceptions\Conflict;
 use Espo\Core\Exceptions\Error\Body;
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
-use Espo\Modules\Mcp\Tools\Feature\Utils\ResourceLinkPreparator;
+use Espo\Modules\Mcp\Tools\Feature\Utils\RecordResourceTextPreparator;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
@@ -61,7 +61,7 @@ class ExceptionUtilTest extends TestCase
 
         $util = new ExceptionUtil(
             defaultLanguage: $language,
-            resourceLinkPreparator: $this->createMock(ResourceLinkPreparator::class),
+            recordResourceTextPreparator: $this->createMock(RecordResourceTextPreparator::class),
         );
 
         $this->assertEquals("Hello 1.", $util->getBodyMessage($e));

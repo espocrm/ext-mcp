@@ -38,7 +38,7 @@ use Espo\Core\Record\UpdateParams;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
-use Espo\Modules\Mcp\Tools\Feature\Utils\ResourceLinkPreparator;
+use Espo\Modules\Mcp\Tools\Feature\Utils\RecordResourceTextPreparator;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitAction;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitResult;
@@ -61,7 +61,7 @@ class UpdateToolProcessor implements ToolProcessor
         private ServiceFactory $serviceFactory,
         private User $user,
         private ExceptionUtil $exceptionUtil,
-        private ResourceLinkPreparator $resourceLinkPreparator,
+        private RecordResourceTextPreparator $recordResourceTextPreparator,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -117,7 +117,7 @@ class UpdateToolProcessor implements ToolProcessor
                 ],
             ],
             content: [
-                $this->resourceLinkPreparator->prepare($updateResult->getEntity()),
+                $this->recordResourceTextPreparator->prepare($updateResult->getEntity()),
             ],
         );
     }

@@ -1225,8 +1225,8 @@ class EndpointTest extends BaseTestCase
         $this->assertObjectNotHasProperty('description', $body->result->structuredContent->record);
 
         $this->assertCount(1, $body->result->content);
-        $this->assertEquals('resource_link', $body->result->content[0]->type);
-        $this->assertEquals("http://localhost#Lead/view/{$lead1->getId()}", $body->result->content[0]->uri);
+        $this->assertEquals('text', $body->result->content[0]->type);
+        $this->assertStringContainsString("http://localhost#Lead/view/{$lead1->getId()}", $body->result->content[0]->text);
 
         $this->processValidateJsonSchema($endpoint, self::composeToolName('Read', 'Lead'), $body->result->structuredContent);
 
