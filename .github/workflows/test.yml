@@ -88,7 +88,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: site/custom/Espo/Modules/Mcp/vendor
-        key: ${{ runner.os }}-module-${{ hashFiles('composer.lock') }}
+        key: ${{ runner.os }}-module-${{ hashFiles('src/files/custom/Espo/Modules/Mcp/composer.lock') }}
 
     - name: Composer install in module
       if: steps.cache-module-vendor.outputs.cache-hit != 'true'
