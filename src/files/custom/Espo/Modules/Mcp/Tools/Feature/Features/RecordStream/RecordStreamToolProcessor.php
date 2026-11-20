@@ -43,6 +43,7 @@ use Espo\Core\Utils\DateTime as DateTimeUtil;
 use Espo\Entities\Note;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\EntityOutput;
+use Espo\Modules\Mcp\Tools\Feature\Utils\ErrorUtil;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
@@ -66,6 +67,7 @@ class RecordStreamToolProcessor implements ToolProcessor
         private RecordService $recordService,
         private EntityOutput $entityOutput,
         private ExceptionUtil $exceptionUtil,
+        private ErrorUtil $errorUtil,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -92,25 +94,9 @@ class RecordStreamToolProcessor implements ToolProcessor
         } catch (BadRequest $e) {
             return $this->exceptionUtil->prepareWriteBadRequestResult($e);
         } catch (Forbidden) {
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 403,
-                        'message' => 'No stream access to the record.',
-                    ],
-                ],
-                isError: true,
-            );
+            return $this->errorUtil->prepareResult(403, "No stream access to the record.");
         } catch (NotFound) {
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 404,
-                        'message' => 'Record not found.',
-                    ],
-                ],
-                isError: true,
-            );
+            return $this->errorUtil->prepareResult(404, "Record not found.");
         }
 
         $output = (object) [

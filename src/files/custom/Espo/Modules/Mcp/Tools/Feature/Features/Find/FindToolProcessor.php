@@ -37,6 +37,7 @@ use Espo\Core\Select\SearchParams;
 use Espo\Core\Utils\FieldUtil;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\Utils\ErrorUtil;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ArrayType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
@@ -59,6 +60,7 @@ class FindToolProcessor implements ToolProcessor
         private EntityOutput $entityOutput,
         private User $user,
         private FieldUtil $fieldUtil,
+        private ErrorUtil $errorUtil,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -86,15 +88,7 @@ class FindToolProcessor implements ToolProcessor
                 $message .= ' ' . $e->getMessage();
             }
 
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 403,
-                        'message' => $message,
-                    ],
-                ],
-                isError: true,
-            );
+            return $this->errorUtil->prepareResult(403, $message);
         } catch (BadRequest $e) {
             $message = "Bad request.";
 
@@ -102,15 +96,7 @@ class FindToolProcessor implements ToolProcessor
                 $message .= ' ' . $e->getMessage();
             }
 
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 400,
-                        'message' => $message,
-                    ],
-                ],
-                isError: true,
-            );
+            return $this->errorUtil->prepareResult(400, $message);
         }
 
         $output = (object) [

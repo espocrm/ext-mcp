@@ -37,6 +37,7 @@ use Espo\Core\Record\ServiceFactory;
 use Espo\Core\Record\UpdateParams;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\Utils\ErrorUtil;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
 use Espo\Modules\Mcp\Tools\Feature\Utils\RecordResourceTextPreparator;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
@@ -62,6 +63,7 @@ class UpdateToolProcessor implements ToolProcessor
         private User $user,
         private ExceptionUtil $exceptionUtil,
         private RecordResourceTextPreparator $recordResourceTextPreparator,
+        private ErrorUtil $errorUtil,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -75,15 +77,9 @@ class UpdateToolProcessor implements ToolProcessor
         }
 
         if ($this->isDuplicateElicitationCanceled($params)) {
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 409,
-                        'message' => "Duplicate record creation is canceled.",
-                    ],
-                ],
-                isError: true,
-            );
+            $message = "Update leading to duplicate record is canceled.";
+
+            return $this->errorUtil->prepareResult(409, $message);
         }
 
         $id = $this->fetchId($params);
@@ -99,15 +95,7 @@ class UpdateToolProcessor implements ToolProcessor
         } catch (Conflict $e) {
             return $this->exceptionUtil->prepareWriteConflictResult($e);
         } catch (NotFound) {
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 404,
-                        'message' => 'Record not found.',
-                    ],
-                ],
-                isError: true,
-            );
+            return $this->errorUtil->prepareResult(404, "Record not found.");
         }
 
         return new CallToolResult(

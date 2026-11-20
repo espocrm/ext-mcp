@@ -2077,4 +2077,61 @@ class EndpointTest extends BaseTestCase
 
         $this->assertObjectHasProperty('result', $body);
     }
+
+    /**
+     * A tool error is returned both as structured content and as text content.
+     *
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    public function testToolErrorContent(): void
+    {
+        $this->configureApp();
+
+        $team = $this->createTeam();
+        $apiUser = $this->createApiUser(team: $team);
+
+        $endpoint = $this->createEndpoint($apiUser);
+
+        $this->createFeatures(endpoint: $endpoint);
+
+        $this->authenticate(
+            method: ApiKey::NAME,
+            request: $this->createEntryRequest(
+                method: Method::SERVER_DISCOVER,
+                slug: 'test',
+                jsonrpc: '1.0',
+            ),
+        );
+
+        $apiAction = $this->getInjectableFactory()->create(PostEntry::class);
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => self::composeToolName('Read', 'Lead'),
+                    'arguments' => (object) [
+                        'id' => 'not-existing-id',
+                    ],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectNotHasProperty('error', $body);
+        $this->assertEquals('complete', $body->result?->resultType);
+        $this->assertTrue($body->result->isError);
+
+        $error = $body->result->structuredContent->error;
+
+        $this->assertEquals(404, $error->code);
+        $this->assertEquals('Record not found.', $error->message);
+
+        $this->assertCount(1, $body->result->content);
+        $this->assertEquals('text', $body->result->content[0]->type);
+        $this->assertEquals($error->message, $body->result->content[0]->text);
+    }
 }

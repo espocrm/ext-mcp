@@ -41,7 +41,6 @@ use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequest;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Elicitation\ElicitRequestFormParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
-use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\ResourceLink;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\TextResource;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Value\ResultType;
@@ -53,6 +52,7 @@ class ExceptionUtil
     public function __construct(
         private Language $defaultLanguage,
         private RecordResourceTextPreparator $recordResourceTextPreparator,
+        private ErrorUtil $errorUtil,
     ) {}
 
     /**
@@ -86,15 +86,7 @@ class ExceptionUtil
 
         $message = $this->appendBodyMessage("Conflict occurred.", $e);
 
-        return new CallToolResult(
-            structuredContent: (object) [
-                'error' => (object) [
-                    'code' => 409,
-                    'message' => $message,
-                ],
-            ],
-            isError: true,
-        );
+        return $this->errorUtil->prepareResult(409, $message);
     }
 
     public function prepareWriteForbiddenResult(Forbidden $exception): CallToolResult
@@ -107,15 +99,7 @@ class ExceptionUtil
             $message .= ' ' . $exception->getMessage();
         }
 
-        return new CallToolResult(
-            structuredContent: (object) [
-                'error' => (object) [
-                    'code' => 403,
-                    'message' => $message
-                ],
-            ],
-            isError: true,
-        );
+        return $this->errorUtil->prepareResult(403, $message);
     }
 
     public function prepareWriteBadRequestResult(BadRequest $exception): CallToolResult
@@ -134,15 +118,7 @@ class ExceptionUtil
             }
         }
 
-        return new CallToolResult(
-            structuredContent: (object) [
-                'error' => (object) [
-                    'code' => 400,
-                    'message' => $message,
-                ],
-            ],
-            isError: true,
-        );
+        return $this->errorUtil->prepareResult(400, $message);
     }
 
     public function getBodyMessage(Conflict|BadRequest|Forbidden $exception): ?string

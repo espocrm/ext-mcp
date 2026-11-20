@@ -37,6 +37,7 @@ use Espo\Core\Record\ServiceFactory;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Features\Update\UpdateToolProcessor;
+use Espo\Modules\Mcp\Tools\Feature\Utils\ErrorUtil;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
 use Espo\Modules\Mcp\Tools\Feature\Utils\RecordResourceTextPreparator;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
@@ -62,6 +63,7 @@ class CreateToolProcessor implements ToolProcessor
         private User $user,
         private ExceptionUtil $exceptionUtil,
         private RecordResourceTextPreparator $recordResourceTextPreparator,
+        private ErrorUtil $errorUtil,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -75,15 +77,7 @@ class CreateToolProcessor implements ToolProcessor
         }
 
         if ($this->isDuplicateElicitationCanceled($params)) {
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 409,
-                        'message' => "Duplicate record creation is canceled.",
-                    ],
-                ],
-                isError: true,
-            );
+            return $this->errorUtil->prepareResult(409, "Duplicate record creation is canceled.");
         }
 
         $input = $this->fetchInput($params);

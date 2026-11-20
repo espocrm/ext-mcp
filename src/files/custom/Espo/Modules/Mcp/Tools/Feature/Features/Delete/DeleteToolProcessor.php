@@ -36,6 +36,7 @@ use Espo\Core\Exceptions\NotFound;
 use Espo\Core\Record\ServiceFactory;
 use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\Utils\ErrorUtil;
 use Espo\Modules\Mcp\Tools\Feature\Utils\ExceptionUtil;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
@@ -53,6 +54,7 @@ class DeleteToolProcessor implements ToolProcessor
         private ServiceFactory $serviceFactory,
         private User $user,
         private ExceptionUtil $exceptionUtil,
+        private ErrorUtil $errorUtil,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -76,15 +78,7 @@ class DeleteToolProcessor implements ToolProcessor
         } catch (Conflict $e) {
             return $this->exceptionUtil->prepareWriteConflictResult($e);
         } catch (NotFound) {
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 404,
-                        'message' => 'Record not found.',
-                    ],
-                ],
-                isError: true,
-            );
+            return $this->errorUtil->prepareResult(404, "Record not found.");
         }
 
         return new CallToolResult(

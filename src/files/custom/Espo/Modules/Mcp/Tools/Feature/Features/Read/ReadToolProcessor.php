@@ -38,6 +38,7 @@ use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\EntityOutput;
 use Espo\Modules\Mcp\Tools\Feature\Utils\AttachmentResourceLinksPreparator;
+use Espo\Modules\Mcp\Tools\Feature\Utils\ErrorUtil;
 use Espo\Modules\Mcp\Tools\Feature\Utils\RecordResourceTextPreparator;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\ObjectType;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
@@ -62,6 +63,7 @@ class ReadToolProcessor implements ToolProcessor
         private FieldUtil $fieldUtil,
         private RecordResourceTextPreparator $recordResourceTextPreparator,
         private AttachmentResourceLinksPreparator $attachmentResourceLinksPreparator,
+        private ErrorUtil $errorUtil,
     ) {}
 
     public function process(CallToolRequestParams $params, Data $data, ?RootSchema $outputSchema): CallToolResult
@@ -87,25 +89,9 @@ class ReadToolProcessor implements ToolProcessor
         try {
             $readResult = $service->read($id);
         } catch (NotFound) {
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 404,
-                        'message' => 'Record not found.',
-                    ],
-                ],
-                isError: true,
-            );
+            return $this->errorUtil->prepareResult(404, "Record not found.");
         } catch (Forbidden) {
-            return new CallToolResult(
-                structuredContent: (object) [
-                    'error' => (object) [
-                        'code' => 403,
-                        'message' => 'No read access to the record.',
-                    ],
-                ],
-                isError: true,
-            );
+            return $this->errorUtil->prepareResult(403, "No read access to the record.");
         }
 
         return new CallToolResult(
