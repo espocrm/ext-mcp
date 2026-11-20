@@ -50,6 +50,7 @@ use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\ArraySchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\AttachmentMultipleSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\BoolSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\CurrencyConvertedSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\CurrencySchemaProvider;
@@ -60,6 +61,7 @@ use Espo\Modules\Mcp\Tools\Schema\Field\Types\DecimalSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\DurationSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\EmailSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\EnumSchemaProvider;
+use Espo\Modules\Mcp\Tools\Schema\Field\Types\FileSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\FloatSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\IdSchemaProvider;
 use Espo\Modules\Mcp\Tools\Schema\Field\Types\IntSchemaProvider;
@@ -540,6 +542,179 @@ class TypesTest extends TestCase
         );
     }
 
+    public function testAttachmentMultipleRequiredRead(): void
+    {
+        $provider = new AttachmentMultipleSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'test' => [
+                                'type' => FieldType::ATTACHMENT_MULTIPLE,
+                                'required' => true,
+                            ],
+                        ],
+                        'attributes' => [
+                            'testIds' => [
+                                'type' => AttributeType::JSON_ARRAY,
+                            ],
+                        ],
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'testIds' => new ArrayType(
+                        items: new StringType(
+                            description: "Attachment ID.",
+                        ),
+                        minItems: 1,
+                        title: 'Field (IDs)',
+                        description:
+                            "An IDs attribute of the 'Field' field. Field name: `test`. " .
+                            "Specifies attachment IDs. " .
+                            "Resource URI to retrieve the file: `espo://Attachment/{id}`."
+                    ),
+                    'testNames' => new ObjectType(
+                        additionalProperties: Util::wrapWithNull(
+                            new StringType(
+                                description: "Filename.",
+                            ),
+                        ),
+                        description:
+                            "Names attribute of the 'Field' field. Field name: `test`. " .
+                            "Contains the mapping of attachments IDs to filenames.",
+                    ),
+                ],
+                required: [
+                    'testIds',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Read,
+                ),
+            ),
+        );
+    }
+
+    public function testAttachmentMultipleNotRequiredWrite(): void
+    {
+        $provider = new AttachmentMultipleSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'test' => [
+                                'type' => FieldType::ATTACHMENT_MULTIPLE,
+                            ],
+                        ],
+                        'attributes' => [
+                            'testIds' => [
+                                'type' => AttributeType::JSON_ARRAY,
+                            ],
+                        ],
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'testIds' => new ArrayType(
+                        items: new StringType(
+                            description: "Attachment ID.",
+                        ),
+                        title: 'Field (IDs)',
+                        description:
+                            "An IDs attribute of the 'Field' field. Field name: `test`. " .
+                            "Specifies attachment IDs. " .
+                            "Resource URI to retrieve the file: `espo://Attachment/{id}`."
+                    ),
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testAttachmentMultipleRequiredWithDefault(): void
+    {
+        $provider = new AttachmentMultipleSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'test' => [
+                                'type' => FieldType::ATTACHMENT_MULTIPLE,
+                                'required' => true,
+                            ],
+                        ],
+                        'attributes' => [
+                            'testIds' => [
+                                'type' => AttributeType::JSON_ARRAY,
+                                'default' => ['id-1'],
+                            ],
+                        ],
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $result = $provider->get(
+            params: new Params(
+                entityType: 'Test',
+                field: 'test',
+                action: Action::Update,
+            ),
+        );
+
+        $this->assertEquals([], $result->required);
+
+        $this->assertEquals(
+            new ArrayType(
+                items: new StringType(
+                    description: "Attachment ID.",
+                ),
+                title: 'Field (IDs)',
+                description:
+                    "An IDs attribute of the 'Field' field. Field name: `test`. " .
+                    "Specifies attachment IDs. " .
+                    "Resource URI to retrieve the file: `espo://Attachment/{id}`."
+            ),
+            $result->properties['testIds'],
+        );
+    }
+
     public function testEnumRequiredWithDefault(): void
     {
         $entityDefs = self::createEntityDefs(
@@ -711,6 +886,167 @@ class TypesTest extends TestCase
                             ),
                         ],
                         title: 'Field',
+                    ),
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testFileRequiredRead(): void
+    {
+        $provider = new FileSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'test' => [
+                                'type' => FieldType::FILE,
+                                'required' => true,
+                            ],
+                        ],
+                        'attributes' => [
+                            'testId' => [
+                                'type' => AttributeType::FOREIGN_ID,
+                            ],
+                        ],
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'testId' => new StringType(
+                        title: 'Field (ID)',
+                        description:
+                            "An ID attribute of the 'Field' field. Field name: `test`. " .
+                            "Specifies the attachment ID. " .
+                            "Resource URI to retrieve the file: `espo://Attachment/{id}`."
+                    ),
+                    'testName' => Util::wrapWithNull(
+                        new StringType(
+                            title: 'Field (Name)',
+                            description: "A filename of the 'Field' field. Field name: `test`.",
+                        ),
+                    ),
+                ],
+                required: [
+                    'testId',
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Read,
+                ),
+            ),
+        );
+    }
+
+    public function testFileNotRequiredWrite(): void
+    {
+        $provider = new FileSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'test' => [
+                                'type' => FieldType::FILE,
+                            ],
+                        ],
+                        'attributes' => [
+                            'testId' => [
+                                'type' => AttributeType::FOREIGN_ID,
+                            ],
+                        ],
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'testId' => Util::wrapWithNull(
+                        new StringType(
+                            title: 'Field (ID)',
+                            description:
+                                "An ID attribute of the 'Field' field. Field name: `test`. " .
+                                "Specifies the attachment ID. " .
+                                "Resource URI to retrieve the file: `espo://Attachment/{id}`."
+                        ),
+                    ),
+                ],
+            ),
+            actual: $provider->get(
+                params: new Params(
+                    entityType: 'Test',
+                    field: 'test',
+                    action: Action::Update,
+                ),
+            ),
+        );
+    }
+
+    public function testImageRequiredWithDefault(): void
+    {
+        $provider = new FileSchemaProvider(
+            ormDefs: $this->createOrmDefs(
+                self::createEntityDefsCommon(
+                    entityType: 'Test',
+                    defs: [
+                        'fields' => [
+                            'test' => [
+                                'type' => FieldType::IMAGE,
+                                'required' => true,
+                            ],
+                        ],
+                        'attributes' => [
+                            'testId' => [
+                                'type' => AttributeType::FOREIGN_ID,
+                                'default' => 'id-1',
+                            ],
+                        ],
+                    ],
+                ),
+            ),
+            defaultLanguage: $this->createLanguage(
+                fields: [
+                    'test' => 'Field',
+                ],
+            ),
+        );
+
+        $this->assertEquals(
+            expected: new Result(
+                properties: [
+                    'testId' => new StringType(
+                        title: 'Field (ID)',
+                        description:
+                            "An ID attribute of the 'Field' field. Field name: `test`. " .
+                            "Specifies the attachment ID. " .
+                            "Resource URI to retrieve the file: `espo://Attachment/{id}`."
                     ),
                 ],
             ),
