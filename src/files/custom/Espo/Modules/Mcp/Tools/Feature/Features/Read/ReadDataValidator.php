@@ -29,7 +29,6 @@
 
 namespace Espo\Modules\Mcp\Tools\Feature\Features\Read;
 
-use Espo\Entities\Team;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\DataValidator;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\FindData;
@@ -41,11 +40,6 @@ use Espo\Modules\Mcp\Tools\Feature\DataValidator\Failure;
  */
 class ReadDataValidator implements DataValidator
 {
-    /** @var string[] */
-    private array $allowedEntityType = [
-        Team::ENTITY_TYPE,
-    ];
-
     public function __construct(
         private DataValidatorHelper $helper,
     ) {}
@@ -54,13 +48,10 @@ class ReadDataValidator implements DataValidator
     {
         $list = [];
 
-        if (
-            !$this->helper->isObjectEntityType($data->entityType) &&
-            !in_array($data->entityType, $this->allowedEntityType)
-        ) {
+        if (!$this->helper->isAllowedEntityType($data->entityType, ReadData::TYPE)) {
             $list[] = new Failure(
                 field: 'entityType',
-                message: "Only object entity types are supported.",
+                message: "Entity type is not supported.",
             );
         }
 

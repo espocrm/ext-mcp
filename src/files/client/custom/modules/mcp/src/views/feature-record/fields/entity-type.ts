@@ -27,18 +27,20 @@
 ************************************************************************/
 
 import EnumFieldView from 'views/fields/enum';
+import type FeatureDataModel from 'modules/mcp/models/other/feature-data';
 
-export default class FeatureRecordEntityTypeFieldView extends EnumFieldView {
-
-    protected allowedScopes: string[] = []
-
+export default class FeatureRecordEntityTypeFieldView extends EnumFieldView<{
+    model: FeatureDataModel,
+}> {
 
     setupOptions() {
         this.params.translation = 'Global.scopeNames';
 
         super.setupOptions();
 
-        const scopes = this.getMetadata().getScopeEntityList()
+        const type = this.model.featureModel.attributes.type!;
+
+        const scopes = this.getMetadata().getScopeEntityList();
 
         this.params.options = scopes
             .filter(scope => {
@@ -48,9 +50,13 @@ export default class FeatureRecordEntityTypeFieldView extends EnumFieldView {
                     return false;
                 }
 
-                const isObject = !!defs.object && scope !== 'User';
+                const override = this.getMetadata().get(`app.mcpScopes.${scope}.features.${type}`);
 
-                return isObject || this.allowedScopes.includes(scope);
+                if (override != null) {
+                    return override;
+                }
+
+                return !!defs.object;
             })
             .sort((a, b) => {
                 return this.translate(a, 'scopeNames').localeCompare(this.translate(b, 'scopeNames'));

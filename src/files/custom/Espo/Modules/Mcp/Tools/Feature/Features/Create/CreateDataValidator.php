@@ -29,7 +29,6 @@
 
 namespace Espo\Modules\Mcp\Tools\Feature\Features\Create;
 
-use Espo\Entities\User;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\DataValidator;
 use Espo\Modules\Mcp\Tools\Feature\Utils\DataValidatorHelper;
@@ -48,10 +47,10 @@ class CreateDataValidator implements DataValidator
     {
         $list = [];
 
-        if (!$this->helper->isObjectEntityType($data->entityType) || $data->entityType === User::ENTITY_TYPE) {
+        if (!$this->helper->isAllowedEntityType($data->entityType, CreateData::TYPE)) {
             $list[] = new Failure(
                 field: 'entityType',
-                message: "Only object entity types are supported.",
+                message: "Entity type is not supported.",
             );
         }
 

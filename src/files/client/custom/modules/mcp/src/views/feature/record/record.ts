@@ -31,11 +31,12 @@ import Model from 'model';
 import DetailRecordView, {PanelDefs} from 'views/record/detail';
 import EditRecordView, {EditRecordViewOptions} from 'views/record/edit';
 import {Defs} from 'dynamic-logic';
+import FeatureDataModel from 'modules/mcp/models/other/feature-data';
 
 export default class FeatureRecordView extends View<{
     options: {
         mode: 'detail' | 'edit',
-        model: Model,
+        model: FeatureDataModel,
         parentModel: Model,
         detailLayout: PanelDefs[],
         viewSetupHandler: string | null,
@@ -73,7 +74,7 @@ export default class FeatureRecordView extends View<{
 
     protected setup() {
         const options = {
-            model: this.model,
+            model: this.options.model,
             detailLayout: this.options.detailLayout,
             buttonsDisabled: true,
             sideView: null,

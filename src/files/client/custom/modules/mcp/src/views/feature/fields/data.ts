@@ -27,11 +27,11 @@
 ************************************************************************/
 
 import BaseFieldView, {BaseOptions, BaseParams} from 'views/fields/base';
-import Model from 'model';
 import Utils from 'utils';
 import FeatureRecordView from 'modules/mcp/views/feature/record/record';
 import {PanelDefs} from 'views/record/detail';
 import {Defs} from 'dynamic-logic';
+import FeatureDataModel from 'modules/mcp/models/other/feature-data';
 
 export default class FeatureDataFieldView extends BaseFieldView {
 
@@ -40,7 +40,7 @@ export default class FeatureDataFieldView extends BaseFieldView {
         <div data-role="sub">{{{sub}}}</div>
     `
 
-    private subModel: Model | null = null
+    private subModel: FeatureDataModel | null = null
 
     private typeField: string = 'type'
 
@@ -113,9 +113,11 @@ export default class FeatureDataFieldView extends BaseFieldView {
             initialValues = Utils.cloneDeep(params.defaults ?? {});
         }
 
-        this.subModel = new Model(initialValues, {
+        this.subModel = new FeatureDataModel(initialValues, {
             defs: {fields: params.fields ?? {}},
         });
+
+        this.subModel.featureModel = this.model;
 
         const values = Utils.cloneDeep(this.model.attributes.data || {});
 
