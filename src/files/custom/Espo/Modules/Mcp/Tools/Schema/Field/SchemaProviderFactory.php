@@ -54,7 +54,7 @@ class SchemaProviderFactory
 
         /** @var ?class-string<SchemaProvider> $className */
         $className =
-            $this->metadata->get("entityDefs.$entityType.fields.$field.mcpFieldSchemaProviderClassName") ??
+            $this->metadata->get("app.mcpScopes.$entityType.fields.$field.schemaProviderClassName") ??
             $this->metadata->get("app.mcpSchema.fieldTypes.$type.schemaProviderClassName");
 
         if (!$className) {
