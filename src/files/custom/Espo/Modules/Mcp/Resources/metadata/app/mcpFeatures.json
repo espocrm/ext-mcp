@@ -88,7 +88,7 @@
                 "entityType": {
                     "type": "enum",
                     "required": true,
-                    "view": "modules/mcp/views/feature-record/fields/entity-type-read"
+                    "view": "modules/mcp/views/feature-record/fields/entity-type"
                 },
                 "textFilter": {
                     "type": "bool"
@@ -207,7 +207,7 @@
                 "entityType": {
                     "type": "enum",
                     "required": true,
-                    "view": "modules/mcp/views/feature-record/fields/entity-type-read"
+                    "view": "modules/mcp/views/feature-record/fields/entity-type"
                 },
                 "selectFields": {
                     "type": "jsonArray",

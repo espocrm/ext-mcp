@@ -37,10 +37,21 @@ class DataValidatorHelper
         private Metadata $metadata,
     ) {}
 
-    public function isObjectEntityType(string $scope): bool
+    public function isAllowedEntityType(string $entityType, string $type): bool
     {
-        return
-            $this->metadata->get("scopes.$scope.object") &&
-            $this->metadata->get("scopes.$scope.entity");
+        if (
+            $this->metadata->get("scopes.$entityType.disabled") ||
+            !$this->metadata->get("scopes.$entityType.entity")
+        ) {
+            return false;
+        }
+
+        $override = $this->metadata->get("app.mcpScopes.$entityType.features.$type");
+
+        if ($override !== null) {
+            return $override;
+        }
+
+        return (bool) $this->metadata->get("scopes.$entityType.object");
     }
 }
