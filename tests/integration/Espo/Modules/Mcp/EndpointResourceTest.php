@@ -434,6 +434,54 @@ class EndpointResourceTest extends BaseTestCase
     }
 
     /**
+     * Mandatory fields grant access, fields excluded with `{action}: false` do not.
+     *
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    public function testResourceReadMandatoryFields(): void
+    {
+        $this->configureApp();
+
+        $apiUser = $this->createApiUser();
+        $endpoint = $this->createEndpoint($apiUser);
+
+        $this->createFeatures($endpoint);
+
+        $em = $this->getEntityManager();
+
+        $account = $em->createEntity(Account::ENTITY_TYPE, [Field::NAME => 'Test Account']);
+        $article = $em->createEntity(KnowledgeBaseArticle::ENTITY_TYPE, [Field::NAME => 'Test Article']);
+
+        // Read feature exists, but the field is not selected.
+        $accountAttachment = $this->createAttachment('1', 'text/plain', '1.txt', $account, 'description');
+
+        // Find feature with the field selected.
+        $articleAttachment = $this->createAttachment('2', 'text/plain', '2.txt', $article, 'attachments');
+
+        $this->authenticateApi();
+
+        $this->assertNoAccess($accountAttachment);
+        $this->assertReadable($articleAttachment, '2');
+
+        // Authentication resets metadata, so it's set after.
+        $this->getMetadata()->set('app', 'mcpScopes', [
+            Account::ENTITY_TYPE => [
+                'fields' => [
+                    'description' => ['read' => 'mandatory'],
+                ],
+            ],
+            KnowledgeBaseArticle::ENTITY_TYPE => [
+                'fields' => [
+                    'attachments' => ['select' => false],
+                ],
+            ],
+        ]);
+
+        $this->assertReadable($accountAttachment, '1');
+        $this->assertNoAccess($articleAttachment);
+    }
+
+    /**
      * @noinspection PhpUnhandledExceptionInspection
      */
     private function processTestDiscover(): void

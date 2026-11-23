@@ -33,6 +33,7 @@ use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
 use Espo\Core\Utils\Metadata;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\FindData\Field;
+use Espo\Modules\Mcp\Tools\Feature\Features\Find\Utils\FieldsProvider;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\ToolAnnotations;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params as FieldSchemaProviderParams;
@@ -104,6 +105,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         private FilterFilterSchemaProviderFactory $fieldFilterSchemaProviderFactory,
         private FieldSchemaProviderFactory $fieldSchemaProviderFactory,
         private Acl $acl,
+        private FieldsProvider $fieldsProvider,
     ) {}
 
     public function get(Data $data): Tool
@@ -180,7 +182,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
             $properties['primaryFilter'] = $this->getPrimaryFilterSchema($data);
         }
 
-        if ($data->filterFields) {
+        if ($this->fieldsProvider->getFilter($data)) {
             $whereSchema = $this->getWhereSchema($data);
 
             if ($whereSchema) {
@@ -235,7 +237,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     {
         $schemas = [];
 
-        foreach ($data->filterFields as $field) {
+        foreach ($this->fieldsProvider->getFilter($data) as $field) {
             $provider = $this->fieldFilterSchemaProviderFactory->create($data->entityType, $field->name);
 
             $params = new FieldFilterSchemaProviderParams(
@@ -296,7 +298,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
     {
         $entityDefs = $this->ormDefs->getEntity($data->entityType);
 
-        $fields = array_filter($data->selectFields, function ($field) use ($entityDefs, $data) {
+        $fields = array_filter($this->fieldsProvider->getSelect($data), function ($field) use ($entityDefs, $data) {
             $fieldDefs = $entityDefs->tryGetField($field->name);
 
             if (!$fieldDefs) {
@@ -327,7 +329,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
 
     private function getSelectFieldsSchema(FindData $data): ?ArrayType
     {
-        $fields = $this->filterFields($data->selectFields, $data->entityType);
+        $fields = $this->filterFields($this->fieldsProvider->getSelect($data), $data->entityType);
 
         if ($fields === []) {
             return null;
@@ -443,7 +445,7 @@ class FindToolDefinitionProvider implements ToolDefinitionProvider
         $properties = [];
         $suppress = [];
 
-        $selectFields = array_map(fn ($it) => $it->name, $data->selectFields);
+        $selectFields = array_map(fn ($it) => $it->name, $this->fieldsProvider->getSelect($data));
 
         $fields = [Attribute::ID, ...$selectFields];
 

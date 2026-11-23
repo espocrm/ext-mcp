@@ -58,9 +58,23 @@ export default class SchemaUtil {
 
         const types = Object.keys(fieldTypes).filter(it => fieldTypes[it][type]);
 
-        return this.fieldManager.getEntityTypeFieldList(entityType, {
+        const fields = this.fieldManager.getEntityTypeFieldList(entityType, {
             onlyAvailable: true,
             typeList: types,
+        });
+
+        return fields.filter(it => {
+            const level = this.metadata.get(`app.mcpScopes.${entityType}.fields.${it}.${type}`);
+
+            if (
+                this.metadata.get(`app.mcpScopes.${entityType}.fields.${it}.mandatory`) ||
+                level === 'mandatory' ||
+                level === false
+            ) {
+                return false;
+            }
+
+            return true;
         });
     }
 }

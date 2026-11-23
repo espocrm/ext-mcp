@@ -31,7 +31,6 @@ namespace Espo\Modules\Mcp\Tools\ResourceTemplate\Templates\Attachment;
 
 use Espo\Core\Acl;
 use Espo\Core\FileStorage\Manager;
-use Espo\Core\Utils\Metadata;
 use Espo\Entities\Attachment;
 use Espo\Entities\Note;
 use Espo\Modules\Mcp\Entities\Endpoint;
@@ -39,7 +38,9 @@ use Espo\Modules\Mcp\Tools\Feature\DataFactory;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\BadFeatureData;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\FindData;
+use Espo\Modules\Mcp\Tools\Feature\Features\Find\Utils\FieldsProvider as FindFieldsProvider;
 use Espo\Modules\Mcp\Tools\Feature\Features\Read\ReadData;
+use Espo\Modules\Mcp\Tools\Feature\Features\Read\Utils\FieldsProvider as ReadFieldsProvider;
 use Espo\Modules\Mcp\Tools\Feature\Features\RecordStream\RecordStreamData;
 use Espo\Modules\Mcp\Tools\Mcp\ConfigDataProvider;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\Espo\NoAccessError;
@@ -64,7 +65,8 @@ class AttachmentReader implements Reader
         private ConfigDataProvider $configDataProvider,
         private Endpoint $endpoint,
         private DataFactory $dataFactory,
-        private Metadata $metadata,
+        private FindFieldsProvider $findFieldsProvider,
+        private ReadFieldsProvider $readFieldsProvider,
     ) {}
 
     /**
@@ -192,12 +194,13 @@ class AttachmentReader implements Reader
                 continue;
             }
 
-            // Mandatory fields will be implemented in the future.
-            if ($this->metadata->get("app.mcpScopes.$entityType.fields.read")) {
-                return true;
+            if ($data instanceof FindData) {
+                $selectFields = $this->findFieldsProvider->getSelect($data);
+            } else {
+                $selectFields = $this->readFieldsProvider->get($data);
             }
 
-            $fields = array_map(fn ($it) => $it->name, $data->selectFields);
+            $fields = array_map(fn ($it) => $it->name, $selectFields);
 
             if (in_array($field, $fields, true)) {
                 return true;
