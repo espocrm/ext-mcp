@@ -1,0 +1,54 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://www.espocrm.com/schema/metadata/app/mcpSchema.json",
+    "title": "app/mcpSchema",
+    "description": "MCP tool schema parameters.",
+    "type": "object",
+    "properties": {
+        "fieldTypes": {
+            "type": "object",
+            "description": "Field type parameters. Keys are field types.",
+            "additionalProperties": {
+                "$ref": "#/$defs/fieldType",
+                "description": "A field type."
+            }
+        }
+    },
+    "additionalProperties": false,
+    "$defs": {
+        "fieldType": {
+            "type": "object",
+            "properties": {
+                "select": {
+                    "type": "boolean",
+                    "description": "Fields of the type are available for selection in the UI for the 'select' action. Find feature, fields that can be selected."
+                },
+                "filter": {
+                    "type": "boolean",
+                    "description": "Fields of the type are available for selection in the UI for the 'filter' action. Find feature, fields that can be used in search."
+                },
+                "read": {
+                    "type": "boolean",
+                    "description": "Fields of the type are available for selection in the UI for the 'read' action. Read feature, fields that can be selected."
+                },
+                "create": {
+                    "type": "boolean",
+                    "description": "Fields of the type are available for selection in the UI for the 'create' action. Create feature, fields that can be written."
+                },
+                "update": {
+                    "type": "boolean",
+                    "description": "Fields of the type are available for selection in the UI for the 'update' action. Update feature, fields that can be written."
+                },
+                "schemaProviderClassName": {
+                    "type": "string",
+                    "description": "A field schema provider class.  Should implement `Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\SchemaProvider`."
+                },
+                "filterSchemaProviderClassName": {
+                    "type": "string",
+                    "description": "A field filter schema provider class. Should implement `Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\SchemaProvider`."
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}
