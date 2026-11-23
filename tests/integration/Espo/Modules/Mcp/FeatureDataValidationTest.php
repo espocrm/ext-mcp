@@ -41,6 +41,7 @@ use Espo\Modules\Mcp\Tools\Feature\Features\Create\CreateData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Delete\DeleteData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\FindData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Link\LinkData;
+use Espo\Modules\Mcp\Tools\Feature\Features\Unlink\UnlinkData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Read\ReadData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Update\UpdateData;
 use RuntimeException;
@@ -55,6 +56,7 @@ class FeatureDataValidationTest extends BaseTestCase
         UpdateData::TYPE,
         DeleteData::TYPE,
         LinkData::TYPE,
+        UnlinkData::TYPE,
     ];
 
     public function testObjectEntityTypeAllowed(): void
@@ -87,6 +89,7 @@ class FeatureDataValidationTest extends BaseTestCase
         $this->assertNotAllowed(UpdateData::TYPE, User::ENTITY_TYPE);
         $this->assertNotAllowed(DeleteData::TYPE, User::ENTITY_TYPE);
         $this->assertNotAllowed(LinkData::TYPE, User::ENTITY_TYPE);
+        $this->assertNotAllowed(UnlinkData::TYPE, User::ENTITY_TYPE);
     }
 
     public function testTeamOverride(): void
@@ -98,6 +101,7 @@ class FeatureDataValidationTest extends BaseTestCase
         $this->assertNotAllowed(UpdateData::TYPE, Team::ENTITY_TYPE);
         $this->assertNotAllowed(DeleteData::TYPE, Team::ENTITY_TYPE);
         $this->assertNotAllowed(LinkData::TYPE, Team::ENTITY_TYPE);
+        $this->assertNotAllowed(UnlinkData::TYPE, Team::ENTITY_TYPE);
     }
 
     public function testCustomOverrideEnablesNonObject(): void
@@ -304,6 +308,7 @@ class FeatureDataValidationTest extends BaseTestCase
             UpdateData::TYPE => new UpdateData(entityType: $entityType, writeFields: []),
             DeleteData::TYPE => new DeleteData(entityType: $entityType),
             LinkData::TYPE => new LinkData(entityType: $entityType, links: []),
+            UnlinkData::TYPE => new UnlinkData(entityType: $entityType, links: []),
             default => throw new RuntimeException("Unknown type '$type'."),
         };
     }

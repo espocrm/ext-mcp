@@ -14,7 +14,8 @@
                 "Create": {"$ref": "#/$defs/featureAvailability"},
                 "Update": {"$ref": "#/$defs/featureAvailability"},
                 "Delete": {"$ref": "#/$defs/featureAvailability"},
-                "Link": {"$ref": "#/$defs/featureAvailability"}
+                "Link": {"$ref": "#/$defs/featureAvailability"},
+                "Unlink": {"$ref": "#/$defs/featureAvailability"}
             },
             "additionalProperties": false
         },

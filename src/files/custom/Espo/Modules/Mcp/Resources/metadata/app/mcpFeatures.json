@@ -500,6 +500,79 @@
             ]
         }
     },
+    "Unlink": {
+        "tool": {
+            "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Unlink\\UnlinkToolDefinitionProvider",
+            "processorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Unlink\\UnlinkToolProcessor"
+        },
+        "record": {
+            "client": {
+                "viewSetupHandler": "modules/mcp/handlers/feature-record/setup-link",
+                "dynamicLogic": {
+                    "fields": {
+                        "entityType": {
+                            "readOnly": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "links"
+                                    }
+                                ]
+                            }
+                        },
+                        "links": {
+                            "visible": {
+                                "conditionGroup": [
+                                    {
+                                        "type": "isNotEmpty",
+                                        "attribute": "entityType"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "dataClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Unlink\\UnlinkData",
+            "textComposerClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Unlink\\UnlinkTextComposer",
+            "dataValidatorClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\Unlink\\UnlinkDataValidator",
+            "fields": {
+                "entityType": {
+                    "type": "enum",
+                    "required": true,
+                    "view": "modules/mcp/views/feature-record/fields/entity-type"
+                },
+                "links": {
+                    "type": "jsonArray",
+                    "required": true,
+                    "view": "modules/mcp/views/feature-record/fields/links",
+                    "tooltip": "McpFeature.unlinkLinks"
+                }
+            },
+            "defaults": {
+                "links": []
+            },
+            "layout": [
+                {
+                    "rows": [
+                        [
+                            {
+                                "name": "entityType",
+                                "labelTranslation": "McpFeature.dataFields.entityType"
+                            },
+                            false
+                        ],
+                        [
+                            {
+                                "name": "links",
+                                "labelTranslation": "McpFeature.dataFields.links"
+                            }
+                        ]
+                    ]
+                }
+            ]
+        }
+    },
     "RecordStream": {
         "tool": {
             "definitionProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Feature\\Features\\RecordStream\\RecordStreamToolDefinitionProvider",

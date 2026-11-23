@@ -31,11 +31,10 @@ namespace Espo\Modules\Mcp\Tools\Feature\Features\Link;
 
 use Espo\Core\Acl;
 use Espo\Core\Utils\Language;
-use Espo\Core\Utils\Metadata;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Features\Link\LinkData\Link;
-use Espo\Modules\Mcp\Tools\Feature\Features\Link\Utils\LinkUtil;
+use Espo\Modules\Mcp\Tools\Feature\Features\Link\Utils\AccessibleLinksProvider;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
@@ -68,9 +67,8 @@ class LinkToolDefinitionProvider implements ToolDefinitionProvider
     public function __construct(
         private Language $defaultLanguage,
         private Acl $acl,
-        private LinkUtil $linkUtil,
         private Defs $defs,
-        private Metadata $metadata,
+        private AccessibleLinksProvider $accessibleLinksProvider,
     ) {}
 
     public function get(Data $data): Tool
@@ -79,7 +77,7 @@ class LinkToolDefinitionProvider implements ToolDefinitionProvider
             throw new NoUserAccess("No access to '$data->entityType'.");
         }
 
-        $links = $this->getLinks($data);
+        $links = $this->accessibleLinksProvider->get($data->entityType, $data->links);
 
         if ($links === []) {
             throw new NoUserAccess("No access to any link of '$data->entityType'.");
@@ -97,42 +95,6 @@ class LinkToolDefinitionProvider implements ToolDefinitionProvider
                 openWorldHint: false,
             ),
         );
-    }
-
-    /**
-     * @return Link[]
-     */
-    private function getLinks(LinkData $data): array
-    {
-        $entityType = $data->entityType;
-
-        $forbiddenLinks = $this->acl->getScopeForbiddenLinkList($entityType, Acl\Table::ACTION_EDIT);
-
-        $links = array_filter($data->links, function (Link $link) use ($entityType, $forbiddenLinks) {
-            $name = $link->name;
-
-            if (in_array($name, $forbiddenLinks)) {
-                return false;
-            }
-
-            if (!$this->acl->tryCheck($entityType, $this->getRequiredEntityAccess($entityType, $name))) {
-                return false;
-            }
-
-            if (!$this->linkUtil->isLinkable($entityType, $name)) {
-                return false;
-            }
-
-            $foreignEntityType = $this->getForeignEntityType($entityType, $name);
-
-            if (!$foreignEntityType) {
-                return false;
-            }
-
-            return $this->acl->tryCheck($foreignEntityType);
-        });
-
-        return array_values($links);
     }
 
     /**
@@ -244,14 +206,5 @@ class LinkToolDefinitionProvider implements ToolDefinitionProvider
             ->tryGetEntity($entityType)
             ?->tryGetRelation($link)
             ?->tryGetForeignEntityType();
-    }
-
-    /**
-     * @return Acl\Table::ACTION_*
-     */
-    private function getRequiredEntityAccess(string $entityType, string $link): string
-    {
-        return $this->metadata->get("recordDefs.$entityType.relationships.$link.linkRequiredAccess") ??
-            Acl\Table::ACTION_EDIT;
     }
 }
