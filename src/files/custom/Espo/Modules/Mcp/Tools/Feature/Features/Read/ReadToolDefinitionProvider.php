@@ -35,6 +35,7 @@ use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\FindData\Field;
+use Espo\Modules\Mcp\Tools\Feature\Features\Read\Utils\FieldsProvider;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
@@ -67,6 +68,7 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
         private Language $defaultLanguage,
         private FieldSchemaProviderFactory $fieldSchemaProviderFactory,
         private Acl $acl,
+        private FieldsProvider $fieldsProvider,
     ) {}
 
     public function get(Data $data): Tool
@@ -114,7 +116,7 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
                         title: $this->defaultLanguage->translateLabel($field->name, 'fields', $data->entityType),
                         description: $field->description,
                     );
-                }, $this->filterFields($data->selectFields, $data->entityType))
+                }, $this->filterFields($this->fieldsProvider->get($data), $data->entityType))
             ),
             description: self::SELECT_DESCRIPTION,
         );
@@ -141,7 +143,7 @@ class ReadToolDefinitionProvider implements ToolDefinitionProvider
         $properties = [];
         $suppress = [];
 
-        $selectFields = array_map(fn ($it) => $it->name, $data->selectFields);
+        $selectFields = array_map(fn ($it) => $it->name, $this->fieldsProvider->get($data));
 
         $fields = [Attribute::ID, ...$selectFields];
 

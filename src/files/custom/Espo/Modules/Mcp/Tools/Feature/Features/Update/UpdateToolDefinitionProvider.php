@@ -34,6 +34,7 @@ use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\NoUserAccess;
 use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedFeatureValue;
+use Espo\Modules\Mcp\Tools\Feature\Features\Update\Utils\FieldsProvider;
 use Espo\Modules\Mcp\Tools\Feature\ToolDefinitionProvider;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
@@ -63,6 +64,7 @@ class UpdateToolDefinitionProvider implements ToolDefinitionProvider
         private FieldSchemaProviderFactory $fieldSchemaProviderFactory,
         private Acl $acl,
         private Defs $ormDefs,
+        private FieldsProvider $fieldsProvider,
     ) {}
 
     public function get(Data $data): Tool
@@ -93,7 +95,7 @@ class UpdateToolDefinitionProvider implements ToolDefinitionProvider
         $properties = [];
         $suppress = [];
 
-        $writeFields = array_map(fn ($it) => $it->name, $data->writeFields);
+        $writeFields = array_map(fn ($it) => $it->name, $this->fieldsProvider->get($data));
 
         $entityDefs = $this->ormDefs->getEntity($data->entityType);
 
