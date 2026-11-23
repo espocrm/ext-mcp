@@ -77,4 +77,51 @@ export default class SchemaUtil {
             return true;
         });
     }
+
+    getFeatureLinks(options: {entityType: string}): string[] {
+        const entityType = options.entityType;
+
+        const linkTypes = [
+            'hasMany',
+            'hasChildren',
+        ];
+
+        const linksDefs = this.metadata.get(`entityDefs.${entityType}.links`, {}) as
+            Record<string, Record<string, any>>;
+
+        return Object.keys(linksDefs).filter(link => {
+            const defs = linksDefs[link] ?? {};
+
+            if (
+                !linkTypes.includes(defs.type) ||
+                defs.disabled ||
+                defs.utility ||
+                defs.readOnly
+            ) {
+                return false;
+            }
+
+            const aclDefs = this.metadata.get(`entityAcl.${entityType}.links.${link}`, {}) as Record<string, any>;
+
+            if (
+                aclDefs.forbidden ||
+                // Allowed but not listed.
+                aclDefs.internal
+            ) {
+                return false;
+            }
+
+            const foreignEntityType = defs.entity as string | undefined;
+
+            if (
+                !foreignEntityType ||
+                !this.metadata.get(`scopes.${foreignEntityType}.entity`) ||
+                this.metadata.get(`scopes.${foreignEntityType}.disabled`)
+            ) {
+                return false;
+            }
+
+            return true;
+        });
+    }
 }

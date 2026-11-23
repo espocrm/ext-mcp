@@ -32,6 +32,7 @@ namespace integration\Espo\Modules\Mcp;
 use Espo\Entities\Role;
 use Espo\Entities\Team;
 use Espo\Entities\User;
+use Espo\Modules\Crm\Entities\Account;
 use Espo\Modules\Crm\Entities\Lead;
 use Espo\Modules\Mcp\Tools\Feature\Data;
 use Espo\Modules\Mcp\Tools\Feature\DataValidator\Failure;
@@ -39,6 +40,7 @@ use Espo\Modules\Mcp\Tools\Feature\DataValidatorFactory;
 use Espo\Modules\Mcp\Tools\Feature\Features\Create\CreateData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Delete\DeleteData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Find\FindData;
+use Espo\Modules\Mcp\Tools\Feature\Features\Link\LinkData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Read\ReadData;
 use Espo\Modules\Mcp\Tools\Feature\Features\Update\UpdateData;
 use RuntimeException;
@@ -52,6 +54,7 @@ class FeatureDataValidationTest extends BaseTestCase
         CreateData::TYPE,
         UpdateData::TYPE,
         DeleteData::TYPE,
+        LinkData::TYPE,
     ];
 
     public function testObjectEntityTypeAllowed(): void
@@ -83,6 +86,7 @@ class FeatureDataValidationTest extends BaseTestCase
         $this->assertNotAllowed(CreateData::TYPE, User::ENTITY_TYPE);
         $this->assertNotAllowed(UpdateData::TYPE, User::ENTITY_TYPE);
         $this->assertNotAllowed(DeleteData::TYPE, User::ENTITY_TYPE);
+        $this->assertNotAllowed(LinkData::TYPE, User::ENTITY_TYPE);
     }
 
     public function testTeamOverride(): void
@@ -93,6 +97,7 @@ class FeatureDataValidationTest extends BaseTestCase
         $this->assertNotAllowed(CreateData::TYPE, Team::ENTITY_TYPE);
         $this->assertNotAllowed(UpdateData::TYPE, Team::ENTITY_TYPE);
         $this->assertNotAllowed(DeleteData::TYPE, Team::ENTITY_TYPE);
+        $this->assertNotAllowed(LinkData::TYPE, Team::ENTITY_TYPE);
     }
 
     public function testCustomOverrideEnablesNonObject(): void
@@ -164,6 +169,93 @@ class FeatureDataValidationTest extends BaseTestCase
         $this->assertNotAllowed(ReadData::TYPE, 'TestMcpNonEntity');
     }
 
+    public function testLinkAllowed(): void
+    {
+        $this->assertEmpty($this->getLinkFailures(['contacts', 'opportunities', 'meetings']));
+    }
+
+    public function testLinkEmpty(): void
+    {
+        $this->assertNotEmpty($this->getLinkFailures([]));
+    }
+
+    public function testLinkDuplicate(): void
+    {
+        $this->assertNotEmpty($this->getLinkFailures(['contacts', 'contacts']));
+    }
+
+    public function testLinkNonExisting(): void
+    {
+        $this->assertNotEmpty($this->getLinkFailures(['nonExistingLink']));
+    }
+
+    public function testLinkBelongsTo(): void
+    {
+        $this->assertNotEmpty($this->getLinkFailures(['campaign']));
+    }
+
+    public function testLinkReadOnly(): void
+    {
+        $this->getMetadata()->set('entityDefs', Account::ENTITY_TYPE, [
+            'links' => [
+                'documents' => [
+                    'readOnly' => true,
+                ],
+            ],
+        ]);
+
+        $this->assertNotEmpty($this->getLinkFailures(['documents']));
+    }
+
+    public function testLinkAclForbidden(): void
+    {
+        $this->getMetadata()->set('entityAcl', Account::ENTITY_TYPE, [
+            'links' => [
+                'cases' => [
+                    'forbidden' => true,
+                ],
+            ],
+        ]);
+
+        $this->getMetadata()->save();
+
+        $this->reCreateApplication(reuse: true);
+
+        $this->assertNotEmpty($this->getLinkFailures(['cases']), "Expected 'forbidden' link to be not allowed.");
+
+        $this->getMetadata()->set('entityAcl', Account::ENTITY_TYPE, [
+            'links' => [
+                'cases' => [
+                    'forbidden' => false,
+                ],
+            ],
+        ]);
+
+        $this->reCreateApplication(reuse: true);
+
+        $this->getMetadata()->save();
+
+        $this->assertEmpty($this->getLinkFailures(['cases']));
+    }
+
+    /**
+     * @param string[] $links
+     * @return Failure[]
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    private function getLinkFailures(array $links): array
+    {
+        $validator = $this->getInjectableFactory()->create(DataValidatorFactory::class)
+            ->create(LinkData::TYPE);
+
+        $data = new LinkData(
+            entityType: Account::ENTITY_TYPE,
+            links: array_map(fn ($it) => new LinkData\Link($it), $links),
+        );
+
+        return $validator->validate($data);
+    }
+
     private function assertAllowed(string $type, string $entityType): void
     {
         $this->assertEmpty(
@@ -211,6 +303,7 @@ class FeatureDataValidationTest extends BaseTestCase
             CreateData::TYPE => new CreateData(entityType: $entityType, writeFields: []),
             UpdateData::TYPE => new UpdateData(entityType: $entityType, writeFields: []),
             DeleteData::TYPE => new DeleteData(entityType: $entityType),
+            LinkData::TYPE => new LinkData(entityType: $entityType, links: []),
             default => throw new RuntimeException("Unknown type '$type'."),
         };
     }
