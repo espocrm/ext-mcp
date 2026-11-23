@@ -33,4 +33,6 @@ export default class FeatureRecordUpdateWriteFieldsFieldView extends FeatureReco
     protected skipReadOnly: boolean = true
 
     protected skipReadOnlyAfterCreate: boolean = true
+
+    protected hasDescription: boolean = false
 }

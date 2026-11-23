@@ -43,8 +43,8 @@
     "tooltips": {
         "createPostEntityTypes": "Specify the entity types in which the client can create stream posts.",
         "recordStreamEntityTypes": "Specify the entity types whose stream entries the client can view.",
-        "updateWriteFields": "Specify which fields the client is allowed to write and an optional description (for LLM) for each field.",
-        "createWriteFields": "Specify which fields the client is allowed to write and an optional description (for LLM) for each field.\n\nEnsure that all required fields (marked with `*`) are included unless unless they have default values or are computed programmatically.",
+        "updateWriteFields": "Specify which fields the client is allowed to write.",
+        "createWriteFields": "Specify which fields the client is allowed to write.\n\nEnsure that all required fields (marked with `*`) are included unless unless they have default values or are computed programmatically.",
         "findSelectFields": "Specify which fields to allow to fetch and an optional description (for LLM) for each field."
     }
 }
