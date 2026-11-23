@@ -23,8 +23,8 @@ the administrator configures supported features. Each feature corresponds to an 
 
 To create an MCP endpoint, follow: Administration > MCP Endpoints.
 
-Each feature type has its own set of parameters. For example, in a Find feature, you can configure what fields are exposed and
-what filters are available.
+Each feature type has its own set of parameters. For example, in a Find feature, you can configure
+what fields are exposed and what filters are available.
 
 The ability to configure what is exposed helps keep the context window small.
 For example, if your MCP server is intended for a customer support team, you can whitelist only a small set of tools
@@ -37,7 +37,7 @@ Use the primary filter in the user selection modal to switch between internal us
 
 In Roles, enable the MCP scope. Make sure the role grants access to all the scopes the endpoint is intended to use.
 
-### Features
+## Features
 
 Currently supported feature types:
 
@@ -52,7 +52,12 @@ Currently supported feature types:
 What is exposed as tools is also controlled by the user's access rights.
 For example, if a user does not have permission to create Leads, the client won't see the *Create_Lead* tool.
 
-An admin can specify additional instructions for the model for each field when configuring a CRUD or Find feature.
+## Attachments
+
+CRM attachments are available for read via the *Attachments* resource template. If an endpoint
+defines *Find* or *Read* endpoints with an exposed File, Image or Attachment-Multiple field, the client will be able to
+download the corresponding attachments. The max size of attachments is controlled
+by the `mcpAttachmentResourceMaxSize` config parameter (in Mb).
 
 ## Authentication
 
