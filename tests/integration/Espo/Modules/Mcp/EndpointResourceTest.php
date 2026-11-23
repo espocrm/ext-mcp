@@ -723,7 +723,7 @@ class EndpointResourceTest extends BaseTestCase
                 $structuredContent
             );
         } catch (InvalidParamsError $e) {
-            throw new RuntimeException("Validation error. " . var_export($e->getData(), true));
+            throw new RuntimeException("Validation error. " . $e->getMessage());
         }
     }
 

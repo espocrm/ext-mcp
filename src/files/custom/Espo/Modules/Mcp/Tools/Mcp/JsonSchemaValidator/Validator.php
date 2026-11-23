@@ -33,6 +33,7 @@ use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
 use Espo\Modules\Mcp\Vendor\Opis\JsonSchema\Errors\ErrorFormatter;
+use Espo\Modules\Mcp\Vendor\Opis\JsonSchema\Errors\ValidationError;
 use Espo\Modules\Mcp\Vendor\Opis\JsonSchema\Validator as OpisValidator;
 
 class Validator
@@ -52,12 +53,23 @@ class Validator
             return;
         }
 
-        $lines = $result->error() ?
-            (new ErrorFormatter())->format($result->error()) :
-            null;
+        throw new InvalidParamsError($this->composeMessage($result->error()));
+    }
 
+    private function composeMessage(?ValidationError $error): string
+    {
         $message = "JSON Schema validation failure.";
 
-        throw InvalidParamsError::create($message, $lines);
+        if (!$error) {
+            return $message;
+        }
+
+        foreach ((new ErrorFormatter())->format($error) as $pointer => $errorMessages) {
+            foreach ($errorMessages as $errorMessage) {
+                $message .= "\n$pointer: $errorMessage";
+            }
+        }
+
+        return $message;
     }
 }

@@ -320,7 +320,7 @@ class WorkingTimeCalendarTest extends BaseTestCase
         try {
             $this->getInjectableFactory()->create(Validator::class)->assert($tool->outputSchema, $structuredContent);
         } catch (InvalidParamsError $e) {
-            $this->fail("Output schema validation failure. " . var_export($e->getData(), true));
+            $this->fail("Output schema validation failure. " . $e->getMessage());
         }
     }
 

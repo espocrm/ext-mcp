@@ -337,7 +337,7 @@ class EndpointTest extends BaseTestCase
                 $structuredContent
             );
         } catch (InvalidParamsError $e) {
-            throw new RuntimeException("Validation error. " . var_export($e->getData(), true));
+            throw new RuntimeException("Validation error. " . $e->getMessage());
         }
     }
 
@@ -2133,5 +2133,89 @@ class EndpointTest extends BaseTestCase
         $this->assertCount(1, $body->result->content);
         $this->assertEquals('text', $body->result->content[0]->type);
         $this->assertEquals($error->message, $body->result->content[0]->text);
+    }
+
+    /**
+     * Arguments not matching the tool input schema are returned as a tool execution error,
+     * not as a JSON-RPC protocol error.
+     *
+     * @noinspection PhpUnhandledExceptionInspection
+     */
+    public function testToolInputSchemaValidationError(): void
+    {
+        $this->configureApp();
+
+        $team = $this->createTeam();
+        $apiUser = $this->createApiUser(team: $team);
+
+        $endpoint = $this->createEndpoint($apiUser);
+
+        $this->createFeatures(endpoint: $endpoint);
+
+        $this->authenticate(
+            method: ApiKey::NAME,
+            request: $this->createEntryRequest(
+                method: Method::SERVER_DISCOVER,
+                slug: 'test',
+            ),
+        );
+
+        $apiAction = $this->getInjectableFactory()->create(PostEntry::class);
+
+        // Arguments and an expected fragment of the error details.
+        $invalidArgumentsList = [
+            // Wrong type.
+            [(object) ['id' => 123], '/id: '],
+            // Missing required.
+            [(object) [], '(id)'],
+        ];
+
+        foreach ($invalidArgumentsList as [$arguments, $expectedDetail]) {
+            $response = $apiAction->process(
+                $this->createEntryRequest(
+                    method: Method::TOOLS_CALL,
+                    slug: 'test',
+                    id: 1,
+                    params: (object) [
+                        'name' => self::composeToolName('Read', 'Lead'),
+                        'arguments' => $arguments,
+                    ],
+                ),
+            );
+
+            $body = Json::decode($response->getBody());
+
+            $this->assertObjectNotHasProperty('error', $body);
+            $this->assertEquals(1, $body->id);
+            $this->assertEquals('complete', $body->result?->resultType);
+            $this->assertTrue($body->result->isError);
+
+            $this->assertCount(1, $body->result->content);
+            $this->assertEquals('text', $body->result->content[0]->type);
+
+            $text = $body->result->content[0]->text;
+
+            $this->assertStringStartsWith("JSON Schema validation failure.\n", $text);
+            $this->assertStringContainsString($expectedDetail, $text);
+        }
+
+        // An unknown tool is still a protocol error.
+
+        $response = $apiAction->process(
+            $this->createEntryRequest(
+                method: Method::TOOLS_CALL,
+                slug: 'test',
+                id: 1,
+                params: (object) [
+                    'name' => self::composeToolName('Read', 'NotExistingEntity'),
+                    'arguments' => (object) ['id' => 'any'],
+                ],
+            ),
+        );
+
+        $body = Json::decode($response->getBody());
+
+        $this->assertObjectNotHasProperty('result', $body);
+        $this->assertEquals(-32602, $body->error->code);
     }
 }

@@ -36,6 +36,7 @@ use Espo\Modules\Mcp\Tools\Feature\Exceptions\UnsupportedType;
 use Espo\Modules\Mcp\Tools\Mcp\JsonSchemaValidator\Validator;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InternalError;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
+use Espo\Modules\Mcp\Tools\Mcp\Schema\Resource\TextResource;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolRequestParams;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\Tool\CallToolResult;
 use Espo\Modules\Mcp\Tools\Mcp\Tool\ToolProvider;
@@ -59,7 +60,14 @@ class ToolsCallGeneralProcessor
     {
         $toolEnvelope = $this->toolProvider->get($params->name);
 
-        $this->jsonSchemaValidator->assert($toolEnvelope->tool->inputSchema, $params->arguments);
+        try {
+            $this->jsonSchemaValidator->assert($toolEnvelope->tool->inputSchema, $params->arguments);
+        } catch (InvalidParamsError $e) {
+            return new CallToolResult(
+                content: [new TextResource($e->getMessage())],
+                isError: true,
+            );
+        }
 
         $feature = $this->getFeature($toolEnvelope->featureId, $params->name);
 
