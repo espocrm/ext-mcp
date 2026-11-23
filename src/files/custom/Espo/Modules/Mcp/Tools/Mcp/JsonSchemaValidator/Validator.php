@@ -29,10 +29,12 @@
 
 namespace Espo\Modules\Mcp\Tools\Mcp\JsonSchemaValidator;
 
+use Espo\Modules\Mcp\Tools\JsonSchema\StringFormat;
 use Espo\Modules\Mcp\Tools\Mcp\Exceptions\InvalidParamsError;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootObjectSchema;
 use Espo\Modules\Mcp\Tools\Mcp\Schema\General\RootSchema;
 use Espo\Modules\Mcp\Vendor\Opis\JsonSchema\Errors\ErrorFormatter;
+use Espo\Modules\Mcp\Vendor\Opis\JsonSchema\Errors\ValidationError;
 use Espo\Modules\Mcp\Vendor\Opis\JsonSchema\Validator as OpisValidator;
 
 class Validator
@@ -52,11 +54,27 @@ class Validator
             return;
         }
 
-        $lines = $result->error() ?
-            (new ErrorFormatter())->format($result->error()) :
-            null;
-
         $message = "JSON Schema validation failure.";
+        $error = $result->error();
+        $lines = null;
+
+        if ($error !== null) {
+            $formatter = new ErrorFormatter();
+            $lines = $formatter->format(
+                $error,
+                formatter: static function (ValidationError $error, string $message) use ($formatter): string {
+                    if ($error->keyword() === 'format' && ($error->args()['format'] ?? null) === StringFormat::dateTime->value) {
+                        return "Use an RFC 3339 date-time with a time zone, e.g. 2030-01-02T10:00:00+00:00.";
+                    }
+
+                    return $formatter->formatErrorMessage($error, $message);
+                },
+            );
+
+            foreach ($lines as $path => $errors) {
+                $message .= "\n$path: " . implode(' ', $errors);
+            }
+        }
 
         throw InvalidParamsError::create($message, $lines);
     }
