@@ -74,8 +74,7 @@ class LinkFeatureTest extends BaseTestCase
 
         $tool = $tools[self::TOOL_NAME];
 
-        $this->assertEquals(['id', 'link', 'foreignId'], $tool->inputSchema->required);
-        $this->assertFalse($tool->annotations->destructiveHint);
+        $this->assertEquals(['action', 'id', 'link', 'foreignId'], $tool->inputSchema->required);
         $this->assertTrue($tool->annotations->idempotentHint);
 
         $items = $tool->inputSchema->properties->link->anyOf;
@@ -143,6 +142,7 @@ class LinkFeatureTest extends BaseTestCase
         $contact = $em->createEntity(Contact::ENTITY_TYPE, ['lastName' => 'Contact 1']);
 
         $result = $this->callTool(self::TOOL_NAME, (object) [
+            'action' => 'link',
             'id' => $account->getId(),
             'link' => 'contacts',
             'foreignId' => $contact->getId(),
@@ -163,6 +163,7 @@ class LinkFeatureTest extends BaseTestCase
         $contact = $em->createEntity(Contact::ENTITY_TYPE, ['lastName' => 'Contact 1']);
 
         $result = $this->callTool(self::TOOL_NAME, (object) [
+            'action' => 'link',
             'id' => $account->getId(),
             'link' => 'contacts',
             'foreignId' => $contact->getId(),
@@ -176,12 +177,69 @@ class LinkFeatureTest extends BaseTestCase
 
         // Idempotent.
         $result = $this->callTool(self::TOOL_NAME, (object) [
+            'action' => 'link',
             'id' => $account->getId(),
             'link' => 'contacts',
             'foreignId' => $contact->getId(),
         ]);
 
         $this->assertFalse($result->isError ?? false, Json::encode($result));
+    }
+
+    public function testUnlink(): void
+    {
+        $this->prepare();
+
+        $em = $this->getEntityManager();
+
+        $account = $em->createEntity(Account::ENTITY_TYPE, ['name' => 'Account 1']);
+        $contact = $em->createEntity(Contact::ENTITY_TYPE, ['lastName' => 'Contact 1']);
+
+        $em->getRelation($account, 'contacts')->relate($contact);
+
+        $result = $this->callTool(self::TOOL_NAME, (object) [
+            'action' => 'unlink',
+            'id' => $account->getId(),
+            'link' => 'contacts',
+            'foreignId' => $contact->getId(),
+        ]);
+
+        $this->assertFalse($result->isError ?? false, Json::encode($result));
+        $this->assertEquals($account->getId(), $result->structuredContent->record->id);
+        $this->assertOutputValid($result->structuredContent);
+
+        $this->assertFalse($em->getRelation($account, 'contacts')->isRelated($contact));
+
+        // Idempotent.
+        $result = $this->callTool(self::TOOL_NAME, (object) [
+            'action' => 'unlink',
+            'id' => $account->getId(),
+            'link' => 'contacts',
+            'foreignId' => $contact->getId(),
+        ]);
+
+        $this->assertFalse($result->isError ?? false, Json::encode($result));
+    }
+
+    public function testBadAction(): void
+    {
+        $this->prepare();
+
+        $em = $this->getEntityManager();
+
+        $account = $em->createEntity(Account::ENTITY_TYPE, ['name' => 'Account 1']);
+        $contact = $em->createEntity(Contact::ENTITY_TYPE, ['lastName' => 'Contact 1']);
+
+        $result = $this->callTool(self::TOOL_NAME, (object) [
+            'action' => 'relate',
+            'id' => $account->getId(),
+            'link' => 'contacts',
+            'foreignId' => $contact->getId(),
+        ]);
+
+        $this->assertTrue($result->isError);
+
+        $this->assertFalse($em->getRelation($account, 'contacts')->isRelated($contact));
     }
 
     public function testNotFound(): void
@@ -194,6 +252,7 @@ class LinkFeatureTest extends BaseTestCase
         $contact = $em->createEntity(Contact::ENTITY_TYPE, ['lastName' => 'Contact 1']);
 
         $result = $this->callTool(self::TOOL_NAME, (object) [
+            'action' => 'link',
             'id' => $account->getId(),
             'link' => 'contacts',
             'foreignId' => 'not-existing-id',
@@ -204,6 +263,7 @@ class LinkFeatureTest extends BaseTestCase
         $this->assertOutputValid($result->structuredContent);
 
         $result = $this->callTool(self::TOOL_NAME, (object) [
+            'action' => 'link',
             'id' => 'not-existing-id',
             'link' => 'contacts',
             'foreignId' => $contact->getId(),
@@ -226,6 +286,7 @@ class LinkFeatureTest extends BaseTestCase
         $body = $this->call(Method::TOOLS_CALL, (object) [
             'name' => self::TOOL_NAME,
             'arguments' => (object) [
+                'action' => 'link',
                 'id' => $account->getId(),
                 'link' => 'opportunities',
                 'foreignId' => $opportunity->getId(),

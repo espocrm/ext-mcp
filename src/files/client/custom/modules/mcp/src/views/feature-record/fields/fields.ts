@@ -407,14 +407,12 @@ class ItemView extends View<{
 
     private readonly targetEntityType: string | null
 
+    private readonly translationCategory: 'fields' | 'links';
+
     private descriptionView: TextFieldView | null = null;
 
     protected data(): Record<string, any> {
-        const label = this.translate(
-            this.model.attributes.name!,
-            this.options.translationCategory,
-            this.targetEntityType,
-        );
+        const label = this.translate(this.model.attributes.name!, this.translationCategory, this.targetEntityType);
 
         return {
             label,
@@ -426,6 +424,7 @@ class ItemView extends View<{
     constructor(options: ItemViewOptions) {
         super(options);
 
+        this.translationCategory = this.options.translationCategory;
         this.targetEntityType = options.targetEntityType;
         this.mode = options.mode;
     }

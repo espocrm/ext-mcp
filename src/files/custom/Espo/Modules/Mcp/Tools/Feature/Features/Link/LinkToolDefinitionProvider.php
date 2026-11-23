@@ -53,7 +53,14 @@ use Espo\ORM\Defs;
 class LinkToolDefinitionProvider implements ToolDefinitionProvider
 {
     private const string DESCRIPTION =
-        "Relates a '{entityTypeLabel}' record with another record through a link. Entity type: `{entityType}`.";
+        "Relates or unrelates a '{entityTypeLabel}' record with another record through a link. " .
+        "Entity type: `{entityType}`.";
+
+    private const string DESC_ACTION = "Action.";
+
+    private const string DESC_ACTION_LINK = "Relate the records.";
+
+    private const string DESC_ACTION_UNLINK = "Remove the relation between the records.";
 
     private const string DESC_ID = "Record ID.";
 
@@ -105,6 +112,19 @@ class LinkToolDefinitionProvider implements ToolDefinitionProvider
         $entityType = $data->entityType;
 
         $properties = [
+            'action' => GroupSchema::createAnyOf(
+                schemas: [
+                    new ConstSchema(
+                        value: LinkToolProcessor::ACTION_LINK,
+                        description: self::DESC_ACTION_LINK,
+                    ),
+                    new ConstSchema(
+                        value: LinkToolProcessor::ACTION_UNLINK,
+                        description: self::DESC_ACTION_UNLINK,
+                    ),
+                ],
+                description: self::DESC_ACTION,
+            ),
             'id' => new StringType(
                 description: self::DESC_ID,
             ),
@@ -126,6 +146,7 @@ class LinkToolDefinitionProvider implements ToolDefinitionProvider
         return new ObjectType(
             properties: $properties,
             required: [
+                'action',
                 'id',
                 'link',
                 'foreignId',
@@ -159,7 +180,7 @@ class LinkToolDefinitionProvider implements ToolDefinitionProvider
                             description: "Record ID.",
                         ),
                     ],
-                    description: "Record that was related.",
+                    description: "Record that was related or unrelated.",
                 ),
                 'error' => new ObjectType(
                     properties: [

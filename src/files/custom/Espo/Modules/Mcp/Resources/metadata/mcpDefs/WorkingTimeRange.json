@@ -5,8 +5,7 @@
         "Create": true,
         "Update": true,
         "Delete": true,
-        "Link": false,
-        "Unlink": false
+        "Link": false
     },
     "fields": {
         "name": {

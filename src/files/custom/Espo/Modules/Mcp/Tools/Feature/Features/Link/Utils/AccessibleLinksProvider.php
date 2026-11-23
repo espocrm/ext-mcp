@@ -34,9 +34,6 @@ use Espo\Core\Utils\Metadata;
 use Espo\Modules\Mcp\Tools\Feature\Features\Link\LinkData\Link;
 use Espo\ORM\Defs;
 
-/**
- * Filters links to those available for a current user.
- */
 class AccessibleLinksProvider
 {
     public function __construct(
@@ -47,6 +44,8 @@ class AccessibleLinksProvider
     ) {}
 
     /**
+     * Filters links to those available for a current user.
+     *
      * @param Link[] $links
      * @return Link[]
      */

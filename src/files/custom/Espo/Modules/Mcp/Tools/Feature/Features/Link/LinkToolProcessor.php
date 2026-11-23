@@ -49,6 +49,9 @@ use Exception;
  */
 class LinkToolProcessor implements ToolProcessor
 {
+    public const string ACTION_LINK = 'link';
+    public const string ACTION_UNLINK = 'unlink';
+
     public function __construct(
         private ServiceFactory $serviceFactory,
         private User $user,
@@ -60,6 +63,7 @@ class LinkToolProcessor implements ToolProcessor
     {
         $entityType = $data->entityType;
 
+        $action = $this->fetchString($params, 'action');
         $id = $this->fetchString($params, 'id');
         $link = $this->fetchString($params, 'link');
         $foreignId = $this->fetchString($params, 'foreignId');
@@ -77,7 +81,11 @@ class LinkToolProcessor implements ToolProcessor
         }
 
         try {
-            $service->link($id, $link, $foreignId);
+            match ($action) {
+                self::ACTION_LINK => $service->link($id, $link, $foreignId),
+                self::ACTION_UNLINK => $service->unlink($id, $link, $foreignId),
+                default => throw new InternalError("Bad action '$action'."),
+            };
         } catch (BadRequest $e) {
             return $this->exceptionUtil->prepareWriteBadRequestResult($e);
         } catch (Forbidden $e) {

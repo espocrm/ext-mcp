@@ -46,8 +46,7 @@ Currently supported feature types:
 - Create – Creates a record.
 - Update – Updates a record.
 - Delete – Deletes a record.
-- Link – Relates a record with another record through a link.
-- Unlink – Removes the relation between a record and another record through a link.
+- Link – Relates or unrelates a record with another record through a link.
 - Record Stream – Lists and searches in a record's stream.
 - Create Post – Creates a stream post in a record.
 

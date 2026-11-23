@@ -24,7 +24,6 @@
             "Update": "Update",
             "Delete": "Delete",
             "Link": "Link",
-            "Unlink": "Unlink",
             "RecordStream": "Record Stream",
             "CreatePost": "Create Post"
         }
@@ -49,7 +48,6 @@
         "updateWriteFields": "Specify which fields the client is allowed to write.",
         "createWriteFields": "Specify which fields the client is allowed to write.\n\nEnsure that all required fields (marked with `*`) are included unless unless they have default values or are computed programmatically.",
         "findSelectFields": "Specify which fields to allow to fetch and an optional description (for LLM) for each field.",
-        "linkLinks": "Specify which links the client is allowed to relate records through and an optional description (for LLM) for each link.",
-        "unlinkLinks": "Specify which links the client is allowed to unrelate records through and an optional description (for LLM) for each link."
+        "linkLinks": "Specify which links the client is allowed to relate and unrelate records through and an optional description (for LLM) for each link."
     }
 }
