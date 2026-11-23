@@ -16,5 +16,137 @@
             "Update": false,
             "Delete": false
         }
+    },
+    "WorkingTimeCalendar": {
+        "features": {
+            "Find": true,
+            "Read": true,
+            "Create": true,
+            "Update": true,
+            "Delete": true
+        },
+        "fields": {
+            "name": {
+                "mandatory": true
+            },
+            "timeRanges": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory",
+                "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+            },
+            "weekday0": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory"
+            },
+            "weekday1": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory"
+            },
+            "weekday2": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory"
+            },
+            "weekday3": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory"
+            },
+            "weekday4": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory"
+            },
+            "weekday5": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory"
+            },
+            "weekday6": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory"
+            },
+            "weekday0TimeRanges": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory",
+                "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+            },
+            "weekday1TimeRanges": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory",
+                "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+            },
+            "weekday2TimeRanges": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory",
+                "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+            },
+            "weekday3TimeRanges": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory",
+                "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+            },
+            "weekday4TimeRanges": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory",
+                "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+            },
+            "weekday5TimeRanges": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory",
+                "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+            },
+            "weekday6TimeRanges": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory",
+                "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+            }
+        }
+    },
+    "WorkingTimeRange": {
+        "features": {
+            "Find": true,
+            "Read": true,
+            "Create": true,
+            "Update": true,
+            "Delete": true
+        },
+        "fields": {
+            "name": {
+                "mandatory": true
+            },
+            "dateStart": {
+                "mandatory": true
+            },
+            "dateEnd": {
+                "mandatory": true
+            },
+            "type": {
+                "mandatory": true
+            },
+            "calendars": {
+                "mandatory": true
+            },
+            "users": {
+                "mandatory": true
+            },
+            "timeRanges": {
+                "read": "mandatory",
+                "create": "mandatory",
+                "update": "mandatory",
+                "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+            }
+        }
     }
 }
