@@ -1,0 +1,41 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://www.espocrm.com/schema/metadata/app/mcpResourceTemplates.json",
+    "title": "app/mcpResourceTemplates",
+    "description": "MCP resource templates. Keys are resource template names.",
+    "type": "object",
+    "additionalProperties": {
+        "$ref": "#/$defs/resourceTemplate",
+        "description": "A resource template."
+    },
+    "$defs": {
+        "resourceTemplate": {
+            "type": "object",
+            "properties": {
+                "uriTemplate": {
+                    "type": "string",
+                    "description": "An RFC 6570 URI template. Resource URIs are matched against it, extracted variables are passed to the params class. E.g. `espo://Attachment/{id}`."
+                },
+                "definitionProviderClassName": {
+                    "type": "string",
+                    "description": "Provides the resource template definition. Should implement `Espo\\Modules\\Mcp\\Tools\\ResourceTemplate\\DefinitionProvider`."
+                },
+                "readerClassName": {
+                    "type": "string",
+                    "description": "Reads resources. Should implement `Espo\\Modules\\Mcp\\Tools\\ResourceTemplate\\Reader`."
+                },
+                "paramsClassName": {
+                    "type": "string",
+                    "description": "Params created from a resource URI and passed to the reader. Should implement `Espo\\Modules\\Mcp\\Tools\\ResourceTemplate\\Params`."
+                }
+            },
+            "required": [
+                "uriTemplate",
+                "definitionProviderClassName",
+                "readerClassName",
+                "paramsClassName"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

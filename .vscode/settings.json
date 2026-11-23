@@ -390,6 +390,12 @@
         },
         {
             "fileMatch": [
+                "*/Resources/metadata/app/mcpResourceTemplates.json"
+            ],
+            "url": "./schema/metadata/app/mcpResourceTemplates.json"
+        },
+        {
+            "fileMatch": [
                 "*/Resources/metadata/app/mcpSchema.json"
             ],
             "url": "./schema/metadata/app/mcpSchema.json"
