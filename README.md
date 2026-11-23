@@ -55,7 +55,7 @@ For example, if a user does not have permission to create Leads, the client won'
 ## Attachments
 
 CRM attachments are available for read via the *Attachments* resource template. If an endpoint
-defines *Find* or *Read* endpoints with an exposed File, Image or Attachment-Multiple field, the client will be able to
+defines *Find* or *Read* features with an exposed File, Image or Attachment-Multiple field, the client will be able to
 download the corresponding attachments. The max size of attachments is controlled
 by the `mcpAttachmentResourceMaxSize` config parameter (in Mb).
 
