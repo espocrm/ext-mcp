@@ -1,0 +1,102 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://www.espocrm.com/schema/metadata/app/mcpFeatures.json",
+    "title": "app/mcpFeatures",
+    "description": "MCP endpoint feature types. Keys are feature types.",
+    "type": "object",
+    "additionalProperties": {
+        "$ref": "#/$defs/feature",
+        "description": "A feature type."
+    },
+    "$defs": {
+        "feature": {
+            "type": "object",
+            "properties": {
+                "tool": {
+                    "type": "object",
+                    "description": "The MCP tool the feature provides.",
+                    "properties": {
+                        "definitionProviderClassName": {
+                            "type": "string",
+                            "description": "Provides the tool definition. Should implement `Espo\\Modules\\Mcp\\Tools\\Feature\\ToolDefinitionProvider`."
+                        },
+                        "processorClassName": {
+                            "type": "string",
+                            "description": "Processes tool calls. Should implement `Espo\\Modules\\Mcp\\Tools\\Mcp\\ToolsCall\\ToolProcessor`."
+                        }
+                    },
+                    "required": [
+                        "definitionProviderClassName",
+                        "processorClassName"
+                    ],
+                    "additionalProperties": false
+                },
+                "record": {
+                    "type": "object",
+                    "description": "The feature record, its data and how it is edited in the UI.",
+                    "properties": {
+                        "dataClassName": {
+                            "type": "string",
+                            "description": "Feature data. Should implement `Espo\\Modules\\Mcp\\Tools\\Feature\\Data`."
+                        },
+                        "dataValidatorClassName": {
+                            "type": "string",
+                            "description": "Validates feature data. Should implement `Espo\\Modules\\Mcp\\Tools\\Feature\\DataValidator`."
+                        },
+                        "textComposerClassName": {
+                            "type": "string",
+                            "description": "Composes a text summary of the feature data. Should implement `Espo\\Modules\\Mcp\\Tools\\Feature\\TextComposer`."
+                        },
+                        "fields": {
+                            "type": "object",
+                            "description": "Data fields. Keys are field names.",
+                            "additionalProperties": {
+                                "$ref": "https://raw.githubusercontent.com/espocrm/espocrm/master/schema/metadata/entityDefs.json#/definitions/fieldDefs"
+                            }
+                        },
+                        "defaults": {
+                            "type": "object",
+                            "description": "Default values for a new feature. Keys are field names."
+                        },
+                        "layout": {
+                            "$ref": "https://raw.githubusercontent.com/espocrm/espocrm/master/schema/layouts/detail.json",
+                            "description": "A detail layout of data fields."
+                        },
+                        "client": {
+                            "type": "object",
+                            "description": "Front-end parameters.",
+                            "properties": {
+                                "viewSetupHandler": {
+                                    "type": "string",
+                                    "description": "A view setup handler for the data view."
+                                },
+                                "dynamicLogic": {
+                                    "type": "object",
+                                    "description": "Dynamic logic for data fields.",
+                                    "properties": {
+                                        "fields": {
+                                            "$ref": "https://raw.githubusercontent.com/espocrm/espocrm/master/schema/metadata/logicDefs.json#/properties/fields"
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": [
+                        "dataClassName",
+                        "dataValidatorClassName",
+                        "textComposerClassName"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "tool",
+                "record"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

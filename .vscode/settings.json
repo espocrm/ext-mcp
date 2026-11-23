@@ -384,6 +384,12 @@
         },
         {
             "fileMatch": [
+                "*/Resources/metadata/app/mcpFeatures.json"
+            ],
+            "url": "./schema/metadata/app/mcpFeatures.json"
+        },
+        {
+            "fileMatch": [
                 "*/Resources/metadata/app/mcpSchema.json"
             ],
             "url": "./schema/metadata/app/mcpSchema.json"
