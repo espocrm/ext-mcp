@@ -1,0 +1,96 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://www.espocrm.com/schema/metadata/app/mcpScopes.json",
+    "title": "app/mcpScopes",
+    "description": "MCP parameters for entity types. Keys are entity types.",
+    "type": "object",
+    "additionalProperties": {
+        "$ref": "#/$defs/scope",
+        "description": "An entity type."
+    },
+    "$defs": {
+        "scope": {
+            "type": "object",
+            "properties": {
+                "features": {
+                    "type": "object",
+                    "description": "Overrides feature availability for the entity type. If not defined, a feature is available for object entity types.",
+                    "properties": {
+                        "Find": {"$ref": "#/$defs/featureAvailability"},
+                        "Read": {"$ref": "#/$defs/featureAvailability"},
+                        "Create": {"$ref": "#/$defs/featureAvailability"},
+                        "Update": {"$ref": "#/$defs/featureAvailability"},
+                        "Delete": {"$ref": "#/$defs/featureAvailability"}
+                    },
+                    "additionalProperties": false
+                },
+                "fields": {
+                    "type": "object",
+                    "description": "Field parameters. Keys are field names.",
+                    "additionalProperties": {
+                        "$ref": "#/$defs/field"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "featureAvailability": {
+            "type": "boolean",
+            "description": "Whether the feature is available for the entity type."
+        },
+        "field": {
+            "type": "object",
+            "properties": {
+                "mandatory": {
+                    "type": "boolean",
+                    "description": "The field is always present in all actions, regardless of the fields selected in features. Not available for selection in the UI."
+                },
+                "select": {
+                    "$ref": "#/$defs/fieldActionLevel",
+                    "description": "The 'select' action. Find feature, fields that can be selected."
+                },
+                "filter": {
+                    "$ref": "#/$defs/fieldActionLevel",
+                    "description": "The 'filter' action. Find feature, fields that can be used in `where`."
+                },
+                "read": {
+                    "$ref": "#/$defs/fieldActionLevel",
+                    "description": "The 'read' action. Read feature, fields that can be selected."
+                },
+                "create": {
+                    "$ref": "#/$defs/fieldActionLevel",
+                    "description": "The 'create' action. Create feature, fields that can be written."
+                },
+                "update": {
+                    "$ref": "#/$defs/fieldActionLevel",
+                    "description": "The 'update' action. Update feature, fields that can be written."
+                },
+                "schemaProviderClassName": {
+                    "type": "string",
+                    "description": "A field schema provider class. Overrides the one defined for the field type in app.mcpSchema.fieldTypes. Should implement `Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\SchemaProvider`."
+                },
+                "filterSchemaProviderClassName": {
+                    "type": "string",
+                    "description": "A field filter schema provider class. Overrides the one defined for the field type in app.mcpSchema.fieldTypes. Should implement `Espo\\Modules\\Mcp\\Tools\\Schema\\FieldFilter\\SchemaProvider`."
+                }
+            },
+            "additionalProperties": false
+        },
+        "fieldActionLevel": {
+            "anyOf": [
+                {
+                    "const": "mandatory",
+                    "description": "The field is always present in the action, regardless of the fields selected in features."
+                },
+                {
+                    "const": false,
+                    "description": "The field is excluded from the action, even if mandatory or selected in a feature."
+                },
+                {
+                    "const": true,
+                    "description": "Reserved."
+                }
+            ]
+        }
+    }
+}
