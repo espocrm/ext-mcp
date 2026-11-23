@@ -50,7 +50,7 @@ export default class FeatureRecordEntityTypeFieldView extends EnumFieldView<{
                     return false;
                 }
 
-                const override = this.getMetadata().get(`app.mcpScopes.${scope}.features.${type}`);
+                const override = this.getMetadata().get(`mcpDefs.${scope}.features.${type}`);
 
                 if (override != null) {
                     return override;

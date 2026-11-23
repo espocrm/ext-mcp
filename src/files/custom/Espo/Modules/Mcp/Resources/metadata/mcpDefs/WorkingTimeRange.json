@@ -1,0 +1,35 @@
+{
+    "features": {
+        "Find": true,
+        "Read": true,
+        "Create": true,
+        "Update": true,
+        "Delete": true
+    },
+    "fields": {
+        "name": {
+            "mandatory": true
+        },
+        "dateStart": {
+            "mandatory": true
+        },
+        "dateEnd": {
+            "mandatory": true
+        },
+        "type": {
+            "mandatory": true
+        },
+        "calendars": {
+            "mandatory": true
+        },
+        "users": {
+            "mandatory": true
+        },
+        "timeRanges": {
+            "read": "mandatory",
+            "create": "mandatory",
+            "update": "mandatory",
+            "schemaProviderClassName": "Espo\\Modules\\Mcp\\Tools\\Schema\\Field\\Types\\WorkingTimeCalendar\\TimeRangesSchemaProvider"
+        }
+    }
+}

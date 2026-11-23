@@ -97,12 +97,10 @@ class FeatureDataValidationTest extends BaseTestCase
 
     public function testCustomOverrideEnablesNonObject(): void
     {
-        $this->getMetadata()->set('app', 'mcpScopes', [
-            Role::ENTITY_TYPE => [
-                'features' => [
-                    FindData::TYPE => true,
-                    ReadData::TYPE => true,
-                ],
+        $this->getMetadata()->set('mcpDefs', Role::ENTITY_TYPE, [
+            'features' => [
+                FindData::TYPE => true,
+                ReadData::TYPE => true,
             ],
         ]);
 
@@ -121,11 +119,9 @@ class FeatureDataValidationTest extends BaseTestCase
 
     public function testCustomOverrideDisablesObject(): void
     {
-        $this->getMetadata()->set('app', 'mcpScopes', [
-            Lead::ENTITY_TYPE => [
-                'features' => [
-                    DeleteData::TYPE => false,
-                ],
+        $this->getMetadata()->set('mcpDefs', Lead::ENTITY_TYPE, [
+            'features' => [
+                DeleteData::TYPE => false,
             ],
         ]);
 
@@ -158,11 +154,9 @@ class FeatureDataValidationTest extends BaseTestCase
             'object' => true,
         ]);
 
-        $this->getMetadata()->set('app', 'mcpScopes', [
-            'TestMcpNonEntity' => [
-                'features' => [
-                    FindData::TYPE => true,
-                ],
+        $this->getMetadata()->set('mcpDefs', 'TestMcpNonEntity', [
+            'features' => [
+                FindData::TYPE => true,
             ],
         ]);
 

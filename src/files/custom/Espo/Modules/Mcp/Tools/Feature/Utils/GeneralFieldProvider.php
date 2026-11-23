@@ -55,7 +55,7 @@ class GeneralFieldProvider
         $fields = array_filter($fields, function ($it) use ($entityType, $action) {
             $field = $it->name;
 
-            return $this->metadata->get("app.mcpScopes.$entityType.fields.$field.$action") !== false;
+            return $this->metadata->get("mcpDefs.$entityType.fields.$field.$action") !== false;
         });
 
         $fields = array_values($fields);
@@ -78,7 +78,7 @@ class GeneralFieldProvider
          *     update?: bool|'mandatory',
          * }> $fieldsDefs
          */
-        $fieldsDefs = $this->metadata->get("app.mcpScopes.$entityType.fields") ?? [];
+        $fieldsDefs = $this->metadata->get("mcpDefs.$entityType.fields") ?? [];
 
         $output = [];
 

@@ -46,7 +46,7 @@ class DataValidatorHelper
             return false;
         }
 
-        $override = $this->metadata->get("app.mcpScopes.$entityType.features.$type");
+        $override = $this->metadata->get("mcpDefs.$entityType.features.$type");
 
         if ($override !== null) {
             return $override;

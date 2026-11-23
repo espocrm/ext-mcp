@@ -1,45 +1,39 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://www.espocrm.com/schema/metadata/app/mcpScopes.json",
-    "title": "app/mcpScopes",
-    "description": "MCP parameters for entity types. Keys are entity types.",
+    "$id": "https://www.espocrm.com/schema/metadata/mcpDefs.json",
+    "title": "mcpDefs",
+    "description": "MCP parameters for an entity type. The file name is the entity type.",
     "type": "object",
-    "additionalProperties": {
-        "$ref": "#/$defs/scope",
-        "description": "An entity type."
-    },
-    "$defs": {
-        "scope": {
+    "properties": {
+        "features": {
             "type": "object",
+            "description": "Overrides feature availability for the entity type. If not defined, a feature is available for object entity types.",
             "properties": {
-                "features": {
-                    "type": "object",
-                    "description": "Overrides feature availability for the entity type. If not defined, a feature is available for object entity types.",
-                    "properties": {
-                        "Find": {"$ref": "#/$defs/featureAvailability"},
-                        "Read": {"$ref": "#/$defs/featureAvailability"},
-                        "Create": {"$ref": "#/$defs/featureAvailability"},
-                        "Update": {"$ref": "#/$defs/featureAvailability"},
-                        "Delete": {"$ref": "#/$defs/featureAvailability"}
-                    },
-                    "additionalProperties": false
-                },
-                "fields": {
-                    "type": "object",
-                    "description": "Field parameters. Keys are field names.",
-                    "additionalProperties": {
-                        "$ref": "#/$defs/field"
-                    }
-                }
+                "Find": {"$ref": "#/$defs/featureAvailability"},
+                "Read": {"$ref": "#/$defs/featureAvailability"},
+                "Create": {"$ref": "#/$defs/featureAvailability"},
+                "Update": {"$ref": "#/$defs/featureAvailability"},
+                "Delete": {"$ref": "#/$defs/featureAvailability"}
             },
             "additionalProperties": false
         },
+        "fields": {
+            "type": "object",
+            "description": "Field parameters. Keys are field names.",
+            "additionalProperties": {
+                "$ref": "#/$defs/field"
+            }
+        }
+    },
+    "additionalProperties": false,
+    "$defs": {
         "featureAvailability": {
             "type": "boolean",
             "description": "Whether the feature is available for the entity type."
         },
         "field": {
             "type": "object",
+            "description": "A field.",
             "properties": {
                 "mandatory": {
                     "type": "boolean",

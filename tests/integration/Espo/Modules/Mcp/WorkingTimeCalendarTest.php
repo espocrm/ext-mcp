@@ -56,7 +56,7 @@ use tests\integration\Core\BaseTestCase;
 
 /**
  * Time range fields of WorkingTimeCalendar and WorkingTimeRange. Mandatory fields defined
- * in `app.mcpScopes`, with the schema provided by `WorkingTimeCalendar\TimeRangesSchemaProvider`.
+ * in `mcpDefs`, with the schema provided by `WorkingTimeCalendar\TimeRangesSchemaProvider`.
  */
 class WorkingTimeCalendarTest extends BaseTestCase
 {
@@ -450,7 +450,7 @@ class WorkingTimeCalendarTest extends BaseTestCase
     }
 
     /**
-     * Only `description` is configured. The time range fields are mandatory, defined in `app.mcpScopes`.
+     * Only `description` is configured. The time range fields are mandatory, defined in `mcpDefs`.
      */
     private function createFeatures(Endpoint $endpoint): void
     {

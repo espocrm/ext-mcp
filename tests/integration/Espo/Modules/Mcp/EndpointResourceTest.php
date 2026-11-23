@@ -464,16 +464,15 @@ class EndpointResourceTest extends BaseTestCase
         $this->assertReadable($articleAttachment, '2');
 
         // Authentication resets metadata, so it's set after.
-        $this->getMetadata()->set('app', 'mcpScopes', [
-            Account::ENTITY_TYPE => [
-                'fields' => [
-                    'description' => ['read' => 'mandatory'],
-                ],
+        $this->getMetadata()->set('mcpDefs', Account::ENTITY_TYPE, [
+            'fields' => [
+                'description' => ['read' => 'mandatory'],
             ],
-            KnowledgeBaseArticle::ENTITY_TYPE => [
-                'fields' => [
-                    'attachments' => ['select' => false],
-                ],
+        ]);
+
+        $this->getMetadata()->set('mcpDefs', KnowledgeBaseArticle::ENTITY_TYPE, [
+            'fields' => [
+                'attachments' => ['select' => false],
             ],
         ]);
 

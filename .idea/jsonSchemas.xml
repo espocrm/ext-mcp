@@ -984,18 +984,18 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="metadata/app/mcpScopes">
+        <entry key="metadata/mcpDefs">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="metadata/app/mcpScopes" />
-              <option name="relativePathToSchema" value="schema/metadata/app/mcpScopes.json" />
+              <option name="name" value="metadata/mcpDefs" />
+              <option name="relativePathToSchema" value="schema/metadata/mcpDefs.json" />
               <option name="schemaVersion" value="JSON Schema version 7" />
               <option name="patterns">
                 <list>
                   <Item>
                     <option name="pattern" value="true" />
-                    <option name="path" value="*/Resources/metadata/app/mcpScopes.json" />
+                    <option name="path" value="*/Resources/metadata/mcpDefs/*.json" />
                     <option name="mappingKind" value="Pattern" />
                   </Item>
                 </list>

@@ -52,7 +52,7 @@ use stdClass;
 use tests\integration\Core\BaseTestCase;
 
 /**
- * Mandatory fields defined in `app.mcpScopes.{entityType}.fields.{field}`.
+ * Mandatory fields defined in `mcpDefs.{entityType}.fields.{field}`.
  *
  * Configured Lead features:
  * - Find: select `name`, `status`; filter `status`.
@@ -328,10 +328,8 @@ class MandatoryFieldsTest extends BaseTestCase
      */
     private function setScopeFields(string $entityType, array $fields): void
     {
-        $this->getMetadata()->set('app', 'mcpScopes', [
-            $entityType => [
-                'fields' => $fields,
-            ],
+        $this->getMetadata()->set('mcpDefs', $entityType, [
+            'fields' => $fields,
         ]);
     }
 

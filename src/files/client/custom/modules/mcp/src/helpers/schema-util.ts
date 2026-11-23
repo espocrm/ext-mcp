@@ -64,10 +64,10 @@ export default class SchemaUtil {
         });
 
         return fields.filter(it => {
-            const level = this.metadata.get(`app.mcpScopes.${entityType}.fields.${it}.${type}`);
+            const level = this.metadata.get(`mcpDefs.${entityType}.fields.${it}.${type}`);
 
             if (
-                this.metadata.get(`app.mcpScopes.${entityType}.fields.${it}.mandatory`) ||
+                this.metadata.get(`mcpDefs.${entityType}.fields.${it}.mandatory`) ||
                 level === 'mandatory' ||
                 level === false
             ) {

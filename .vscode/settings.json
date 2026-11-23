@@ -402,9 +402,9 @@
         },
         {
             "fileMatch": [
-                "*/Resources/metadata/app/mcpScopes.json"
+                "*/Resources/metadata/mcpDefs/*.json"
             ],
-            "url": "./schema/metadata/app/mcpScopes.json"
+            "url": "./schema/metadata/mcpDefs.json"
         },
         {
             "fileMatch": [

@@ -1,0 +1,9 @@
+{
+    "features": {
+        "Find": true,
+        "Read": true,
+        "Create": false,
+        "Update": false,
+        "Delete": false
+    }
+}
