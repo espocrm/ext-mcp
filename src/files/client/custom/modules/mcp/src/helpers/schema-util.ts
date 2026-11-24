@@ -38,6 +38,17 @@ interface ItemDefs {
     update?: boolean;
 }
 
+type FieldActionLevel = boolean | 'mandatory';
+
+interface FieldMcpDefs {
+    mandatory?: boolean;
+    filter?: FieldActionLevel;
+    select?: FieldActionLevel;
+    read?: FieldActionLevel;
+    create?: FieldActionLevel;
+    update?: FieldActionLevel;
+}
+
 export default class SchemaUtil {
 
     @inject(Metadata)
@@ -76,6 +87,30 @@ export default class SchemaUtil {
 
             return true;
         });
+    }
+
+    getMandatoryFeatureFields(options: {
+        entityType: string,
+        type: 'filter' | 'select' | 'read' | 'create' | 'update',
+    }): string[] {
+        const {entityType, type} = options;
+
+        const fieldDefs = this.metadata.get(`mcpDefs.${entityType}.fields`, {}) as Record<string, FieldMcpDefs>;
+
+        return Object.entries(fieldDefs)
+            .filter(([field, defs]) => {
+                if (
+                    !this.metadata.get(`entityDefs.${entityType}.fields.${field}`) ||
+                    this.metadata.get(`entityDefs.${entityType}.fields.${field}.disabled`)
+                ) {
+                    return false;
+                }
+
+                const level = defs[type];
+
+                return (defs.mandatory && level !== false) || level === 'mandatory';
+            })
+            .map(([field]) => field);
     }
 
     getFeatureLinks(options: {entityType: string}): string[] {

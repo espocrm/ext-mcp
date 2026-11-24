@@ -108,7 +108,8 @@
                 },
                 "filterFields": {
                     "type": "multiEnum",
-                    "view": "modules/mcp/views/feature-record/fields/find/filter-fields"
+                    "view": "modules/mcp/views/feature-record/fields/find/filter-fields",
+                    "tooltip": "McpFeature.findFilterFields"
                 }
             },
             "defaults": {

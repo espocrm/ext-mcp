@@ -31,6 +31,7 @@ import ArrayFieldView from 'views/fields/array';
 import Language from 'language';
 import SetupHandler from 'modules/mcp/handlers/feature-record/setup';
 import SchemaUtil from 'modules/mcp/helpers/schema-util';
+import FeatureRecordFieldsFieldView from 'modules/mcp/views/feature-record/fields/fields';
 
 export default class SetupUpdateHandler extends SetupHandler<{
     entityType: string | null,
@@ -67,16 +68,24 @@ export default class SetupUpdateHandler extends SetupHandler<{
 
     private controlFieldsCommon(type: 'update', field: string) {
         let fields: string[] = [];
+        let mandatoryFields: string[] = [];
 
         const entityType = this.model.attributes.entityType ?? null;
 
         if (entityType) {
-            fields = new SchemaUtil().getFeatureFields({entityType, type});
+            const schemaUtil = new SchemaUtil();
+
+            fields = schemaUtil.getFeatureFields({entityType, type});
+            mandatoryFields = schemaUtil.getMandatoryFeatureFields({entityType, type});
         }
 
         this.view.setFieldOptionList(field, fields);
 
         const fieldView = this.view.getFieldView(field);
+
+        if (fieldView instanceof FeatureRecordFieldsFieldView) {
+            fieldView.setMandatoryFields(mandatoryFields);
+        }
 
         if (!(fieldView instanceof ArrayFieldView)) {
             return;
