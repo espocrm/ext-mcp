@@ -12,6 +12,7 @@
     </PHPCodeStyleSettings>
     <TypeScriptCodeStyleSettings version="0">
       <option name="USE_DOUBLE_QUOTES" value="false" />
+      <option name="ENFORCE_TRAILING_COMMA" value="WhenMultiline" />
     </TypeScriptCodeStyleSettings>
     <codeStyleSettings language="JSON">
       <indentOptions>
