@@ -1,0 +1,88 @@
+<?php
+/************************************************************************
+* This file is part of MCP extension for EspoCRM.
+*
+* MCP extension for EspoCRM.
+* Copyright (C) 2026 EspoCRM, Inc.
+* Website: https://www.espocrm.com
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Affero General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU Affero General Public License for more details.
+*
+* You should have received a copy of the GNU Affero General Public License
+* along with this program. If not, see <https://www.gnu.org/licenses/>.
+*
+* The interactive user interfaces in modified source and object code versions
+* of this program must display Appropriate Legal Notices, as required under
+* Section 5 of the GNU Affero General Public License version 3.
+*
+* In accordance with Section 7(b) of the GNU Affero General Public License version 3,
+* these Appropriate Legal Notices must retain the display of the "EspoCRM" word.
+************************************************************************/
+
+namespace Espo\Modules\Mcp\Tools\Feature\Features\Link;
+
+use Espo\Modules\Mcp\Tools\Feature\Data;
+use Espo\Modules\Mcp\Tools\Feature\DataValidator;
+use Espo\Modules\Mcp\Tools\Feature\DataValidator\Failure;
+use Espo\Modules\Mcp\Tools\Feature\Features\Link\Utils\LinkUtil;
+use Espo\Modules\Mcp\Tools\Feature\Utils\DataValidatorHelper;
+
+/**
+ * @implements DataValidator<LinkData>
+ */
+class LinkDataValidator implements DataValidator
+{
+    public function __construct(
+        private DataValidatorHelper $helper,
+        private LinkUtil $linkUtil,
+    ) {}
+
+    public function validate(Data $data): array
+    {
+        if (!$this->helper->isAllowedEntityType($data->entityType, LinkData::TYPE)) {
+            return [
+                new Failure(
+                    field: 'entityType',
+                    message: "Entity type is not supported.",
+                ),
+            ];
+        }
+
+        $list = [];
+
+        if ($data->links === []) {
+            $list[] = new Failure(
+                field: 'links',
+                message: "No links.",
+            );
+        }
+
+        $names = array_map(fn ($it) => $it->name, $data->links);
+
+        if (count($names) !== count(array_unique($names))) {
+            $list[] = new Failure(
+                field: 'links',
+                message: "Duplicate links.",
+            );
+        }
+
+        foreach ($names as $link) {
+            if (!$this->linkUtil->isLinkable($data->entityType, $link)) {
+                $list[] = new Failure(
+                    field: 'links',
+                    message: "Link '$link' is not supported.",
+                );
+            }
+        }
+
+        return $list;
+    }
+}

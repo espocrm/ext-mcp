@@ -4,7 +4,8 @@
         "Read": true,
         "Create": true,
         "Update": true,
-        "Delete": true
+        "Delete": true,
+        "Link": false
     },
     "fields": {
         "name": {

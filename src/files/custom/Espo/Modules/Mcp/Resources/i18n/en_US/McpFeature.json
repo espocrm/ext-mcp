@@ -23,6 +23,7 @@
             "Create": "Create",
             "Update": "Update",
             "Delete": "Delete",
+            "Link": "Link",
             "RecordStream": "Record Stream",
             "CreatePost": "Create Post"
         }
@@ -35,7 +36,8 @@
         "filterFields": "Filter Fields",
         "textFilter": "Text Filter",
         "writeFields": "Write Fields",
-        "entityTypes": "Entity Types"
+        "entityTypes": "Entity Types",
+        "links": "Links"
     },
     "messages": {
         "featureAlreadyExists": "The same feature already exists in the endpoint."
@@ -45,6 +47,7 @@
         "recordStreamEntityTypes": "Specify the entity types whose stream entries the client can view.",
         "updateWriteFields": "Specify which fields the client is allowed to write.",
         "createWriteFields": "Specify which fields the client is allowed to write.\n\nEnsure that all required fields (marked with `*`) are included unless unless they have default values or are computed programmatically.",
-        "findSelectFields": "Specify which fields to allow to fetch and an optional description (for LLM) for each field."
+        "findSelectFields": "Specify which fields to allow to fetch and an optional description (for LLM) for each field.",
+        "linkLinks": "Specify which links the client is allowed to relate and unrelate records through and an optional description (for LLM) for each link."
     }
 }

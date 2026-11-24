@@ -38,6 +38,9 @@ interface ItemSchema {
     description?: string | null;
 }
 
+/**
+ * Also used for links.
+ */
 export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
     model: Model<Record<string, any> & {
         entityType: string | null,
@@ -89,6 +92,8 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
     private itemViews: ItemView[]
 
     protected hasDescription: boolean = true
+
+    protected translationCategory: 'fields' | 'links' = 'fields'
 
     protected data(): Record<string, any> {
         return {
@@ -193,6 +198,7 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
                 onRemove: () => this.removeRow(i),
                 targetEntityType: this.model.attributes.entityType ?? null,
                 hasDescription: this.hasDescription,
+                translationCategory: this.translationCategory,
             });
 
             this.itemViews.push(view);
@@ -337,7 +343,7 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
         const translations: Record<string, string> = {};
 
         fields.forEach(field => {
-            let label = this.getLanguage().translate(field, 'fields', entityType);
+            let label = this.getLanguage().translate(field, this.translationCategory, entityType);
 
             if (this.markRequired && this.isFieldRequired(entityType, field)) {
                 label += ' *';
@@ -368,6 +374,7 @@ interface ItemViewOptions {
     model: Model<ItemSchema>;
     onRemove: () => void;
     hasDescription: boolean,
+    translationCategory: 'fields' | 'links',
 }
 
 class ItemView extends View<{
@@ -400,10 +407,12 @@ class ItemView extends View<{
 
     private readonly targetEntityType: string | null
 
+    private readonly translationCategory: 'fields' | 'links';
+
     private descriptionView: TextFieldView | null = null;
 
     protected data(): Record<string, any> {
-        const label = this.translate(this.model.attributes.name!, 'fields', this.targetEntityType);
+        const label = this.translate(this.model.attributes.name!, this.translationCategory, this.targetEntityType);
 
         return {
             label,
@@ -415,6 +424,7 @@ class ItemView extends View<{
     constructor(options: ItemViewOptions) {
         super(options);
 
+        this.translationCategory = this.options.translationCategory;
         this.targetEntityType = options.targetEntityType;
         this.mode = options.mode;
     }
