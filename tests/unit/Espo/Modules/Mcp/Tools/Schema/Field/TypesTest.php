@@ -404,7 +404,7 @@ class TypesTest extends TestCase
                 params: new Params(
                     entityType: 'Test',
                     field: 'test',
-                    action: Action::Update,
+                    action: Action::Create,
                 ),
             ),
         );
@@ -772,7 +772,7 @@ class TypesTest extends TestCase
                 params: new Params(
                     entityType: 'Test',
                     field: 'test',
-                    action: Action::Update,
+                    action: Action::Create,
                 ),
             ),
         );
@@ -1696,7 +1696,7 @@ class TypesTest extends TestCase
                 params: new Params(
                     entityType: 'Test',
                     field: 'test',
-                    action: Action::Update,
+                    action: Action::Create,
                 ),
             ),
         );

@@ -32,6 +32,7 @@ namespace Espo\Modules\Mcp\Tools\Schema\Field\Types;
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\JsonSchema\ConstSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\GroupSchema;
+use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProvider;
@@ -89,7 +90,7 @@ class EnumSchemaProvider implements SchemaProvider
         $property = GroupSchema::createAnyOf(
             schemas: $schemas,
             title: $label,
-            default: $params->isWriteAction() ? $default : null,
+            default: $params->action === Action::Create ? $default : null,
         );
 
         return new Result(

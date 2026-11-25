@@ -31,6 +31,7 @@ namespace Espo\Modules\Mcp\Tools\Schema\Field\Types;
 
 use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\IntegerType;
+use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProvider;
@@ -68,7 +69,7 @@ class DurationSchemaProvider implements SchemaProvider
                 $params->field => new IntegerType(
                     title: $label,
                     description: $description,
-                    default: $default !== null && $params->isWriteAction() ?
+                    default: $default !== null && $params->action === Action::Create ?
                         $default : null,
                 )
             ],

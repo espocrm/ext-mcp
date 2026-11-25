@@ -34,6 +34,7 @@ use Espo\Core\Utils\Language;
 use Espo\Modules\Mcp\Tools\JsonSchema\EnumSchema;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\NumberType;
 use Espo\Modules\Mcp\Tools\JsonSchema\Type\StringType;
+use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Action;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Params;
 use Espo\Modules\Mcp\Tools\Schema\Field\FieldSchemaProvider\Result;
 use Espo\Modules\Mcp\Tools\Schema\Field\SchemaProvider;
@@ -118,7 +119,8 @@ class CurrencySchemaProvider implements SchemaProvider
 
         $codeProperty = new EnumSchema(
             values: $codeList,
-            default: $fieldDefs->getParam(FieldParam::REQUIRED) ? $defaultCode : null,
+            default: $fieldDefs->getParam(FieldParam::REQUIRED) && $params->action === Action::Create ?
+                $defaultCode : null,
         );
 
         $codeProperty = $codeProperty->withDescription($codeDescription);
