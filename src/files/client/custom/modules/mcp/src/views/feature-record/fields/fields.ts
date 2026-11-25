@@ -36,6 +36,7 @@ import ArrayFieldAdd from 'views/modals/array-field-add';
 interface ItemSchema {
     name: string;
     description?: string | null;
+    mandatory?: boolean;
 }
 
 /**
@@ -91,6 +92,8 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
 
     private itemViews: ItemView[]
 
+    private mandatoryFields: string[] = []
+
     protected hasDescription: boolean = true
 
     protected translationCategory: 'fields' | 'links' = 'fields'
@@ -119,6 +122,15 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
 
         this.validations.push(() => this.validateItems());
         this.validations.push(() => this.validateRequired());
+    }
+
+    setMandatoryFields(fields: string[]): void {
+        this.mandatoryFields = fields;
+
+        this.wait((async () => {
+            await this.prepare();
+            await this.reRender();
+        })());
     }
 
     private validateItems(): boolean {
@@ -161,7 +173,7 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
 
         this.itemCollection = new Collection<Model<ItemSchema>>();
 
-        const items = this.getItemsFromModel();
+        const items = this.getItemsForView();
 
         if (items === undefined) {
             return;
@@ -176,7 +188,7 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
         const promiseList = [];
         this.itemViews = [];
 
-        for (const [i, item] of items.entries()) {
+        for (const item of items) {
             const model = new Model({...item});
 
             model.onChange({
@@ -195,17 +207,21 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
             const view = new ItemView({
                 model: model,
                 mode: mode === 'edit' ? 'edit' : 'detail',
-                onRemove: () => this.removeRow(i),
+                onRemove: () => this.removeRow(item.name),
                 targetEntityType: this.model.attributes.entityType ?? null,
                 hasDescription: this.hasDescription,
+                isMandatory: !!item.mandatory,
                 translationCategory: this.translationCategory,
             });
 
             this.itemViews.push(view);
 
             const key = this.getItemKey(model);
+            const selector = mode === 'edit'
+                ? `[data-id="${model.attributes.name}"]`
+                : `[data-name="${model.attributes.name}"]`;
 
-            const promise = this.assignView(key, view, `[data-name="${model.attributes.name}"]`);
+            const promise = this.assignView(key, view, selector);
 
             promiseList.push(promise);
         }
@@ -221,6 +237,28 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
 
     private getItemsFromModel(): ItemSchema[] | undefined {
         return Espo.Utils.cloneDeep(this.model.attributes[this.name]) as ItemSchema[] | undefined;
+    }
+
+    private getItemsForView(): ItemSchema[] | undefined {
+        const items = this.getItemsFromModel();
+
+        if (items === undefined && !this.mandatoryFields.length) {
+            return;
+        }
+
+        const selectedItems = items ?? [];
+        const selectedNames = new Set(selectedItems.map(item => item.name));
+        const mandatoryItems = this.mandatoryFields
+            .filter(field => !selectedNames.has(field))
+            .map(field => ({name: field, mandatory: true}));
+
+        return [
+            ...selectedItems.map(item => ({
+                ...item,
+                mandatory: this.mandatoryFields.includes(item.name),
+            })),
+            ...mandatoryItems,
+        ];
     }
 
     private getItemsFromCollection(): ItemSchema[] {
@@ -326,8 +364,18 @@ export default class FeatureRecordFieldsFieldView extends BaseFieldView<{
         };
     }
 
-    private async removeRow(index: number) {
+    private async removeRow(name: string) {
+        if (this.mandatoryFields.includes(name)) {
+            return;
+        }
+
         const items = this.getItemsFromModel() ?? [];
+
+        const index = items.findIndex(item => item.name === name);
+
+        if (index < 0) {
+            throw new Error(`Field '${name}' is not selected.`);
+        }
 
         items.splice(index, 1);
 
@@ -374,6 +422,7 @@ interface ItemViewOptions {
     model: Model<ItemSchema>;
     onRemove: () => void;
     hasDescription: boolean,
+    isMandatory: boolean,
     translationCategory: 'fields' | 'links',
 }
 
@@ -388,17 +437,21 @@ class ItemView extends View<{
             <div
                 class=" {{#if isEditMode}} detail-field-container {{/if}} col-md-6"
                 data-role="label"
-            >{{label}}</div>
+            >
+                {{label}}
+            </div>
             <div class=" {{columnClassName}} " data-role="description">{{{descriptionField}}}</div>
             {{#if isEditMode}}
-                <div class="col-md-1" style="text-align: center;">
-                    <a
-                        role="button"
-                        data-action="removeRow"
-                        class="btn btn-link btn-icon pull-right"
-                        title="{{translate 'Remove'}}"
-                    ><span class="fas fa-times"></span></a>
-                </div>
+                {{#unless isMandatory}}
+                    <div class="col-md-1" style="text-align: center;">
+                        <a
+                            role="button"
+                            data-action="removeRow"
+                            class="btn btn-link btn-icon pull-right"
+                            title="{{translate 'Remove'}}"
+                        ><span class="fas fa-times"></span></a>
+                    </div>
+                {{/unless}}
             {{/if}}
         </div>
     `
@@ -417,6 +470,7 @@ class ItemView extends View<{
         return {
             label,
             isEditMode: this.mode === 'edit',
+            isMandatory: this.options.isMandatory,
             columnClassName: this.mode === 'edit' ? 'col-md-5' : 'col-md-6',
         };
     }
